@@ -79,6 +79,7 @@ public class JServerLogWatcher
 			{
 				while (running)
 				{
+					SLP.getLog().debug("running the thread");
 					try
 					{
 						checkServerLogForNewData();

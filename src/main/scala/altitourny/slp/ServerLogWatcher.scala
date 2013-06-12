@@ -7,7 +7,7 @@ package altitourny.slp
 // Edited by: Karl Hardenstine
 // June-2013
 
-import events.Events
+import altitourny.slp.events.{ServerStart, ServerInit, SessionStart, Events}
 import play.api.libs.json.Json
 import java.io.BufferedReader
 import java.io.File
@@ -16,7 +16,7 @@ import java.io.FileReader
 import java.io.IOException
 import java.util.Date
 
-class ServerLogWatcher(val path: String, val debugParseOldLogs: Boolean) {
+class ServerLogWatcher(val path: String) {
 	private var file: File = new File(path)
 	file.createNewFile
 	private var reader: BufferedReader = new BufferedReader(new FileReader(file))
@@ -27,14 +27,27 @@ class ServerLogWatcher(val path: String, val debugParseOldLogs: Boolean) {
 	SLP.getLog.debug("Going to initialize server log")
 	SLP.getLog.debug("Log file is located at: " + path)
 
-	initializeCheckServerLog(debugParseOldLogs)
+	initializeCheckServerLog()
 
-	private def initializeCheckServerLog(debugParseOldLogs: Boolean) {
+	private def initializeCheckServerLog() {
 		SLP.getLog.debug("About to parse old log")
-		if (!debugParseOldLogs) {
-			while (reader.readLine != null) {
+
+		{
+			var line: String = null
+			while ( {
+				line = reader.readLine
+				line
+			} != null) {
+				val jsVal = Json.parse(line)
+				(jsVal \ "type").as[String] match
+				{
+					case SessionStart.logType => SessionStart.getEventHandler(jsVal)
+					case ServerInit.logType => ServerInit.getEventHandler(jsVal)
+					case _ => {}
+				}
 			}
 		}
+
 		SLP.getLog.debug("Finished parsing old log")
 		referenceFileLength = file.length
 		SLP.getLog.debug("The reference file has a length of: " + referenceFileLength)

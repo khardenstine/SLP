@@ -28,11 +28,6 @@ class SLP(config: Config) {
 			}
 		}
 	}
-
-	private def run : Unit = {
-		val slw = new ServerLogWatcher(serverLog.getAbsolutePath, false)
-		//val slw = new JServerLogWatcher(serverLog, false)
-	}
 }
 
 object SLP {
@@ -41,7 +36,7 @@ object SLP {
 	private var sessionStartTime: DateTime = null
 
 	def main(args: Array[String]) {
-		slp.run
+		new ServerLogWatcher(slp.serverLog.getAbsolutePath)
 	}
 
 	def getLog: Logger = {
@@ -65,6 +60,7 @@ object SLP {
 
 	def executeDBStatement(sql: String) {
 		val statement: Statement = slp.dbConnection.createStatement()
+		getLog.debug("Executing query: " + sql)
 		statement.execute(sql)
 	}
 
@@ -87,11 +83,11 @@ object SLP {
 	}
 
 	def updatePlayerName(name: String, vapor: UUID) {
-		SLP.executeDBStatement(
+		executeDBStatement(
 			"""
-			  |UPDATE players SET name='%1' WHERE vapor_id = '%2';
+			  |UPDATE players SET name='%1$s' WHERE vapor_id = '%2$s';
 			  |INSERT INTO players
-			  |VALUES('%2', '%1', NULL, NULL) WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id='%2');
+			  |SELECT '%2$s', '%1$s', NULL, NULL WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id='%2$s');
 			""".stripMargin.format(name, vapor.toString)
 		)
 	}

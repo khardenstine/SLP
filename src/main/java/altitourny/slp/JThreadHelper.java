@@ -28,7 +28,7 @@ public class JThreadHelper
     public static Thread createDaemonThread(Runnable runnable)
     {
         Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
+        thread.setDaemon(false);
         return thread;
     }
 

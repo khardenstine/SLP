@@ -37,10 +37,11 @@ object Events {
 		//val vaporId = (jsVal \ "vaporId").as[String]
 		//if (vaporId == JsUndefined || vaporId != "00000000-0000-0000-0000-000000000000")
 		try {
+			SLP.getLog.debug("Handling event: " + jsVal \ "type")
 			ALL.map(_.handle(jsVal))
 		}
 		catch {
-			case e: Exception => SLP.getLog.error(e.getMessage)
+			case e: Exception => SLP.getLog.error(e.getMessage + "\n\t\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
 		}
 
 	}

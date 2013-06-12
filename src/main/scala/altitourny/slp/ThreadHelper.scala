@@ -21,7 +21,7 @@ object ThreadHelper {
 
 	def createDaemonThread(runnable: Runnable): Thread = {
 		val thread: Thread = new Thread(runnable)
-		thread.setDaemon(true)
+		thread.setDaemon(false)
 		thread
 	}
 

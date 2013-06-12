@@ -8,9 +8,9 @@ import org.joda.time.format.DateTimeFormat
  * {"port":-1,"time":0,"date":"2013 Feb 08 23:56:35:711 EST","type":"sessionStart"}
  */
 case class SessionStart(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
-	val dateTimeFormat = "yyyy MMM dd HH:mm:ss:SSS ZZZ"
+	val dateTimeFormat = "yyyy MMM dd HH:mm:ss:SSS"
 
-	val dt = DateTimeFormat.forPattern(dateTimeFormat).parseDateTime(getString("date"))
+	val dt = DateTimeFormat.forPattern(dateTimeFormat).parseDateTime(getString("date").substring(0, dateTimeFormat.length))
 	SLP.startSession(dt)
 }
 

@@ -12,19 +12,14 @@ case class ClientAdd(override val jsVal: JsValue) extends AbstractEventHandler(j
 	val vapor: UUID = UUID.fromString(getString("vaporId"))
 	val nickName: String = getString("nickname")
 	getSharedEventData.addPlayer(vapor, getInt("player"), nickName)
-	logIP()
 	SLP.updatePlayerName(nickName, vapor)
 
-	def logIP() {
-		val ip = getString("ip").split(":")(0)
-
-		SLP.executeDBStatement(
-			"""
-			  |INSERT INTO ip_log
-			  |VALUES('%s', '%s', '%s')
-			""".stripMargin.format(vapor, ip, getTime)
-		)
-	}
+	SLP.executeDBStatement(
+		"""
+		  |INSERT INTO ip_log
+		  |VALUES('%s', '%s', '%s')
+		""".stripMargin.format(vapor, getString("ip").split(":")(0), getTime)
+	)
 }
 
 case object ClientAdd extends Event {

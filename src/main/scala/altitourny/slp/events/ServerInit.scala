@@ -11,7 +11,7 @@ case class ServerInit(override val jsVal: JsValue) extends AbstractEventHandler(
 
 	SLP.initServer(port)
 
-	SLP.getLog.info(getString("name") + "started on port " + port + "at " + getTime)
+	SLP.getLog.info(getString("name") + " started on port " + port + " at " + getTime)
 }
 
 case object ServerInit extends Event {
