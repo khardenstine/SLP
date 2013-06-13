@@ -1,13 +1,16 @@
 package altitourny.slp.events
 
 import play.api.libs.json.JsValue
-import altitourny.slp.matches._
+import altitourny.slp.games._
 
+/**
+ * {"port":27276,"leftTeam":3,"time":3898,"rightTeam":4,"map":"tbd_lostcity","type":"mapChange","mode":"tbd"}
+ */
 case class MapChange(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
 	getString("mode") match {
-		case "ball" => getSharedEventData.setMatch(new BallMatch(getTime, getString("map")))
-		case "tbd" => getSharedEventData.setMatch(new TBDMatch(getTime, getString("map")))
-		case _ => getSharedEventData.setMatch(new NoMatch)
+		case "ball" => getSharedEventData.setGame(new BallGame(getTime, getString("map"), getInt("leftTeam"), getInt("rightTeam")))
+		case "tbd" => getSharedEventData.setGame(new TBDGame(getTime, getString("map"), getInt("leftTeam"), getInt("rightTeam")))
+		case _ => getSharedEventData.setGame(new NoGame)
 	}
 }
 

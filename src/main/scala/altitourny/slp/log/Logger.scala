@@ -33,6 +33,12 @@ class Logger(logFileLocation: String, logLevel: LogLevel) {
 		}
 	}
 
+	def error(e: Exception) {
+		if (logLevel.shouldLog(ERROR)) {
+			log("ERROR: " + e.getMessage + "\n\t\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
+		}
+	}
+
 	def warn(line: String) {
 		if (logLevel.shouldLog(WARN)) {
 			log("WARN: " + line)

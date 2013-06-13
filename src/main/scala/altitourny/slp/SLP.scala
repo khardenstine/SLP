@@ -2,13 +2,14 @@ package altitourny.slp
 
 import com.typesafe.config.{ConfigFactory, Config}
 import java.io.File
-import java.sql.{SQLException, Connection, DriverManager, Statement}
+import java.sql._
 import java.util.UUID
 import scala.collection.mutable
 import org.joda.time.DateTime
 
 import events.SharedEventData
 import log.{Logger, LogLevel}
+import scala.Array
 
 class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
@@ -58,6 +59,11 @@ object SLP {
 		sessionStartTime = dateTime
 	}
 
+	def prepareStatement(sql: String) : PreparedStatement =
+	{
+		slp.dbConnection.prepareStatement(sql)
+	}
+
 	def executeDBStatement(sql: String) {
 		val statement: Statement = slp.dbConnection.createStatement()
 		getLog.debug("Executing query: " + sql)
@@ -82,13 +88,21 @@ object SLP {
 		)
 	}
 
-	def updatePlayerName(name: String, vapor: UUID) {
-		executeDBStatement(
+	def updatePlayerName(vapor: UUID, name: String) {
+		val stmt = prepareStatement(
 			"""
-			  |UPDATE players SET name='%1$s' WHERE vapor_id = '%2$s';
+			  |UPDATE players SET name= ? WHERE vapor_id = ?;
 			  |INSERT INTO players
-			  |SELECT '%2$s', '%1$s', NULL, NULL WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id='%2$s');
+			  |SELECT ?, ?, NULL, NULL WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id = ?);
 			""".stripMargin.format(name, vapor.toString)
 		)
+
+		stmt.setString(1, name)
+		stmt.setString(2, vapor.toString)
+		stmt.setString(3, vapor.toString)
+		stmt.setString(4, name)
+		stmt.setString(5, vapor.toString)
+
+		stmt.execute()
 	}
 }

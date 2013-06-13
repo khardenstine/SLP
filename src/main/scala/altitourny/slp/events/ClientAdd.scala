@@ -9,10 +9,10 @@ import altitourny.slp.SLP
  * "vaporId":"79b7a12f-12b4-46ab-adae-580131833b88","type":"clientAdd","ip":"192.168.1.2:27272"}
  */
 case class ClientAdd(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
-	val vapor: UUID = UUID.fromString(getString("vaporId"))
+	val vapor: UUID = getUUID("vaporId")
 	val nickName: String = getString("nickname")
 	getSharedEventData.addPlayer(vapor, getInt("player"), nickName)
-	SLP.updatePlayerName(nickName, vapor)
+	SLP.updatePlayerName(vapor, nickName)
 
 	SLP.executeDBStatement(
 		"""

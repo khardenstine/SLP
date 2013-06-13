@@ -34,10 +34,10 @@ import play.api.libs.json.JsValue
 }
  */
 case class RoundEnd(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
-	val aMatch = getSharedEventData.getMatch()
-	getSharedEventData.clearMatch()
+	val game = getSharedEventData.getGame()
+	getSharedEventData.clearGame()
 
-	aMatch.dump(getTime)
+	game.dump(getTime)
 }
 
 case object RoundEnd extends Event {

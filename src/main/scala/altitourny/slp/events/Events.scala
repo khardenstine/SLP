@@ -41,7 +41,7 @@ object Events {
 			ALL.map(_.handle(jsVal))
 		}
 		catch {
-			case e: Exception => SLP.getLog.error(e.getMessage + "\n\t\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
+			case e: Exception => SLP.getLog.error(e)
 		}
 
 	}
@@ -58,7 +58,7 @@ abstract class AbstractEventHandler(val jsVal: JsValue) extends EventHandler {
 		getSharedEventData.getServerTime(getInt("time"))
 	}
 
-	final def getUUIDfromJSON(name: String): Option[UUID] = {
+	final def getUUIDfromPlayerNumber(name: String): Option[UUID] = {
 		val player: Int = getInt(name)
 		if (player == -1) {
 			None
@@ -66,6 +66,10 @@ abstract class AbstractEventHandler(val jsVal: JsValue) extends EventHandler {
 		else {
 			Some(getSharedEventData.getPlayer(player))
 		}
+	}
+
+	final def getUUID(name: String): UUID = {
+		UUID.fromString((jsVal \ name).as[String])
 	}
 
 	final def getInt(name: String): Int = {

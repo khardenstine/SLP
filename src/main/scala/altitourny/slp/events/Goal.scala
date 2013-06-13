@@ -7,7 +7,7 @@ import play.api.libs.json.JsValue
  * @param jsVal
  */
 case class Goal(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
-	getSharedEventData.getMatch().addGoal(getUUIDfromJSON("player").get, getUUIDfromJSON("assister"), getUUIDfromJSON("secondaryAssister"))
+	getSharedEventData.getGame().addGoal(getUUIDfromPlayerNumber("player"), getUUIDfromPlayerNumber("assister"), getUUIDfromPlayerNumber("secondaryAssister"), getInt("xp"))
 }
 
 case object Goal extends Event {

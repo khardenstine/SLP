@@ -3,12 +3,12 @@ package altitourny.slp.events
 import org.joda.time.DateTime
 import java.util.UUID
 import com.google.common.collect.HashBiMap
-import altitourny.slp.matches._
+import altitourny.slp.games._
 
 class SharedEventData(private val startTime: DateTime) {
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
 	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()
-	private var aMatch: Match = new NoMatch
+	private var game: Game = new NoGame
 
 	def getServerTime(time: Int): DateTime = {
 		startTime.withDurationAdded(time.toLong, 1)
@@ -44,15 +44,15 @@ class SharedEventData(private val startTime: DateTime) {
 		playerNameMap.clear()
 	}
 
-	def clearMatch() {
-		aMatch = new NoMatch
+	def clearGame() {
+		game = new NoGame
 	}
 
-	def getMatch(): Match = {
-		aMatch
+	def getGame(): Game = {
+		game
 	}
 
-	def setMatch(aMatch: Match) {
-		this.aMatch = aMatch
+	def setGame(game: Game) {
+		this.game = game
 	}
 }
