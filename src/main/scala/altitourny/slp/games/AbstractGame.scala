@@ -4,8 +4,7 @@ import java.util.UUID
 import altitourny.slp.SLP
 import org.joda.time.{Duration, DateTime}
 import collection.mutable
-import altitourny.slp.util.Strings
-import java.sql.SQLException
+import java.sql.{Timestamp, SQLException}
 
 abstract class AbstractGame(final val startTime: DateTime, final val map: String, final val leftTeamId: Int, final val rightTeamId: Int) extends Game {
 	SLP.executeDBStatement(
@@ -112,21 +111,26 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 	def dump(endTime: DateTime) {
 		val gameId = UUID.randomUUID()
 
-		// maps might need escaping
-
-		val values: Seq[String] = Seq(
-			Strings.quote(gameId.toString),
-			Strings.quote("00000000-0000-0000-0000-000000000000"),
-			Strings.quote("00000000-0000-0000-0000-000000000000"),
-			Strings.quote("00000000-0000-0000-0000-000000000001"),
-			"(SELECT dict_id FROM dicts WHERE dict_type = 'VICTOR' AND dict_value = '%s')".format(getResult),
-			Strings.quote(startTime.toString),
-			Strings.quote(new Duration(startTime, endTime).getMillis.toString),
-			"(SELECT id FROM maps WHERE name = '%s')".format(map),
-			Strings.quote(leftTeam.getScore.toString),
-			Strings.quote(rightTeam.getScore.toString)
+		val stmt = SLP.prepareStatement(
+			"""
+			  |INSERT INTO games
+			  |VALUES (?, ?, ?, ?, (SELECT dict_id FROM dicts WHERE dict_type = 'VICTOR' AND dict_value = ?), ?, ?, (SELECT id FROM maps WHERE name = ?), ?, ?)
+			""".stripMargin
 		)
-		SLP.insertRawDBStatement("games", values)
+
+		val dt = new DateTime()
+		stmt.setString(1, gameId.toString)
+		stmt.setString(2, "00000000-0000-0000-0000-000000000000")
+		stmt.setString(3, "00000000-0000-0000-0000-000000000000")
+		stmt.setString(4, "00000000-0000-0000-0000-000000000001")
+		stmt.setTimestamp(5, new Timestamp(startTime.getMillis))
+		stmt.setString(6, new Duration(startTime, endTime).getMillis.toString)
+		stmt.setTimestamp(7,  new Timestamp(dt.getMillis))
+		stmt.setString(8, map)
+		stmt.setString(9, leftTeam.getScore.toString)
+		stmt.setString(10, rightTeam.getScore.toString)
+
+		stmt.execute()
 
 		leftTeam.players.foreach(dumpPlayer(gameId, _))
 		rightTeam.players.foreach(dumpPlayer(gameId, _))

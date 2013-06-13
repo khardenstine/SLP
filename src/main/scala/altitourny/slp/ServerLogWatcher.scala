@@ -66,6 +66,23 @@ class ServerLogWatcher(val path: String) {
 				}
 			}
 		})
+
+		// Callback thread
+		ThreadHelper.startDaemonThread(new Runnable {
+			def run() {
+				while (running) {
+					try {
+						SLP.callback()
+						ThreadHelper.sleep(600000)
+					}
+					catch {
+						case e: Exception => {
+							SLP.getLog.error("Process failed " + e)
+						}
+					}
+				}
+			}
+		})
 	}
 
 	private def checkServerLogForNewData() {

@@ -9,7 +9,7 @@ import altitourny.slp.games._
 case class MapChange(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
 	getString("mode") match {
 		case "ball" => getSharedEventData.setGame(new BallGame(getTime, getString("map"), getInt("leftTeam"), getInt("rightTeam")))
-		case "tbd" => getSharedEventData.setGame(new TBDGame(getTime, getString("map"), getInt("leftTeam"), getInt("rightTeam")))
+		case "tbd" => getSharedEventData.setGame(new NoGame)//new TBDGame(getTime, getString("map"), getInt("leftTeam"), getInt("rightTeam")))
 		case _ => getSharedEventData.setGame(new NoGame)
 	}
 }

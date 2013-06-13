@@ -5,7 +5,7 @@ import java.util.UUID
 import com.google.common.collect.HashBiMap
 import altitourny.slp.games._
 
-class SharedEventData(private val startTime: DateTime) {
+class SharedEventData(private val startTime: DateTime, val name: String) {
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
 	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()
 	private var game: Game = new NoGame

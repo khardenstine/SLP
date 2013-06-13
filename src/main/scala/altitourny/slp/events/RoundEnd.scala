@@ -1,6 +1,7 @@
 package altitourny.slp.events
 
 import play.api.libs.json.JsValue
+import altitourny.slp.SLP
 
 /**
  * {
@@ -38,6 +39,7 @@ case class RoundEnd(override val jsVal: JsValue) extends AbstractEventHandler(js
 	getSharedEventData.clearGame()
 
 	game.dump(getTime)
+	SLP.callback()
 }
 
 case object RoundEnd extends Event {

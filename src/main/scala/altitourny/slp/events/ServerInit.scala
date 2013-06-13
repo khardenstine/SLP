@@ -9,7 +9,7 @@ import altitourny.slp.SLP
 case class ServerInit(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
 	val port: Int = getInt("port")
 
-	SLP.initServer(port)
+	SLP.initServer(port, getString("name"))
 
 	SLP.getLog.info(getString("name") + " started on port " + port + " at " + getTime)
 }
