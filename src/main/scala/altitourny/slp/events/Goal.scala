@@ -13,7 +13,7 @@ case class Goal(override val jsVal: JsValue) extends AbstractEventHandler(jsVal)
 case object Goal extends Event {
 	val logType = "goal"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new Goal(jsVal)
 	}
 }

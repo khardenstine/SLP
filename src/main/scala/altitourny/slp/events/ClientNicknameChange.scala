@@ -19,7 +19,7 @@ case class ClientNicknameChange(override val jsVal: JsValue) extends AbstractEve
 case object ClientNicknameChange extends Event {
 	val logType = "clientNicknameChange"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new ClientNicknameChange(jsVal)
 	}
 }

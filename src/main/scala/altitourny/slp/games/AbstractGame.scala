@@ -24,7 +24,7 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 	val goalAssists: mutable.HashMap[UUID, Int] = mutable.HashMap()
 	val goalSecondaryAssists: mutable.HashMap[UUID, Int] = mutable.HashMap()
 
-	def getMode : String
+	def getMode: String
 
 	def addOne[A](mapObj: mutable.Map[A, Int], key: A) {
 		addValue(mapObj, key, 1)
@@ -67,22 +67,17 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 		}
 	}
 
-	def changeTeam(player: UUID, team: Int)
-	{
+	def changeTeam(player: UUID, team: Int) {
 		team match {
-			case leftTeam.id =>
-			{
+			case leftTeam.id => {
 				leftTeam.players.add(player)
-				if (!rightTeam.players.remove(player))
-				{
+				if (!rightTeam.players.remove(player)) {
 					initPlayer(player)
 				}
 			}
-			case rightTeam.id =>
-			{
+			case rightTeam.id => {
 				rightTeam.players.add(player)
-				if (!leftTeam.players.remove(player))
-				{
+				if (!leftTeam.players.remove(player)) {
 					initPlayer(player)
 				}
 			}
@@ -91,8 +86,7 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 		}
 	}
 
-	private def initPlayer(player: UUID)
-	{
+	private def initPlayer(player: UUID) {
 		kills.put(player, 0)
 		assists.put(player, 0)
 		deaths.put(player, 0)
@@ -103,17 +97,14 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 		goalSecondaryAssists.put(player, 0)
 	}
 
-	private def getResult : String = {
-		if (leftTeam.getScore > rightTeam.getScore)
-		{
+	private def getResult: String = {
+		if (leftTeam.getScore > rightTeam.getScore) {
 			"LEFT_TEAM"
 		}
-		else if (leftTeam.getScore < rightTeam.getScore)
-		{
+		else if (leftTeam.getScore < rightTeam.getScore) {
 			"RIGHT_TEAM"
 		}
-		else
-		{
+		else {
 			"TIE"
 		}
 	}
@@ -154,12 +145,10 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 			goalSecondaryAssists.get(player).getOrElse(0)
 		)
 
-		try
-		{
+		try {
 			SLP.insertDBStatement("games_r", values)
 		}
-		catch
-		{
+		catch {
 			case e: SQLException => SLP.getLog.error(e)
 		}
 	}

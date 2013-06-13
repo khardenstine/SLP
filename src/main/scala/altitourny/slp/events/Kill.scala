@@ -12,7 +12,7 @@ case class Kill(override val jsVal: JsValue) extends AbstractEventHandler(jsVal)
 case object Kill extends Event {
 	val logType = "kill"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new Kill(jsVal)
 	}
 }

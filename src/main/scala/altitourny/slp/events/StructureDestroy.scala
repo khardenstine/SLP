@@ -9,7 +9,7 @@ case class StructureDestroy(override val jsVal: JsValue) extends AbstractEventHa
 case object StructureDestroy extends Event {
 	val logType = "structureDestroy"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new StructureDestroy(jsVal)
 	}
 }

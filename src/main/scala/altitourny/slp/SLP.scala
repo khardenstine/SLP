@@ -17,12 +17,10 @@ class SLP(config: Config) {
 	private val serverLog: File = new File(serverRoot + config.getString("server.log"))
 
 	private val dbConnection: Connection = {
-		try
-		{
+		try {
 			DriverManager.getConnection(config.getString("db.url"), config.getString("db.user"), config.getString("db.password"))
 		}
-		catch
-		{
+		catch {
 			case e: SQLException => {
 				log.error(e.getErrorCode + "\n\t" + e.getMessage + "\n\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
 				throw e
@@ -59,8 +57,7 @@ object SLP {
 		sessionStartTime = dateTime
 	}
 
-	def prepareStatement(sql: String) : PreparedStatement =
-	{
+	def prepareStatement(sql: String): PreparedStatement = {
 		slp.dbConnection.prepareStatement(sql)
 	}
 

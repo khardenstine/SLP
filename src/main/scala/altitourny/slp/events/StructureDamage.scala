@@ -9,7 +9,7 @@ case class StructureDamage(override val jsVal: JsValue) extends AbstractEventHan
 case object StructureDamage extends Event {
 	val logType = "structureDamage"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new StructureDamage(jsVal)
 	}
 }

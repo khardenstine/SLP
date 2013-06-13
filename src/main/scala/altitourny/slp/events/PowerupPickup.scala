@@ -9,7 +9,7 @@ case class PowerupPickup(override val jsVal: JsValue) extends AbstractEventHandl
 case object PowerupPickup extends Event {
 	val logType = "powerupPickup"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new PowerupPickup(jsVal)
 	}
 }

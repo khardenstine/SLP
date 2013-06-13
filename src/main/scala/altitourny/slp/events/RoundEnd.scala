@@ -43,7 +43,7 @@ case class RoundEnd(override val jsVal: JsValue) extends AbstractEventHandler(js
 case object RoundEnd extends Event {
 	val logType = "roundEnd"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new RoundEnd(jsVal)
 	}
 }

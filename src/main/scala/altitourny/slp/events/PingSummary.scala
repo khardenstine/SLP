@@ -12,7 +12,7 @@ case class PingSummary(override val jsVal: JsValue) extends AbstractEventHandler
 case object PingSummary extends Event {
 	val logType = "pingSummary"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new PingSummary(jsVal)
 	}
 }

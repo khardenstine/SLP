@@ -25,7 +25,7 @@ case class ClientAdd(override val jsVal: JsValue) extends AbstractEventHandler(j
 case object ClientAdd extends Event {
 	val logType = "clientAdd"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new ClientAdd(jsVal)
 	}
 }

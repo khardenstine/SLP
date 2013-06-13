@@ -7,7 +7,7 @@ package altitourny.slp
 // Edited by: Karl Hardenstine
 // June-2013
 
-import altitourny.slp.events.{ServerStart, ServerInit, SessionStart, Events}
+import altitourny.slp.events.{ServerInit, SessionStart, Events}
 import play.api.libs.json.Json
 import java.io.BufferedReader
 import java.io.File
@@ -39,8 +39,7 @@ class ServerLogWatcher(val path: String) {
 				line
 			} != null) {
 				val jsVal = Json.parse(line)
-				(jsVal \ "type").as[String] match
-				{
+				(jsVal \ "type").as[String] match {
 					case SessionStart.logType => SessionStart.getEventHandler(jsVal)
 					case ServerInit.logType => ServerInit.getEventHandler(jsVal)
 					case _ => {}

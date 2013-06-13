@@ -13,7 +13,7 @@ case class Spawn(override val jsVal: JsValue) extends AbstractEventHandler(jsVal
 case object Spawn extends Event {
 	val logType = "spawn"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new Spawn(jsVal)
 	}
 }

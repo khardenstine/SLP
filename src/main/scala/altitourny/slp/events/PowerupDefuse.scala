@@ -9,7 +9,7 @@ case class PowerupDefuse(override val jsVal: JsValue) extends AbstractEventHandl
 case object PowerupDefuse extends Event {
 	val logType = "powerupDefuse"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new PowerupDefuse(jsVal)
 	}
 }

@@ -17,7 +17,7 @@ case class SessionStart(override val jsVal: JsValue) extends AbstractEventHandle
 case object SessionStart extends Event {
 	val logType = "sessionStart"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new SessionStart(jsVal)
 	}
 }

@@ -9,7 +9,7 @@ case class MapLoading(override val jsVal: JsValue) extends AbstractEventHandler(
 case object MapLoading extends Event {
 	val logType = "mapLoading"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new MapLoading(jsVal)
 	}
 }

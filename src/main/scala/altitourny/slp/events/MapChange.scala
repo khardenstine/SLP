@@ -17,7 +17,7 @@ case class MapChange(override val jsVal: JsValue) extends AbstractEventHandler(j
 case object MapChange extends Event {
 	val logType = "mapChange"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		MapChange(jsVal)
 	}
 }

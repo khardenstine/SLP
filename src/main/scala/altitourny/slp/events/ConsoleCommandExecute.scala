@@ -14,7 +14,7 @@ case class ConsoleCommandExecute(override val jsVal: JsValue) extends AbstractEv
 case object ConsoleCommandExecute extends Event {
 	val logType = "consoleCommandExecute"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new ConsoleCommandExecute(jsVal)
 	}
 }

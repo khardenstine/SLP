@@ -14,7 +14,7 @@ case class ClientRemove(override val jsVal: JsValue) extends AbstractEventHandle
 case object ClientRemove extends Event {
 	val logType = "clientRemove"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new ClientRemove(jsVal)
 	}
 }

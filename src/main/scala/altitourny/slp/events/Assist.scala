@@ -12,7 +12,7 @@ case class Assist(override val jsVal: JsValue) extends AbstractEventHandler(jsVa
 case object Assist extends Event {
 	val logType = "assist"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		Assist(jsVal)
 	}
 }

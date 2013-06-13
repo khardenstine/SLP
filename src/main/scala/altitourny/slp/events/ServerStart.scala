@@ -12,7 +12,7 @@ case class ServerStart(override val jsVal: JsValue) extends AbstractEventHandler
 case object ServerStart extends Event {
 	val logType = "serverStart"
 
-	def getEventHandler(jsVal: JsValue) : EventHandler = {
+	def getEventHandler(jsVal: JsValue): EventHandler = {
 		new ServerStart(jsVal)
 	}
 }
