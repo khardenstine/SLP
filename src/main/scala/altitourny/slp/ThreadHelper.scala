@@ -19,14 +19,21 @@ object ThreadHelper {
 		}
 	}
 
-	def createDaemonThread(runnable: Runnable): Thread = {
+	private def createThread(runnable: Runnable, daemon: Boolean): Thread = {
 		val thread: Thread = new Thread(runnable)
-		thread.setDaemon(false)
+		thread.setDaemon(daemon)
 		thread
 	}
 
+	def startThread(runnable: Runnable): Thread = {
+		val thread: Thread = createThread(runnable, false)
+		thread.start()
+		thread
+	}
+
+
 	def startDaemonThread(runnable: Runnable): Thread = {
-		val thread: Thread = createDaemonThread(runnable)
+		val thread: Thread = createThread(runnable, true)
 		thread.start()
 		thread
 	}

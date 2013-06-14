@@ -118,17 +118,16 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 			""".stripMargin
 		)
 
-		val dt = new DateTime()
 		stmt.setString(1, gameId.toString)
 		stmt.setString(2, "00000000-0000-0000-0000-000000000000")
 		stmt.setString(3, "00000000-0000-0000-0000-000000000000")
 		stmt.setString(4, "00000000-0000-0000-0000-000000000001")
-		stmt.setTimestamp(5, new Timestamp(startTime.getMillis))
-		stmt.setString(6, new Duration(startTime, endTime).getMillis.toString)
-		stmt.setTimestamp(7,  new Timestamp(dt.getMillis))
+		stmt.setString(5, getResult)
+		stmt.setTimestamp(6, new Timestamp(startTime.getMillis))
+		stmt.setFloat(7, new Duration(startTime, endTime).getMillis)
 		stmt.setString(8, map)
-		stmt.setString(9, leftTeam.getScore.toString)
-		stmt.setString(10, rightTeam.getScore.toString)
+		stmt.setInt(9, leftTeam.getScore)
+		stmt.setInt(10, rightTeam.getScore)
 
 		stmt.execute()
 

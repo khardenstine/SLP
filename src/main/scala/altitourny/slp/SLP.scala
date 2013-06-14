@@ -7,15 +7,52 @@ import java.util.UUID
 import scala.collection.mutable
 import org.joda.time.DateTime
 
-import events.SharedEventData
+import altitourny.slp.events.SharedEventData
 import log.{Logger, LogLevel}
 import scala.Array
-import sun.net.www.protocol.http.HttpURLConnection
+import java.net.HttpURLConnection
 
 class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
 	private val serverRoot: String = config.getString("server.root")
 	private val serverLog: File = new File(serverRoot + config.getString("server.log"))
+	private var running = false
+
+	private def start() = {
+		running = true
+		val slw = new ServerLogWatcher(serverLog.getAbsolutePath)
+
+		ThreadHelper.startThread(new Runnable {
+			def run () {
+				while (running) {
+					try {
+						slw.checkServerLogForNewData()
+						ThreadHelper.sleep (200)
+					}
+					catch {
+						case e: Exception => log.error ("Process failed " + e)
+					}
+				}
+			}
+		})
+
+		// Callback thread
+		ThreadHelper.startDaemonThread(new Runnable {
+			def run() {
+				while (running) {
+					try {
+						SLP.callback()
+						ThreadHelper.sleep(600000)
+					}
+					catch {
+						case e: Exception => {
+							log.error("Process failed " + e)
+						}
+					}
+				}
+			}
+		})
+	}
 
 	private val dbConnection: Connection = {
 		try {
@@ -29,17 +66,8 @@ class SLP(config: Config) {
 		}
 	}
 
-	private def getIP : String = {
-		val url = new java.net.URL("http://api.exip.org/?call=ip")
-
-		url.openConnection() match {
-			case conn: HttpURLConnection => {
-				val ipStr = scala.io.Source.fromInputStream(conn.getInputStream).getLines().mkString("")
-				conn.disconnect()
-				ipStr
-			}
-			case _ => throw new RuntimeException("HttpURLConnection not acquired")
-		}
+	def shutdown() {
+		running = false
 	}
 }
 
@@ -49,7 +77,7 @@ object SLP {
 	private var sessionStartTime: DateTime = null
 
 	def main(args: Array[String]) {
-		new ServerLogWatcher(slp.serverLog.getAbsolutePath)
+		slp.start()
 	}
 
 	def getLog: Logger = {
@@ -69,6 +97,19 @@ object SLP {
 	def startSession(dateTime: DateTime) {
 		sharedEventData.clear()
 		sessionStartTime = dateTime
+	}
+
+	def getIP : String = {
+		val url = new java.net.URL("http://api.exip.org/?call=ip")
+
+		url.openConnection() match {
+			case conn: HttpURLConnection => {
+				val ipStr = scala.io.Source.fromInputStream(conn.getInputStream).getLines().mkString("")
+				conn.disconnect()
+				ipStr
+			}
+			case _ => throw new RuntimeException("HttpURLConnection not acquired")
+		}
 	}
 
 	def prepareStatement(sql: String): PreparedStatement = {
@@ -119,11 +160,11 @@ object SLP {
 
 	def callback() {
 		try {
-			val ip = slp.getIP
+			val ip = getIP
 			getLog.debug("Server IP: " + ip)
 
-			sharedEventData foreach {
-				tuple: ((Int, SharedEventData)) =>
+			sharedEventData foreach { tuple: ((Int, SharedEventData)) =>
+				try {
 					val stmt = prepareStatement(
 						"""
 						  |UPDATE servers SET callback = ?, name = ? WHERE ip = ? AND port = ?;
@@ -145,6 +186,10 @@ object SLP {
 					stmt.setString(10, tuple._1.toString)
 
 					stmt.execute()
+				}
+				catch {
+					case e: SQLException => getLog.error(e)
+				}
 			}
 		}
 		catch {
