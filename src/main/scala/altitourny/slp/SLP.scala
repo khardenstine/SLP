@@ -68,6 +68,30 @@ class SLP(config: Config) {
 
 	def shutdown() {
 		running = false
+
+		try {
+			val ip = SLP.getIP
+
+			SLP.sharedEventData foreach { tuple: ((Int, SharedEventData)) =>
+				try {
+					val stmt = SLP.prepareStatement(
+						"""
+						  |DELETE FROM servers WHERE ip = ? AND port = ?;
+						""".stripMargin
+					)
+					stmt.setString(1, ip)
+					stmt.setString(2, tuple._1.toString)
+
+					stmt.execute()
+				}
+				catch {
+					case e: SQLException => log.error(e)
+				}
+			}
+		}
+		catch {
+			case e: Exception => log.error(e)
+		}
 	}
 }
 
