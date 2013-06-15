@@ -1,7 +1,7 @@
 package altitourney
 
 import org.scalatest.FunSuite
-import altitourny.slp.games.{BallGame, PlayerSpawn, PerkData}
+import altitourney.slp.games.{BallGame, PlayerSpawn, PerkData}
 import org.joda.time.{DateTime, Duration}
 import java.util.UUID
 import scala.collection.JavaConversions
