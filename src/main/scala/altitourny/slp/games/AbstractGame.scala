@@ -3,55 +3,42 @@ package altitourny.slp.games
 import java.util.UUID
 import altitourny.slp.SLP
 import org.joda.time.{Duration, DateTime}
-import collection.mutable
+import scala.collection.{JavaConversions, JavaConverters, concurrent}
 import java.sql.{Timestamp, SQLException}
+import com.google.common.collect.HashBasedTable
+import java.util.concurrent.ConcurrentHashMap
 
 abstract class AbstractGame(final val startTime: DateTime, final val map: String, final val leftTeamId: Int, final val rightTeamId: Int) extends Game {
-	SLP.executeDBStatement(
-		"""
-		  |INSERT INTO maps SELECT '%1$s', '%2$s', (SELECT dict_id FROM dicts WHERE dict_value = '%3$s' AND dict_type = 'MODE') WHERE NOT EXISTS (SELECT 1 FROM maps WHERE name='%2$s' AND mode_dict=(SELECT dict_id FROM dicts WHERE dict_value = '%3$s' AND dict_type = 'MODE'));
-		""".stripMargin.format(UUID.randomUUID().toString, map, getMode)
-	)
-	val leftTeam: Team = new Team(leftTeamId)
-	val rightTeam: Team = new Team(rightTeamId)
-	val kills: mutable.HashMap[UUID, Int] = mutable.HashMap()
-	val assists: mutable.HashMap[UUID, Int] = mutable.HashMap()
-	val deaths: mutable.HashMap[UUID, Int] = mutable.HashMap()
-	val exp: mutable.HashMap[UUID, Int] = mutable.HashMap()
-	val timeAlive: mutable.HashMap[UUID, Int] = mutable.HashMap()
-	val goals: mutable.HashMap[UUID, Int] = mutable.HashMap()
-	val goalAssists: mutable.HashMap[UUID, Int] = mutable.HashMap()
-	val goalSecondaryAssists: mutable.HashMap[UUID, Int] = mutable.HashMap()
+	private val leftTeam: Team = new Team(leftTeamId)
+	private val rightTeam: Team = new Team(rightTeamId)
+	// todo column shouldnt be string, should be Perk Enum
+	private val perkTable: HashBasedTable[UUID, String, PerkData] = HashBasedTable.create()
+	val spawnMap: concurrent.Map[UUID, PlayerSpawn] = JavaConversions.mapAsScalaConcurrentMap(new ConcurrentHashMap[UUID, PlayerSpawn])
 
-	def getMode: String
-
-	def addOne[A](mapObj: mutable.Map[A, Int], key: A) {
-		addValue(mapObj, key, 1)
-	}
-
-	def addValue[A](mapObj: mutable.Map[A, Int], key: A, value: Int) {
-		mapObj.put(key, mapObj.get(key).getOrElse(0) + value)
-	}
-
-	def addOne[A](mapObj: mutable.Map[A, Int], key: Option[A]) {
-		addValue(mapObj, key, 1)
-	}
-
-	def addValue[A](mapObj: mutable.Map[A, Int], key: Option[A], value: Int) {
-		if (key.isDefined) {
-			addValue(mapObj, key.get, value)
-		}
-	}
-
-	def addKill(source: Option[UUID], victim: UUID, xp: Int) {
-		addOne(kills, source)
-		addValue(exp, source, xp)
-		addOne(deaths, victim)
+	def addKill(source: Option[UUID], victim: UUID, xp: Int, time: DateTime) {
+		source foreach{vapor: UUID => spawnMap.get(vapor) foreach (_.addKill(xp))}
+		spawnMap.get(victim) foreach (_.addDeath(time))
 	}
 
 	def addAssist(source: UUID, xp: Int) {
-		addOne(assists, source)
-		addValue(exp, source, xp)
+		spawnMap.get(source) foreach (_.addAssist(xp))
+	}
+
+	def spawn(player: UUID, perk: String, time: DateTime) {
+		spawnMap.get(player) match {
+			case Some(ps: PlayerSpawn) => {
+				if (ps.redPerk.equalsIgnoreCase(perk))
+				{
+					ps.respawn(time)
+				}
+				else
+				{
+					perkTable.put(player, ps.redPerk, ps.getPerkData + Option(perkTable.get(player, ps.redPerk)))
+					spawnMap.put(player, new PlayerSpawn(perk, time))
+				}
+			}
+			case None => spawnMap.put(player, new PlayerSpawn(perk, time))
+		}
 	}
 
 	def getTeam(player: UUID): Option[Team] = {
@@ -70,30 +57,15 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 		team match {
 			case leftTeam.id => {
 				leftTeam.players.add(player)
-				if (!rightTeam.players.remove(player)) {
-					initPlayer(player)
-				}
+				rightTeam.players.remove(player)
 			}
 			case rightTeam.id => {
 				rightTeam.players.add(player)
-				if (!leftTeam.players.remove(player)) {
-					initPlayer(player)
-				}
+				leftTeam.players.remove(player)
 			}
 			case 2 => {}
 			case _ => throw new RuntimeException("No team found for: " + team)
 		}
-	}
-
-	private def initPlayer(player: UUID) {
-		kills.put(player, 0)
-		assists.put(player, 0)
-		deaths.put(player, 0)
-		exp.put(player, 0)
-		timeAlive.put(player, 0)
-		goals.put(player, 0)
-		goalAssists.put(player, 0)
-		goalSecondaryAssists.put(player, 0)
 	}
 
 	private def getResult: String = {
@@ -108,7 +80,17 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 		}
 	}
 
+	def dumpSpawnMap(endTime: DateTime) : HashBasedTable[UUID, String, PerkData] = {
+		spawnMap.map{case (player: UUID, ps: PlayerSpawn) =>
+			ps.end(endTime)	// all player lives should have ended already, this is just in case they have not
+			perkTable.put(player, ps.redPerk, ps.getPerkData + Option(perkTable.get(player, ps.redPerk)))
+		}
+		perkTable
+	}
+
 	def dump(endTime: DateTime) {
+		dumpSpawnMap(endTime)
+
 		val gameId = UUID.randomUUID()
 
 		val stmt = SLP.prepareStatement(
@@ -136,23 +118,32 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 	}
 
 	def dumpPlayer(gameId: UUID, player: UUID) {
+		JavaConverters.asScalaSetConverter(perkTable.row(player).entrySet()).asScala.foreach{ entry =>
+			try {
+				dumpPerk(gameId, player, entry.getKey, entry.getValue)
+			}
+			catch {
+				case e: SQLException => SLP.getLog.error(e)
+			}
+		}
+	}
+
+	def dumpPerk(gameId: UUID, player: UUID, perk: String, perkData: PerkData) {
 		val values = Seq(
 			gameId.toString,
 			player.toString,
-			kills.get(player).getOrElse(0),
-			assists.get(player).getOrElse(0),
-			deaths.get(player).getOrElse(0),
-			exp.get(player).getOrElse(0),
-			goals.get(player).getOrElse(0),
-			goalAssists.get(player).getOrElse(0),
-			goalSecondaryAssists.get(player).getOrElse(0)
+			perk,
+			perkData.kills,
+			perkData.assists,
+			perkData.deaths,
+			perkData.exp,
+			perkData.goals,
+			perkData.goalAssists,
+			perkData.goalSecondaryAssists,
+			perkData.timeAlive.getMillis
 		)
 
-		try {
-			SLP.insertDBStatement("games_r", values)
-		}
-		catch {
-			case e: SQLException => SLP.getLog.error(e)
-		}
+		SLP.insertDBStatement("games_r", values)
+
 	}
 }

@@ -35,7 +35,7 @@ import altitourny.slp.SLP
 }
  */
 case class RoundEnd(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
-	val game = getSharedEventData.getGame()
+	val game = getSharedEventData.getGame
 	getSharedEventData.clearGame()
 
 	game.dump(getTime)

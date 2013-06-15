@@ -48,7 +48,7 @@ class SharedEventData(private val startTime: DateTime, val name: String) {
 		game = new NoGame
 	}
 
-	def getGame(): Game = {
+	def getGame: Game = {
 		game
 	}
 
