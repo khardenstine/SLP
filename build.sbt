@@ -8,6 +8,8 @@ fork in run := true
 
 retrieveManaged := true
 
+defaultExcludes in unmanagedResources := "application.conf"
+
 libraryDependencies +=  "org.scalatest" % "scalatest_2.10" % "2.0.M5b" % "test"
 
 libraryDependencies += "com.google.code.findbugs" % "jsr305" % "1.3.9"
