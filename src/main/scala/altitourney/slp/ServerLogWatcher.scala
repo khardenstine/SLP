@@ -14,12 +14,11 @@ import java.util.Date
 import scala.io.BufferedSource
 
 class ServerLogWatcher(val path: String) {
-	var watcher = new Watcher(path, true)
-
 	SLP.getLog.debug("Going to initialize server log")
 	SLP.getLog.debug("Log file is located at: " + path)
-	SLP.getLog.debug("About to parse old log")
+	var watcher = new Watcher(path, true)
 
+	SLP.getLog.debug("About to parse old log")
 	watcher.getLines.foreach {
 		line =>
 			val jsVal = Json.parse(line)
