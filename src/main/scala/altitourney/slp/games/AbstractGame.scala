@@ -93,25 +93,27 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 
 		val gameId = UUID.randomUUID()
 
-		val stmt = SLP.prepareStatement(
+		SLP.preparedStatement(
 			"""
 			  |INSERT INTO games
 			  |VALUES (?, ?, ?, ?, (SELECT dict_id FROM dicts WHERE dict_type = 'VICTOR' AND dict_value = ?), ?, ?, (SELECT id FROM maps WHERE name = ?), ?, ?)
 			""".stripMargin
-		)
+		){
+			stmt =>
 
-		stmt.setString(1, gameId.toString)
-		stmt.setString(2, "00000000-0000-0000-0000-000000000000")
-		stmt.setString(3, "00000000-0000-0000-0000-000000000000")
-		stmt.setString(4, "00000000-0000-0000-0000-000000000001")
-		stmt.setString(5, getResult)
-		stmt.setTimestamp(6, new Timestamp(startTime.getMillis))
-		stmt.setFloat(7, new Duration(startTime, endTime).getMillis)
-		stmt.setString(8, map)
-		stmt.setInt(9, leftTeam.getScore)
-		stmt.setInt(10, rightTeam.getScore)
+			stmt.setString(1, gameId.toString)
+			stmt.setString(2, "00000000-0000-0000-0000-000000000000")
+			stmt.setString(3, "00000000-0000-0000-0000-000000000000")
+			stmt.setString(4, "00000000-0000-0000-0000-000000000001")
+			stmt.setString(5, getResult)
+			stmt.setTimestamp(6, new Timestamp(startTime.getMillis))
+			stmt.setFloat(7, new Duration(startTime, endTime).getMillis)
+			stmt.setString(8, map)
+			stmt.setInt(9, leftTeam.getScore)
+			stmt.setInt(10, rightTeam.getScore)
 
-		stmt.execute()
+			stmt.execute()
+		}
 
 		leftTeam.players.foreach(dumpPlayer(gameId, _))
 		rightTeam.players.foreach(dumpPlayer(gameId, _))

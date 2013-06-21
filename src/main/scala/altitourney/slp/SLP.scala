@@ -24,14 +24,14 @@ class SLP(config: Config) {
 		val slw = new ServerLogWatcher(serverLog.getAbsolutePath)
 
 		ThreadHelper.startThread(new Runnable {
-			def run () {
+			def run() {
 				while (running) {
 					try {
 						slw.checkServerLogForNewData()
-						ThreadHelper.sleep (200)
+						ThreadHelper.sleep(200)
 					}
 					catch {
-						case e: Exception => log.error ("Process failed " + e)
+						case e: Exception => log.error("Process failed " + e)
 					}
 				}
 			}
@@ -55,9 +55,9 @@ class SLP(config: Config) {
 		})
 	}
 
-	private val dbConnection: Connection = {
+	private val connectionPoolManager = {
 		try {
-			DriverManager.getConnection(config.getString("db.url"), config.getString("db.user"), config.getString("db.password"))
+			new ConnectionPoolManager(2, config.getString("db.url"), config.getString("db.user"), config.getString("db.password"))
 		}
 		catch {
 			case e: SQLException => {
@@ -67,32 +67,45 @@ class SLP(config: Config) {
 		}
 	}
 
+	def getConnection: Connection = {
+		connectionPoolManager.getConnection
+	}
+
+	def releaseConnection(conn: Connection) {
+		connectionPoolManager.release(conn)
+	}
+
 	def shutdown() {
 		running = false
 
 		try {
 			val ip = SLP.getIP
 
-			SLP.sharedEventData foreach { tuple: ((Int, SharedEventData)) =>
-				try {
-					val stmt = SLP.prepareStatement(
-						"""
-						  |DELETE FROM servers WHERE ip = ? AND port = ?;
-						""".stripMargin
-					)
-					stmt.setString(1, ip)
-					stmt.setString(2, tuple._1.toString)
+			SLP.sharedEventData foreach {
+				tuple: ((Int, SharedEventData)) =>
+					try {
+						SLP.preparedStatement(
+							"""
+							  |DELETE FROM servers WHERE ip = ? AND port = ?;
+							""".stripMargin
+						) {
+							stmt =>
+								stmt.setString(1, ip)
+								stmt.setString(2, tuple._1.toString)
 
-					stmt.execute()
-				}
-				catch {
-					case e: SQLException => log.error(e)
-				}
+								stmt.execute()
+						}
+					}
+					catch {
+						case e: SQLException => log.error(e)
+					}
 			}
 		}
 		catch {
 			case e: Exception => log.error(e)
 		}
+
+		connectionPoolManager.closeAll()
 	}
 }
 
@@ -124,7 +137,7 @@ object SLP {
 		sessionStartTime = dateTime
 	}
 
-	def getIP : String = {
+	def getIP: String = {
 		val url = new java.net.URL("http://api.exip.org/?call=ip")
 
 		url.openConnection() match {
@@ -137,14 +150,26 @@ object SLP {
 		}
 	}
 
-	def prepareStatement(sql: String): PreparedStatement = {
-		slp.dbConnection.prepareStatement(sql)
+	def preparedStatement(sql: String)(fn: (PreparedStatement) => Unit) {
+		val connection = slp.getConnection
+		try {
+			fn.apply(connection.prepareStatement(sql))
+		}
+		finally {
+			slp.releaseConnection(connection)
+		}
 	}
 
 	def executeDBStatement(sql: String) {
-		val statement: Statement = slp.dbConnection.createStatement()
-		getLog.debug("Executing query: " + sql)
-		statement.execute(sql)
+		val connection = slp.getConnection
+		try {
+			val statement: Statement = connection.createStatement()
+			getLog.debug("Executing query: " + sql)
+			statement.execute(sql)
+		}
+		finally {
+			slp.releaseConnection(connection)
+		}
 	}
 
 	def insertRawDBStatement(table: String, values: Seq[String]) {
@@ -166,21 +191,22 @@ object SLP {
 	}
 
 	def updatePlayerName(vapor: UUID, name: String) {
-		val stmt = prepareStatement(
+		preparedStatement(
 			"""
 			  |UPDATE players SET name= ? WHERE vapor_id = ?;
 			  |INSERT INTO players
 			  |SELECT ?, ?, NULL, NULL WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id = ?);
 			""".stripMargin
-		)
+		) {
+			stmt =>
+				stmt.setString(1, name)
+				stmt.setString(2, vapor.toString)
+				stmt.setString(3, vapor.toString)
+				stmt.setString(4, name)
+				stmt.setString(5, vapor.toString)
 
-		stmt.setString(1, name)
-		stmt.setString(2, vapor.toString)
-		stmt.setString(3, vapor.toString)
-		stmt.setString(4, name)
-		stmt.setString(5, vapor.toString)
-
-		stmt.execute()
+				stmt.execute()
+		}
 	}
 
 	def callback() {
@@ -188,33 +214,36 @@ object SLP {
 			val ip = getIP
 			getLog.debug("Server IP: " + ip)
 
-			sharedEventData foreach { tuple: ((Int, SharedEventData)) =>
-				try {
-					val stmt = prepareStatement(
-						"""
-						  |UPDATE servers SET callback = ?, name = ? WHERE ip = ? AND port = ?;
-						  |INSERT INTO servers
-						  |SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM servers WHERE ip = ? AND port = ?);
-						""".stripMargin
-					)
+			sharedEventData foreach {
+				tuple: ((Int, SharedEventData)) =>
+					try {
+						preparedStatement(
+							"""
+							  |UPDATE servers SET callback = ?, name = ? WHERE ip = ? AND port = ?;
+							  |INSERT INTO servers
+							  |SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM servers WHERE ip = ? AND port = ?);
+							""".stripMargin
+						) {
+							stmt =>
 
-					val dt = new DateTime()
-					stmt.setTimestamp(1, new Timestamp(dt.getMillis))
-					stmt.setString(2, tuple._2.name)
-					stmt.setString(3, ip)
-					stmt.setString(4, tuple._1.toString)
-					stmt.setString(5, tuple._2.name)
-					stmt.setString(6, ip)
-					stmt.setString(7, tuple._1.toString)
-					stmt.setTimestamp(8,  new Timestamp(dt.getMillis))
-					stmt.setString(9, ip)
-					stmt.setString(10, tuple._1.toString)
+								val dt = new DateTime()
+								stmt.setTimestamp(1, new Timestamp(dt.getMillis))
+								stmt.setString(2, tuple._2.name)
+								stmt.setString(3, ip)
+								stmt.setString(4, tuple._1.toString)
+								stmt.setString(5, tuple._2.name)
+								stmt.setString(6, ip)
+								stmt.setString(7, tuple._1.toString)
+								stmt.setTimestamp(8, new Timestamp(dt.getMillis))
+								stmt.setString(9, ip)
+								stmt.setString(10, tuple._1.toString)
 
-					stmt.execute()
-				}
-				catch {
-					case e: SQLException => getLog.error(e)
-				}
+								stmt.execute()
+						}
+					}
+					catch {
+						case e: SQLException => getLog.error(e)
+					}
 			}
 		}
 		catch {
