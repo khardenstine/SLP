@@ -67,6 +67,41 @@ class SLP(config: Config) {
 		}
 	}
 
+	Runtime.getRuntime.addShutdownHook(new Thread(new Runnable {
+		def run() {
+			System.out.print("asdf")
+			log.info("Shutting down")
+			try {
+				val ip = SLP.getIP
+
+				SLP.sharedEventData foreach {
+					tuple: ((Int, SharedEventData)) =>
+						try {
+							SLP.preparedStatement(
+								"""
+								  |DELETE FROM servers WHERE ip = ? AND port = ?;
+								""".stripMargin
+							) {
+								stmt =>
+									stmt.setString(1, ip)
+									stmt.setString(2, tuple._1.toString)
+
+									stmt.execute()
+							}
+						}
+						catch {
+							case e: SQLException => log.error(e)
+						}
+				}
+			}
+			catch {
+				case e: Exception => log.error(e)
+			}
+
+			connectionPoolManager.closeAll()
+		}
+	}))
+
 	def getConnection: Connection = {
 		connectionPoolManager.getConnection
 	}
@@ -77,35 +112,6 @@ class SLP(config: Config) {
 
 	def shutdown() {
 		running = false
-
-		try {
-			val ip = SLP.getIP
-
-			SLP.sharedEventData foreach {
-				tuple: ((Int, SharedEventData)) =>
-					try {
-						SLP.preparedStatement(
-							"""
-							  |DELETE FROM servers WHERE ip = ? AND port = ?;
-							""".stripMargin
-						) {
-							stmt =>
-								stmt.setString(1, ip)
-								stmt.setString(2, tuple._1.toString)
-
-								stmt.execute()
-						}
-					}
-					catch {
-						case e: SQLException => log.error(e)
-					}
-			}
-		}
-		catch {
-			case e: Exception => log.error(e)
-		}
-
-		connectionPoolManager.closeAll()
 	}
 }
 
