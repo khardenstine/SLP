@@ -159,7 +159,7 @@ object SLP {
 	def preparedStatement(sql: String)(fn: (PreparedStatement) => Unit) {
 		val connection = slp.getConnection
 		try {
-			fn.apply(connection.prepareStatement(sql))
+			fn(connection.prepareStatement(sql))
 		}
 		finally {
 			slp.releaseConnection(connection)
@@ -174,6 +174,33 @@ object SLP {
 			statement.execute(sql)
 		}
 		finally {
+			slp.releaseConnection(connection)
+		}
+	}
+
+	def executeDBQuery[T](sql: String, fn: ResultSet => T): Either[Exception, Seq[T]] = {
+		val connection = slp.getConnection
+		try {
+			val statement: Statement = connection.createStatement()
+			getLog.debug("Executing query: " + sql)
+			try {
+				val resultSet = statement.executeQuery(sql)
+				try {
+					Right(
+						new Iterator[ResultSet] {
+							override def hasNext = resultSet.next()
+							override def next() = resultSet
+						}.map(fn).toList
+					)
+				} finally {
+					resultSet.close()
+				}
+			} finally {
+	          	statement.close()
+			}
+		} catch {
+	      	case e: Exception => Left(e)
+		} finally {
 			slp.releaseConnection(connection)
 		}
 	}

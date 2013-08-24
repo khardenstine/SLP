@@ -70,13 +70,15 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 
 	private def getResult: String = {
 		if (leftTeam.getScore > rightTeam.getScore) {
-			"LEFT_TEAM"
+			leftTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000000")
 		}
 		else if (leftTeam.getScore < rightTeam.getScore) {
-			"RIGHT_TEAM"
+			rightTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000001")
 		}
 		else {
-			"TIE"
+			"00000000-0000-0000-0000-000000000000"
+			//this is wronggggggggggggggggggggggggggggg
+			//should be null
 		}
 	}
 
@@ -96,27 +98,45 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 		SLP.preparedStatement(
 			"""
 			  |INSERT INTO games
-			  |VALUES (?, ?, ?, ?, (SELECT dict_id FROM dicts WHERE dict_type = 'VICTOR' AND dict_value = ?), ?, ?, (SELECT id FROM maps WHERE name = ?), ?, ?)
+			  |VALUES (?, ?, ?, ?, ?, (SELECT id FROM maps WHERE name = ?))
 			""".stripMargin
 		){
 			stmt =>
 
 			stmt.setString(1, gameId.toString)
 			stmt.setString(2, "00000000-0000-0000-0000-000000000000")
-			stmt.setString(3, "00000000-0000-0000-0000-000000000000")
-			stmt.setString(4, "00000000-0000-0000-0000-000000000001")
-			stmt.setString(5, getResult)
-			stmt.setTimestamp(6, new Timestamp(startTime.getMillis))
-			stmt.setFloat(7, new Duration(startTime, endTime).getMillis)
-			stmt.setString(8, map)
-			stmt.setInt(9, leftTeam.getScore)
-			stmt.setInt(10, rightTeam.getScore)
+			stmt.setString(3, getResult)
+			stmt.setTimestamp(4, new Timestamp(startTime.getMillis))
+			stmt.setFloat(5, new Duration(startTime, endTime).getMillis)
+			stmt.setString(6, map)
 
 			stmt.execute()
 		}
 
+		dumpGameScore(gameId, leftTeam, 0)
+		dumpGameScore(gameId, rightTeam, 1)
+
 		leftTeam.players.foreach(dumpPlayer(gameId, _))
 		rightTeam.players.foreach(dumpPlayer(gameId, _))
+	}
+
+	// this is static
+	def dumpGameScore(gameId: UUID, team: Team, side: Int) = {
+		SLP.preparedStatement(
+			"""
+			  |INSERT INTO game_scores
+			  |VALUES (?, ?, ?, ?)
+			""".stripMargin
+		){
+			stmt =>
+
+				stmt.setString(1, gameId.toString)
+				stmt.setString(2, team.guessRosterId.getOrElse("00000000-0000-0000-0000-00000000000"+side))
+				stmt.setInt(3, side)
+				stmt.setInt(4, team.getScore)
+
+				stmt.execute()
+		}
 	}
 
 	def dumpPlayer(gameId: UUID, player: UUID) {
