@@ -7,7 +7,7 @@ package altitourney.slp
 // Edited by: Karl Hardenstine
 // June-2013
 
-import altitourney.slp.events.{ServerInit, SessionStart, Events}
+import altitourney.slp.events.Events
 import play.api.libs.json.Json
 import java.io._
 import java.util.Date
@@ -20,13 +20,7 @@ class ServerLogWatcher(val path: String) {
 
 	SLP.getLog.debug("About to parse old log")
 	watcher.getLines.foreach {
-		line =>
-			val jsVal = Json.parse(line)
-			(jsVal \ "type").as[String] match {
-				case SessionStart.logType => SessionStart.getEventHandler(jsVal)
-				case ServerInit.logType => ServerInit.getEventHandler(jsVal)
-				case _ => {}
-			}
+		line => Events.handle(Json.parse(line), Events.START_UP_REGISTRY)
 	}
 	SLP.getLog.debug("Finished parsing old log")
 	SLP.getLog.debug("The reference file has a length of: " + watcher.getReferenceFileLength)

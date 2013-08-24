@@ -6,39 +6,49 @@ import java.util.UUID
 import play.api.libs.json.JsValue
 
 object Events {
-	val ALL: Seq[Event] = Seq(
-		Assist,
-		ClientAdd,
-		ClientNicknameChange,
-		ClientRemove,
-		ConsoleCommandExecute,
-		Goal,
-		Kill,
-		MapChange,
-		MapLoading,
-		PingSummary,
-		PowerupAutoUse,
-		PowerupDefuse,
-		PowerupPickup,
-		PowerupUse,
-		RoundEnd,
-		ServerInit,
-		ServerStart,
-		SessionStart,
-		Spawn,
-		StructureDamage,
-		StructureDestroy,
-		TeamChange
+	private type REGISTER = (String, (JsValue) => EventHandler)
+
+	val START_UP_REGISTRY: Seq[REGISTER] = Seq(
+		("serverStart",				new ServerStart(_)),
+		("sessionStart",			new SessionStart(_))
 	)
 
-	def handle(jsVal: JsValue) {
+	val EVENT_REGISTRY: Seq[REGISTER] =
+		START_UP_REGISTRY ++ Seq(
+		("assist",					new Assist(_)),
+		("clientAdd",				new ClientAdd(_)),
+		("clientNicknameChange",	new ClientNicknameChange(_)),
+		("clientRemove",			new ClientRemove(_)),
+		("consoleCommandExecute",	new ConsoleCommandExecute(_)),
+		("gaol",					new Goal(_)),
+		("kill",					new Kill(_)),
+		("mapChange",				new MapChange(_)),
+		("mapLoading",				new MapLoading(_)),
+		("pingSummary",				new PingSummary(_)),
+		("powerupAutoUse",			new PowerupAutoUse(_)),
+		("powerupDefuse",			new PowerupDefuse(_)),
+		("powerupPickup",			new PowerupPickup(_)),
+		("powerupUse",				new PowerupUse(_)),
+		("roundEnd",				new RoundEnd(_)),
+		("serverInit",				new ServerInit(_)),
+		("spawn",					new Spawn(_)),
+		("structureDamage",			new StructureDamage(_)),
+		("structureDestroy",		new StructureDestroy(_)),
+		("teamChange",				new TeamChange(_))
+	)
+
+	def handle(jsVal: JsValue, registry: Seq[REGISTER] = EVENT_REGISTRY) {
 		// Ignore bot events
 		// this isnt correct
 		//val vaporId = (jsVal \ "vaporId").as[String]
 		//if (vaporId == JsUndefined || vaporId != "00000000-0000-0000-0000-000000000000")
 		try {
-			SLP.getLog.debug("Handling event: " + jsVal \ "type")
-			ALL.map(_.handle(jsVal))
+			registry
+				.filter(_._1 == jsVal \ "type")
+				.foreach{ e =>
+					SLP.getLog.debug("Handling event: " + jsVal \ "type")
+					e._2(jsVal)
+				}
 		}
 		catch {
 			case e: Exception => SLP.getLog.error(e)
@@ -47,9 +57,7 @@ object Events {
 	}
 }
 
-trait EventHandler
-
-abstract class AbstractEventHandler(val jsVal: JsValue) extends EventHandler {
+abstract class EventHandler(jsVal: JsValue) {
 	final def getSharedEventData: SharedEventData = {
 		SLP.getSharedEventData((jsVal \ "port").as[Int])
 	}
@@ -78,17 +86,5 @@ abstract class AbstractEventHandler(val jsVal: JsValue) extends EventHandler {
 
 	final def getString(name: String): String = {
 		(jsVal \ name).as[String]
-	}
-}
-
-trait Event {
-	val logType: String
-
-	def getEventHandler(jsVal: JsValue): EventHandler
-
-	final def handle(jsVal: JsValue) {
-		if ((jsVal \ "type").as[String] == this.logType) {
-			getEventHandler(jsVal)
-		}
 	}
 }

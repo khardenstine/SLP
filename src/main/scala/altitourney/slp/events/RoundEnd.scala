@@ -34,18 +34,10 @@ import altitourney.slp.SLP
   "type":"roundEnd"
 }
  */
-case class RoundEnd(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
+class RoundEnd(jsVal: JsValue) extends EventHandler(jsVal) {
 	val game = getSharedEventData.getGame
 	getSharedEventData.clearGame()
 
 	game.dump(getTime)
 	SLP.callback()
-}
-
-case object RoundEnd extends Event {
-	val logType = "roundEnd"
-
-	def getEventHandler(jsVal: JsValue): EventHandler = {
-		new RoundEnd(jsVal)
-	}
 }

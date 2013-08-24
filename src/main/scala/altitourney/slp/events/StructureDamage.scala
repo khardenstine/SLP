@@ -2,14 +2,6 @@ package altitourney.slp.events
 
 import play.api.libs.json.JsValue
 
-case class StructureDamage(override val jsVal: JsValue) extends AbstractEventHandler(jsVal) {
+class StructureDamage(jsVal: JsValue) extends EventHandler(jsVal) {
 
-}
-
-case object StructureDamage extends Event {
-	val logType = "structureDamage"
-
-	def getEventHandler(jsVal: JsValue): EventHandler = {
-		new StructureDamage(jsVal)
-	}
 }
