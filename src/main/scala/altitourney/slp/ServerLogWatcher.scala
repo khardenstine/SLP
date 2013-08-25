@@ -7,7 +7,6 @@ package altitourney.slp
 // Edited by: Karl Hardenstine
 // June-2013
 
-import altitourney.slp.events.Events
 import play.api.libs.json.Json
 import java.io._
 import java.util.Date

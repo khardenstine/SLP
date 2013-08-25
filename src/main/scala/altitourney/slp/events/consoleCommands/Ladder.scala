@@ -13,10 +13,10 @@ class Ladder(jsVal: JsValue) extends EventHandler(jsVal) {
 
 class StartRandom(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	val playerList = getSharedEventData.getGame.listPlayers
-	if (playerList.size < mode.minSize)
+	/*if (playerList.size < mode.minSize)
 	{
 		errrrr
-	}
+	}     */
 	//	create two teams
 	//	assign teams
 	//	start tournament
