@@ -4,8 +4,6 @@ version := "1.0"
 
 scalaVersion := "2.10.1"
 
-fork in run := true
-
 retrieveManaged := true
 
 defaultExcludes in unmanagedResources := "application.conf"

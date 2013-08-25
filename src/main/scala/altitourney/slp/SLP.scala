@@ -72,7 +72,6 @@ class SLP(config: Config) {
 
 	Runtime.getRuntime.addShutdownHook(new Thread(new Runnable {
 		def run() {
-			System.out.print("asdf")
 			log.info("Shutting down")
 			try {
 				val ip = SLP.getIP
@@ -132,7 +131,7 @@ object SLP {
 	}
 
 	def getSharedEventData(port: Int): SharedEventData = {
-		sharedEventData.get(port).getOrElse(throw new RuntimeException("Server not started yet on port: " + port))
+		sharedEventData.get(port).getOrElse(throw new RuntimeException("Server not initialized on port: " + port))
 	}
 
 	def initServer(port: Int, name: String): SharedEventData = {
@@ -145,6 +144,8 @@ object SLP {
 		sharedEventData.clear()
 		sessionStartTime = dateTime
 	}
+
+	lazy val getRegistryFactory = new RegistryFactory
 
 	def getIP: String = {
 		val url = new java.net.URL("http://api.exip.org/?call=ip")
@@ -288,6 +289,4 @@ object SLP {
 	}
 
 	def getLobbyMap = slp.lobbyMap
-
-	def getRegistryFactory = new RegistryFactory
 }
