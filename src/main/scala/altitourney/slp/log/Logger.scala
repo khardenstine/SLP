@@ -15,46 +15,42 @@ import java.util.Date
 class Logger(logFileLocation: String, logLevel: LogLevel) {
 	private final val LOG_FILE: File = new File(logFileLocation)
 
-	private def log(line: String) {
-		try {
-			val writer = new BufferedWriter(new FileWriter(LOG_FILE, true))
-			writer.write(new Date().toString + " " + line)
-			writer.newLine()
-			writer.close()
-		}
-		catch {
-			case e: IOException => e.printStackTrace()
+	private def log(level: LogLevel, line: String) {
+		if (logLevel.shouldLog(level)) {
+			try {
+				val writer = new BufferedWriter(new FileWriter(LOG_FILE, true))
+				writer.write(new Date().toString + " [" + level.toString + "] " + line)
+				writer.newLine()
+				writer.close()
+			}
+			catch {
+				case e: IOException => e.printStackTrace()
+			}
 		}
 	}
 
 	def error(line: String) {
-		if (logLevel.shouldLog(ERROR)) {
-			log("ERROR: " + line)
-		}
+		log(ERROR, line)
 	}
 
 	def error(e: Exception) {
-		if (logLevel.shouldLog(ERROR)) {
-			log("ERROR: " + e.getMessage + "\n\t\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
-		}
+		error(e, e.getMessage)
+	}
+
+	def error(e: Exception, message: String) {
+		error(message + "\n\t\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
 	}
 
 	def warn(line: String) {
-		if (logLevel.shouldLog(WARN)) {
-			log("WARN: " + line)
-		}
+		log(WARN, line)
 	}
 
 	def info(line: String) {
-		if (logLevel.shouldLog(INFO)) {
-			log("INFO: " + line)
-		}
+		log(INFO, line)
 	}
 
 	def debug(line: String) {
-		if (logLevel.shouldLog(DEBUG)) {
-			log("DEBUG: " + line)
-		}
+		log(DEBUG, line)
 	}
 
 	def clean() {
