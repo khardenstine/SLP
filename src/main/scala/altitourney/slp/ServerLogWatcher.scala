@@ -25,7 +25,7 @@ class ServerLogWatcher(val path: String) {
 		try {
 			watcher.getLines.foreach {
 				line =>
-					SLP.getRegistryFactory.getStartUpRegistry.handle(Json.parse(line))
+					SLP.getRegistryFactory.getEventRegistry.handle(Json.parse(line))
 			}
 		}
 		catch {
