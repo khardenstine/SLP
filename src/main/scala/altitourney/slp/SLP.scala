@@ -13,7 +13,7 @@ import scala.Array
 import java.net.HttpURLConnection
 import altitourney.slp.registry.RegistryFactory
 
-class SLP(config: Config) {
+private class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
 	private val serverRoot: String = config.getString("server.root")
 	private val serverLog: File = new File(serverRoot + config.getString("server.log"))
@@ -21,6 +21,8 @@ class SLP(config: Config) {
 	private var running = false
 
 	private lazy val lobbyMap: String = config.getString("lobby.map")
+
+	private val CommandExecutor = new CommandExecutor(serverRoot + config.getString("server.command"))
 
 	private def start() = {
 		running = true
@@ -146,6 +148,8 @@ object SLP {
 	}
 
 	lazy val getRegistryFactory = new RegistryFactory
+
+	lazy val getCommandExecutor = slp.CommandExecutor
 
 	def getIP: String = {
 		val url = new java.net.URL("http://api.exip.org/?call=ip")

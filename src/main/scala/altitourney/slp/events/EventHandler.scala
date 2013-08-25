@@ -10,7 +10,7 @@ abstract class EventHandler(jsVal: JsValue) {
 		SLP.getSharedEventData(port)
 	}
 
-	final val port: Int = getInt("port")
+	final implicit val port: Int = getInt("port")
 
 	final def getTime: DateTime = {
 		getSharedEventData.getServerTime(getInt("time"))

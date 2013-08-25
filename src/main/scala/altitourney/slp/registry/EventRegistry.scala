@@ -21,10 +21,13 @@ trait EventRegistry {
 				.filter(_._1 == getFilter(jsVal))
 				.foreach{ e =>
 					SLP.getLog.debug("Handling event: " + e._1)
-					e._2(jsVal)
+					try {
+						e._2(jsVal)
+					} catch {
+						case e: NotLobbyException => SLP.getCommandExecutor.serverMessage((jsVal \ "port").as[Int], e)
+					}
 				}
 		} catch {
-			case e: NotLobbyException => SLP.getLog.error(e)
 			case e: Exception => SLP.getLog.error(e)
 		}
 	}
