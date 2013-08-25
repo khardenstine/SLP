@@ -4,10 +4,15 @@ import org.joda.time.DateTime
 import play.api.libs.json.JsValue
 import altitourney.slp.SLP
 import java.util.UUID
+import altitourney.slp.commands.CommandExecutor
 
 abstract class EventHandler(jsVal: JsValue) {
 	final def getSharedEventData: SharedEventData = {
 		SLP.getSharedEventData(port)
+	}
+
+	final def getCommandExecutor: CommandExecutor = {
+		getSharedEventData.commandExecutor
 	}
 
 	final implicit val port: Int = getInt("port")

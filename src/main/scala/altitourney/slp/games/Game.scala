@@ -2,6 +2,7 @@ package altitourney.slp.games
 
 import java.util.UUID
 import org.joda.time.DateTime
+import altitourney.slp.SLP
 
 abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, rightTeamId: Int) {
 	protected val leftTeam: Team = new Team(leftTeamId)
@@ -21,7 +22,13 @@ abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, right
 				rightTeam.players.add(player)
 				leftTeam.players.remove(player)
 			}
-			case 2 => {}
+			case 2 => {
+				if (map == SLP.getLobbyMap)
+				{
+					leftTeam.players.remove(player)
+					rightTeam.players.remove(player)
+				}
+			}
 			case _ => throw new RuntimeException("No team found for: " + team)
 		}
 	}

@@ -35,9 +35,10 @@ import altitourney.slp.SLP
 }
  */
 class RoundEnd(jsVal: JsValue) extends EventHandler(jsVal) {
-	val game = getSharedEventData.getGame
-	getSharedEventData.clearGame()
-
-	game.dump(getTime)
-	SLP.callback()
+	val game = getSharedEventData.extractGame
+	if (game.map != SLP.getLobbyMap)
+	{
+		game.dump(getTime)
+		SLP.callback()
+	}
 }

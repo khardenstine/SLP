@@ -7,6 +7,6 @@ import altitourney.slp.SLP
 abstract class LobbyHandler(jsVal: JsValue) extends EventHandler(jsVal) {
 	if (getSharedEventData.getGame.map != SLP.getLobbyMap)
 	{
-		throw new NotLobbyException("Must be in the lobby to execute this command.")
+		throw new NotLobbyException
 	}
 }

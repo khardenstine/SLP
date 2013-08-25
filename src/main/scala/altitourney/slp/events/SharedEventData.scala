@@ -4,11 +4,13 @@ import org.joda.time.DateTime
 import java.util.UUID
 import com.google.common.collect.HashBiMap
 import altitourney.slp.games._
+import altitourney.slp.SLP
 
-class SharedEventData(private val startTime: DateTime, val name: String) {
+class SharedEventData(val port: Int, private val startTime: DateTime, val name: String) {
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
 	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()
 	private var game: Game = new NoGame
+	val commandExecutor = SLP.getCommandExecutorFactory.getCommandExecutor(port)
 
 	def getServerTime(time: Int): DateTime = {
 		startTime.withDurationAdded(time.toLong, 1)
@@ -44,15 +46,49 @@ class SharedEventData(private val startTime: DateTime, val name: String) {
 		playerNameMap.clear()
 	}
 
-	def clearGame() {
-		game = new NoGame
+	def extractGame: Game = {
+		synchronized{
+			val finishedGame = game
+			game = new NoGame
+			finishedGame
+		}
 	}
 
 	def getGame: Game = {
-		game
+		synchronized(
+			game
+		)
 	}
 
 	def setGame(game: Game) {
-		this.game = game
+		synchronized(
+			this.game = game
+		)
+	}
+
+	private var tournament = false
+
+	def startTournament() {
+		synchronized(
+			if (!tournament)
+			{
+				commandExecutor.startTournament()
+				tournament = true
+			} else {
+				SLP.getLog.debug("Tournament already started.")
+			}
+		)
+	}
+
+	def stopTournament() {
+		synchronized(
+			if (tournament)
+			{
+				commandExecutor.stopTournament()
+				tournament = false
+			} else {
+				SLP.getLog.debug("No tournament currently running.")
+			}
+		)
 	}
 }

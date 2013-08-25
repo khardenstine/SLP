@@ -12,6 +12,7 @@ import log.{Logger, LogLevel}
 import scala.Array
 import java.net.HttpURLConnection
 import altitourney.slp.registry.RegistryFactory
+import altitourney.slp.commands.CommandExecutorFactory
 
 private class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
@@ -20,9 +21,10 @@ private class SLP(config: Config) {
 	log.info(serverLog.getCanonicalPath)
 	private var running = false
 
-	private lazy val lobbyMap: String = config.getString("lobby.map")
+	private val lobbyMap: String = config.getString("lobby.map")
+	private val ladderConfig = config.getConfig("ladder")
 
-	private val CommandExecutor = new CommandExecutor(serverRoot + config.getString("server.command"))
+	private val CommandExecutorFactory = new CommandExecutorFactory(serverRoot + config.getString("server.command"))
 
 	private def start() = {
 		running = true
@@ -137,7 +139,7 @@ object SLP {
 	}
 
 	def initServer(port: Int, name: String): SharedEventData = {
-		val server: SharedEventData = new SharedEventData(sessionStartTime, name)
+		val server: SharedEventData = new SharedEventData(port, sessionStartTime, name)
 		sharedEventData.put(port, server)
 		server
 	}
@@ -149,7 +151,7 @@ object SLP {
 
 	lazy val getRegistryFactory = new RegistryFactory
 
-	lazy val getCommandExecutor = slp.CommandExecutor
+	lazy val getCommandExecutorFactory = slp.CommandExecutorFactory
 
 	def getIP: String = {
 		val url = new java.net.URL("http://api.exip.org/?call=ip")
@@ -223,12 +225,7 @@ object SLP {
 	}
 
 	def insertDBStatement(table: String, values: Seq[Any]) {
-		executeDBStatement(
-			"""
-			  |INSERT INTO %s
-			  |VALUES(%s)
-			""".stripMargin.format(table, values.map("'" + _ + "'").mkString(","))
-		)
+		insertRawDBStatement(table, values.map("'" + _ + "'"))
 	}
 
 	def updatePlayerName(vapor: UUID, name: String) {
@@ -293,4 +290,5 @@ object SLP {
 	}
 
 	def getLobbyMap = slp.lobbyMap
+	def getLadderConfig = slp.ladderConfig
 }

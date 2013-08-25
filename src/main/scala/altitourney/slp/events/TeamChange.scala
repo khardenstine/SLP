@@ -1,6 +1,7 @@
 package altitourney.slp.events
 
 import play.api.libs.json.JsValue
+import altitourney.slp.SLP
 
 /**
  * {"port":27277,"time":4167,"player":0,"team":2,"type":"teamChange"}

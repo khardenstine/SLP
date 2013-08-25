@@ -1,6 +1,6 @@
 package altitourney.slp.registry
 
-import altitourney.slp.events.{ServerInit, SessionStart}
+import altitourney.slp.events.{MapChange, ServerInit, SessionStart}
 import play.api.libs.json.JsValue
 
 protected class StartUpRegistry extends EventRegistry {
