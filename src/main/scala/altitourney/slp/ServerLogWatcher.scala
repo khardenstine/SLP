@@ -9,15 +9,12 @@ package altitourney.slp
 
 import play.api.libs.json.Json
 import java.io._
-import java.util.Date
 import scala.io.BufferedSource
 
 class ServerLogWatcher(val path: String) {
-	SLP.getLog.debug("Going to initialize server log")
-	SLP.getLog.debug("Log file is located at: " + path)
 	var watcher = new Watcher(path, true)
 
-	SLP.getLog.debug("About to parse old log")
+	SLP.getLog.debug("Parsing old log")
 	watcher.getLines.foreach {
 		line => SLP.getRegistryFactory.getStartUpRegistry.handle(Json.parse(line))
 	}
@@ -32,7 +29,7 @@ class ServerLogWatcher(val path: String) {
 			}
 		}
 		catch {
-			case e: Exception => SLP.getLog.error("Failed to read console command: " + e)
+			case e: Exception => SLP.getLog.error(e, "Failed to read console command")
 		}
 
 		watcher = watcher.setReferenceFileLength()
@@ -43,14 +40,14 @@ class ServerLogWatcher(val path: String) {
 class Watcher(val path: String, val createFile: Boolean) {
 	private val file: File = new File(path)
 	if (createFile) { file.createNewFile() }
-	SLP.getLog.debug("Initializing reader for " + file + " (" + file.lastModified + ") at " + (new Date).toString)
+	SLP.getLog.debug("Initializing reader for " + file + " (" + file.lastModified + ")")
 	private val reader: BufferedSource = {
 		try {
 			scala.io.Source.fromFile(file)
 		}
 		catch {
 			case e: FileNotFoundException => {
-				SLP.getLog.error("Failed to create reader for " + file + " " + e)
+				SLP.getLog.error(e, "Failed to create reader for " + file)
 				throw e
 			}
 		}
@@ -65,10 +62,10 @@ class Watcher(val path: String, val createFile: Boolean) {
 
 			try {
 				reader.close()
-				SLP.getLog.debug("reader closed")
+				SLP.getLog.debug("Reader closed")
 			}
 			catch {
-				case e: IOException => SLP.getLog.error("Failed to close reader " + e)
+				case e: IOException => SLP.getLog.error(e, "Failed to close reader.")
 			}
 
 			new Watcher(path, false)
