@@ -11,6 +11,7 @@ import altitourney.slp.events.SharedEventData
 import log.{Logger, LogLevel}
 import scala.Array
 import java.net.HttpURLConnection
+import altitourney.slp.registry.RegistryFactory
 
 class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
@@ -18,6 +19,8 @@ class SLP(config: Config) {
 	private val serverLog: File = new File(serverRoot + config.getString("server.log"))
 	log.info(serverLog.getCanonicalPath)
 	private var running = false
+
+	private lazy val lobbyMap: String = config.getString("lobby.map")
 
 	private def start() = {
 		running = true
@@ -283,4 +286,8 @@ object SLP {
 			case e: Exception => getLog.error(e)
 		}
 	}
+
+	def getLobbyMap = slp.lobbyMap
+
+	def getRegistryFactory = new RegistryFactory
 }

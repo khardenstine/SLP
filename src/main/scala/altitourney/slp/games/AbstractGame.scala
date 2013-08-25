@@ -8,9 +8,7 @@ import java.sql.{Timestamp, SQLException}
 import com.google.common.collect.HashBasedTable
 import java.util.concurrent.ConcurrentHashMap
 
-abstract class AbstractGame(final val startTime: DateTime, final val map: String, final val leftTeamId: Int, final val rightTeamId: Int) extends Game {
-	private val leftTeam: Team = new Team(leftTeamId)
-	private val rightTeam: Team = new Team(rightTeamId)
+abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends Game(startTime, map, leftTeamId, rightTeamId) {
 	// todo column shouldnt be string, should be Perk Enum
 	private val perkTable: HashBasedTable[UUID, String, PerkData] = HashBasedTable.create()
 	val spawnMap: concurrent.Map[UUID, PlayerSpawn] = JavaConversions.mapAsScalaConcurrentMap(new ConcurrentHashMap[UUID, PlayerSpawn])
@@ -50,21 +48,6 @@ abstract class AbstractGame(final val startTime: DateTime, final val map: String
 		}
 		else {
 			None
-		}
-	}
-
-	def changeTeam(player: UUID, team: Int) {
-		team match {
-			case leftTeam.id => {
-				leftTeam.players.add(player)
-				rightTeam.players.remove(player)
-			}
-			case rightTeam.id => {
-				rightTeam.players.add(player)
-				leftTeam.players.remove(player)
-			}
-			case 2 => {}
-			case _ => throw new RuntimeException("No team found for: " + team)
 		}
 	}
 

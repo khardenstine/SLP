@@ -20,7 +20,7 @@ class ServerLogWatcher(val path: String) {
 
 	SLP.getLog.debug("About to parse old log")
 	watcher.getLines.foreach {
-		line => Events.handle(Json.parse(line), Events.START_UP_REGISTRY)
+		line => SLP.getRegistryFactory.getStartUpRegistry.handle(Json.parse(line))
 	}
 	SLP.getLog.debug("Finished parsing old log")
 	SLP.getLog.debug("The reference file has a length of: " + watcher.getReferenceFileLength)
@@ -29,7 +29,7 @@ class ServerLogWatcher(val path: String) {
 		try {
 			watcher.getLines.foreach {
 				line =>
-					Events.handle(Json.parse(line))
+					SLP.getRegistryFactory.getStartUpRegistry.handle(Json.parse(line))
 			}
 		}
 		catch {
