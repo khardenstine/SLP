@@ -65,30 +65,4 @@ class SharedEventData(val port: Int, private val startTime: DateTime, val name: 
 			this.game = game
 		)
 	}
-
-	private var tournament = false
-
-	def startTournament() {
-		synchronized(
-			if (!tournament)
-			{
-				commandExecutor.startTournament()
-				tournament = true
-			} else {
-				SLP.getLog.debug("Tournament already started.")
-			}
-		)
-	}
-
-	def stopTournament() {
-		synchronized(
-			if (tournament)
-			{
-				commandExecutor.stopTournament()
-				tournament = false
-			} else {
-				SLP.getLog.debug("No tournament currently running.")
-			}
-		)
-	}
 }

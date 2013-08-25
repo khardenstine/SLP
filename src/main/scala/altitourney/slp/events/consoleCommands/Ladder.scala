@@ -27,9 +27,9 @@ class StartRandom(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	getCommandExecutor.assignRightTeam(teams._2:_*)
 
 	while (getShouldSpec.size > 0) {
-		getSharedEventData.stopTournament()
+		getCommandExecutor.stopTournament()
 		getCommandExecutor.assignSpectate(getShouldSpec:_*)
-		getSharedEventData.startTournament()
+		getCommandExecutor.startTournament()
 		Thread.sleep(50)
 	}
 

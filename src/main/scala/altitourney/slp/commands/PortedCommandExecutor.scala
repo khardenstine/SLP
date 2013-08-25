@@ -61,12 +61,30 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 		assignTeam(1, playerNickName:_*)
 	}
 
-	def startTournament(): Unit = {
-		writeCommand("startTournament")
+	private var tournament = false
+
+	def startTournament() {
+		synchronized(
+			if (!tournament)
+			{
+				writeCommand("startTournament")
+				tournament = true
+			} else {
+				SLP.getLog.debug("Tournament already started.")
+			}
+		)
 	}
 
 	def stopTournament(): Unit = {
-		writeCommand("stopTournament")
+		synchronized(
+			if (tournament)
+			{
+				writeCommand("stopTournament")
+				tournament = false
+			} else {
+				SLP.getLog.debug("No tournament currently running.")
+			}
+		)
 	}
 
 	def serverMessage(message: String): Unit = {
