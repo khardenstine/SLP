@@ -21,7 +21,7 @@ protected class AllEvents extends EventRegistry{
 			("powerupPickup",			new PowerupPickup(_)),
 			("powerupUse",				new PowerupUse(_)),
 			("roundEnd",				new RoundEnd(_)),
-			("serverInit",				new ServerInit(_)),
+			("serverStart",				new ServerStart(_)),
 			("spawn",					new Spawn(_)),
 			("structureDamage",			new StructureDamage(_)),
 			("structureDestroy",		new StructureDestroy(_)),

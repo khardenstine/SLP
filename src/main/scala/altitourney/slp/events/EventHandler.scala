@@ -7,8 +7,10 @@ import java.util.UUID
 
 abstract class EventHandler(jsVal: JsValue) {
 	final def getSharedEventData: SharedEventData = {
-		SLP.getSharedEventData((jsVal \ "port").as[Int])
+		SLP.getSharedEventData(port)
 	}
+
+	final val port: Int = getInt("port")
 
 	final def getTime: DateTime = {
 		getSharedEventData.getServerTime(getInt("time"))

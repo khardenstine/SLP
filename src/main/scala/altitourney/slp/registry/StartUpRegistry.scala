@@ -1,11 +1,11 @@
 package altitourney.slp.registry
 
-import altitourney.slp.events.{SessionStart, ServerStart}
+import altitourney.slp.events.{ServerInit, SessionStart}
 import play.api.libs.json.JsValue
 
 protected class StartUpRegistry extends EventRegistry {
 	val REGISTRY: Seq[REGISTER] = Seq(
-		("serverStart",				new ServerStart(_)),
+		("serverInit",				new ServerInit(_)),
 		("sessionStart",			new SessionStart(_))
 	)
 
