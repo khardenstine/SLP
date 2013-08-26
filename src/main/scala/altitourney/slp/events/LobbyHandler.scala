@@ -1,8 +1,8 @@
 package altitourney.slp.events
 
+import altitourney.slp.SLP
 import altitourney.slp.events.exceptions.NotLobbyException
 import play.api.libs.json.JsValue
-import altitourney.slp.SLP
 
 abstract class LobbyHandler(jsVal: JsValue) extends EventHandler(jsVal) {
 	if (getSharedEventData.getGame.map != SLP.getLobbyMap)

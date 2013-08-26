@@ -1,8 +1,8 @@
 package altitourney.slp.registry
 
+import altitourney.slp.ThreadHelper
 import altitourney.slp.events.consoleCommands._
 import play.api.libs.json.JsValue
-import altitourney.slp.ThreadHelper
 
 protected class ConsoleCommandRegistry extends EventRegistry{
 	val REGISTRY: Seq[REGISTER] = Seq(

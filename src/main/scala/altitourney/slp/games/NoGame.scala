@@ -1,8 +1,8 @@
 package altitourney.slp.games
 
+import altitourney.slp.SLP
 import java.util.UUID
 import org.joda.time.DateTime
-import altitourney.slp.SLP
 
 class NoGame(startTime: DateTime = new DateTime(), map: String = SLP.getLobbyMap, leftTeamId: Int = 0, rightTeamId: Int = 1) extends Game(startTime, map, leftTeamId, rightTeamId) {
 	def addKill(source: Option[UUID], victim: UUID, xp: Int, time: DateTime) {}

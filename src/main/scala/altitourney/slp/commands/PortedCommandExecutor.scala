@@ -1,7 +1,7 @@
 package altitourney.slp.commands
 
-import java.io.{File, FileWriter, BufferedWriter}
 import altitourney.slp.SLP
+import java.io.{File, FileWriter, BufferedWriter}
 
 private class PortedCommandExecutor(commandFile: File, port: Int) extends CommandExecutor {
 	private def buildCommand(commandType: String, rawArguments: String*): String = {

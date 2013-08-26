@@ -1,12 +1,12 @@
 package altitourney.slp.games
 
-import java.util.UUID
 import altitourney.slp.SLP
+import com.google.common.collect.HashBasedTable
+import java.sql.{Timestamp, SQLException}
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import org.joda.time.{Duration, DateTime}
 import scala.collection.{JavaConversions, JavaConverters, concurrent}
-import java.sql.{Timestamp, SQLException}
-import com.google.common.collect.HashBasedTable
-import java.util.concurrent.ConcurrentHashMap
 
 abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends Game(startTime, map, leftTeamId, rightTeamId) {
 	// todo column shouldnt be string, should be Perk Enum

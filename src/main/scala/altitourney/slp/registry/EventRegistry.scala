@@ -1,9 +1,9 @@
 package altitourney.slp.registry
 
-import play.api.libs.json.JsValue
+import altitourney.slp.SLP
 import altitourney.slp.events.EventHandler
 import altitourney.slp.events.exceptions.ServerMessageException
-import altitourney.slp.SLP
+import play.api.libs.json.JsValue
 
 trait EventRegistry {
 	type REGISTER = (String, (JsValue) => EventHandler)

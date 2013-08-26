@@ -1,9 +1,9 @@
 package altitourney.slp.games
 
-import java.util.UUID
-import scala.collection.mutable
 import altitourney.slp.SLP
 import java.sql.ResultSet
+import java.util.UUID
+import scala.collection.mutable
 
 class Team(final val id: Int) {
 	val players: mutable.Set[UUID] = mutable.Set()

@@ -1,8 +1,8 @@
 package altitourney.slp.events
 
-import play.api.libs.json.JsValue
 import altitourney.slp.SLP
 import java.util.UUID
+import play.api.libs.json.JsValue
 
 /**
  * {"port":27276,"oldNickname":"'LOL';--UMADBRO","time":83170918,"player":5,"newNickname":"LOL';--UMADBRO",

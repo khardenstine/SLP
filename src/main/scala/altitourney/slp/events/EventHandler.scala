@@ -1,10 +1,10 @@
 package altitourney.slp.events
 
+import altitourney.slp.SLP
+import altitourney.slp.commands.CommandExecutor
+import java.util.UUID
 import org.joda.time.DateTime
 import play.api.libs.json.JsValue
-import altitourney.slp.SLP
-import java.util.UUID
-import altitourney.slp.commands.CommandExecutor
 
 abstract class EventHandler(jsVal: JsValue) {
 	final def getSharedEventData: SharedEventData = {

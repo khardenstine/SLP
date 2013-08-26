@@ -1,8 +1,8 @@
 package altitourney.slp.events
 
-import play.api.libs.json.JsValue
 import altitourney.slp.SLP
 import org.joda.time.format.DateTimeFormat
+import play.api.libs.json.JsValue
 
 /**
  * {"port":-1,"time":0,"date":"2013 Feb 08 23:56:35:711 EST","type":"sessionStart"}

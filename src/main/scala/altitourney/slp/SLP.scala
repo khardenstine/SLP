@@ -1,18 +1,18 @@
 package altitourney.slp
 
+import altitourney.slp.commands.CommandExecutorFactory
+import altitourney.slp.events.SharedEventData
+import altitourney.slp.registry.RegistryFactory
 import com.typesafe.config.{ConfigFactory, Config}
 import java.io.File
-import java.sql._
-import java.util.UUID
-import scala.collection.mutable
-import org.joda.time.DateTime
-
-import altitourney.slp.events.SharedEventData
-import log.{Logger, LogLevel}
-import scala.Array
 import java.net.HttpURLConnection
-import altitourney.slp.registry.RegistryFactory
-import altitourney.slp.commands.CommandExecutorFactory
+import java.sql.{Connection, PreparedStatement, ResultSet, SQLException, Statement, Timestamp}
+import java.util.UUID
+import log.{Logger, LogLevel}
+import org.joda.time.DateTime
+import scala.Array
+import scala.collection.mutable
+
 
 private class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))

@@ -1,10 +1,10 @@
 package altitourney.slp.events
 
-import org.joda.time.DateTime
-import java.util.UUID
-import com.google.common.collect.HashBiMap
-import altitourney.slp.games._
 import altitourney.slp.SLP
+import altitourney.slp.games._
+import com.google.common.collect.HashBiMap
+import java.util.UUID
+import org.joda.time.DateTime
 
 class SharedEventData(val port: Int, private val startTime: DateTime, val name: String) {
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()

@@ -1,7 +1,7 @@
 package altitourney.slp.events
 
-import play.api.libs.json.JsValue
 import altitourney.slp.SLP
+import play.api.libs.json.JsValue
 
 /**
  * {"port":27276,"time":29674784,"arguments":["changeMap","tbd_asteroids"],"source":"79b7a12f-12b4-46ab-adae-580131833b88","command":"vote","group":"Anonymous","type":"consoleCommandExecute"}

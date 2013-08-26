@@ -1,7 +1,7 @@
 package altitourney.slp.registry
 
-import play.api.libs.json.JsValue
 import altitourney.slp.events.consoleCommands.StartRandom
+import play.api.libs.json.JsValue
 
 class LadderRegistry extends EventRegistry{
 	val REGISTRY: Seq[REGISTER] = Seq(

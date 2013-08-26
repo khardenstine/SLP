@@ -1,10 +1,10 @@
 package altitourney.slp.events
 
-import play.api.libs.json.JsValue
-import altitourney.slp.games._
 import altitourney.slp.SLP
+import altitourney.slp.games._
 import java.util.UUID
 import org.joda.time.DateTime
+import play.api.libs.json.JsValue
 
 /**
  * {"port":27276,"leftTeam":3,"time":3898,"rightTeam":4,"map":"tbd_lostcity","type":"mapChange","mode":"tbd"}
