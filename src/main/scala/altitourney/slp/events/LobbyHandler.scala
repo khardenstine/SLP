@@ -5,7 +5,7 @@ import altitourney.slp.events.exceptions.NotLobbyException
 import play.api.libs.json.JsValue
 
 abstract class LobbyHandler(jsVal: JsValue) extends EventHandler(jsVal) {
-	if (getServerContext.getGame.map != getServerContext.getLobbyMap)
+	if (getGame.map != getServerContext.getLobbyMap)
 	{
 		throw new NotLobbyException
 	}

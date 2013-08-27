@@ -5,10 +5,15 @@ import altitourney.slp.commands.CommandExecutor
 import java.util.UUID
 import org.joda.time.DateTime
 import play.api.libs.json.JsValue
+import altitourney.slp.games.Game
 
 abstract class EventHandler(jsVal: JsValue) {
 	final def getServerContext: ServerContext = {
 		SLP.getServerContext(port)
+	}
+
+	final def getGame: Game = {
+		getServerContext.getGame
 	}
 
 	final def getCommandExecutor: CommandExecutor = {

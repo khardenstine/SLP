@@ -7,7 +7,7 @@ import altitourney.slp.games.Mode
 import java.util.UUID
 
 abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
-	val playerList = getServerContext.getGame.listPlayers
+	val playerList = getGame.listPlayers
 	val mode = getMode
 	val teamSize = mode.teamSize
 	if (playerList.size < (teamSize * 2))
@@ -23,7 +23,7 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 		implicit def uuids2Names(uuids: Set[UUID]): Seq[String] = uuids.map{uuid => getServerContext.getPlayerName(uuid)}.toSeq
 
 		def getShouldSpec: Set[UUID] = {
-			getServerContext.getGame.listPlayers.filter(uuid => !(teams._1 ++ teams._2).contains(uuid))
+			getGame.listPlayers.filter(uuid => !(teams._1 ++ teams._2).contains(uuid))
 		}
 
 		getCommandExecutor.assignLeftTeam(teams._1:_*)
