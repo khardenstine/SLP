@@ -15,22 +15,12 @@ class ServerLogWatcher(val path: String) {
 	var watcher = new Watcher(path, true)
 
 	SLP.getLog.debug("Parsing old log")
-	watcher.getLines.foreach {
-		line => SLP.getRegistryFactory.getStartUpRegistry.handle(Json.parse(line))
-	}
+	SLP.getRegistryFactory.getStartUpRegistry.handle(watcher.getLines)
 	SLP.getLog.debug("Finished parsing old log")
 	SLP.getLog.debug("The reference file has a length of: " + watcher.getReferenceFileLength)
 
 	def checkServerLogForNewData() {
-		try {
-			watcher.getLines.foreach {
-				line =>
-					SLP.getRegistryFactory.getEventRegistry.handle(Json.parse(line))
-			}
-		}
-		catch {
-			case e: Exception => SLP.getLog.error(e, "Failed to read console command")
-		}
+		SLP.getRegistryFactory.getEventRegistry.handle(watcher.getLines)
 
 		watcher = watcher.setReferenceFileLength()
 	}

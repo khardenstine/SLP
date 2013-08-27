@@ -3,7 +3,7 @@ package altitourney.slp.registry
 import altitourney.slp.SLP
 import altitourney.slp.events.EventHandler
 import altitourney.slp.events.exceptions.ServerMessageException
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Json, JsValue}
 
 trait EventRegistry {
 	type REGISTER = (String, (JsValue) => EventHandler)
@@ -11,14 +11,34 @@ trait EventRegistry {
 
 	protected def getFilter(jsVal: JsValue): String
 
+	def handle(lines: Iterator[String]) = {
+		try {
+			lines.foreach {
+				line =>
+					SLP.getRegistryFactory.getEventRegistry.handle(Json.parse(line))
+			}
+		}
+		catch {
+			case e: Exception => SLP.getLog.error(e, "Failed to read console command")
+		}
+	}
+
 	def handle(jsVal: JsValue): Unit = {
 		// Ignore bot events
 		// this isnt correct
 		//val vaporId = (jsVal \ "vaporId").as[String]
 		//if (vaporId == JsUndefined || vaporId != "00000000-0000-0000-0000-000000000000")
-		REGISTRY
-			.filter(_._1 == getFilter(jsVal))
-			.foreach{ e =>
+
+		val filter = getFilter(jsVal)
+		val registers = REGISTRY.filter(_._1 == filter)
+
+		if (registers.length < 1)
+		{
+			SLP.getLog.info("Event: [" + filter + "] not found in " + this.getClass.getName)
+		}
+		else
+		{
+			registers.foreach{ e =>
 				SLP.getLog.debug("Handling event: " + e._1)
 				workWrapper(() =>
 					try {
@@ -35,6 +55,7 @@ trait EventRegistry {
 					}
 				)
 			}
+		}
 	}
 
 	def workWrapper(work: () => Unit): Unit = {
