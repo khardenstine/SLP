@@ -1,8 +1,8 @@
 package altitourney.slp.games
 
-import altitourney.slp.SLP
 import java.util.UUID
 import org.joda.time.DateTime
+import altitourney.slp.ServerContext
 
 abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, rightTeamId: Int) {
 	protected val leftTeam: Team = new Team(leftTeamId)
@@ -12,7 +12,7 @@ abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, right
 		(leftTeam.players ++ rightTeam.players).toSet
 	}
 
-	def changeTeam(player: UUID, team: Int) {
+	def changeTeam(player: UUID, team: Int, serverContext: ServerContext) {
 		team match {
 			case leftTeam.id => {
 				leftTeam.players.add(player)
@@ -23,7 +23,7 @@ abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, right
 				leftTeam.players.remove(player)
 			}
 			case 2 => {
-				if (map == SLP.getLobbyMap)
+				if (map == serverContext.getLobbyMap)
 				{
 					leftTeam.players.remove(player)
 					rightTeam.players.remove(player)

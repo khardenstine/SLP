@@ -18,7 +18,7 @@ class MapChange(jsVal: JsValue) extends EventHandler(jsVal) {
 	)
 
 	def getGameType(dateTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game = {
-		if (map == SLP.getLobbyMap)
+		if (map == getServerContext.getLobbyMap)
 		{
 			new NoGame(dateTime, map, leftTeamId, rightTeamId)
 		} else {

@@ -18,8 +18,6 @@ private class SLP(config: Config) {
 	log.info(serverLog.getCanonicalPath)
 	private var running = false
 
-	private val lobbyMap: String = config.getString("lobby.map")
-
 	private val CommandExecutorFactory = new CommandExecutorFactory(serverRoot + config.getString("server.command"))
 
 	private def buildServerContext(port: Int, startTime: DateTime, name: String): ServerContext = {
@@ -124,6 +122,7 @@ private class SLP(config: Config) {
 object SLP {
 	private val slp: SLP = new SLP(ConfigFactory.load())
 	private val serverContexts: mutable.HashMap[Int, ServerContext] = mutable.HashMap.empty
+	// TODO null wtf?
 	private var sessionStartTime: DateTime = null
 
 	def main(args: Array[String]) {
@@ -288,6 +287,4 @@ object SLP {
 			case e: Exception => getLog.error(e)
 		}
 	}
-
-	def getLobbyMap = slp.lobbyMap
 }

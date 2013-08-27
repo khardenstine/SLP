@@ -7,6 +7,7 @@ import org.joda.time.DateTime
 import com.typesafe.config.{ConfigException, Config}
 
 class ServerContext(val config: Config, val port: Int, private val startTime: DateTime, val name: String) {
+	private val lobbyMap: String = config.getString("lobby.map")
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
 	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()
 	private var game: Game = new NoGame
@@ -74,4 +75,6 @@ class ServerContext(val config: Config, val port: Int, private val startTime: Da
 			this.game = game
 		)
 	}
+
+	def getLobbyMap = lobbyMap
 }
