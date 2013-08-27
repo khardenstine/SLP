@@ -1,7 +1,6 @@
 package altitourney.slp
 
 import altitourney.slp.commands.CommandExecutorFactory
-import altitourney.slp.events.SharedEventData
 import altitourney.slp.registry.RegistryFactory
 import com.typesafe.config.{ConfigFactory, Config}
 import java.io.File
@@ -10,9 +9,7 @@ import java.sql.{Connection, PreparedStatement, ResultSet, SQLException, Stateme
 import java.util.UUID
 import log.{Logger, LogLevel}
 import org.joda.time.DateTime
-import scala.Array
 import scala.collection.mutable
-
 
 private class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
@@ -22,9 +19,12 @@ private class SLP(config: Config) {
 	private var running = false
 
 	private val lobbyMap: String = config.getString("lobby.map")
-	private val ladderConfig = config.getConfig("ladder")
 
 	private val CommandExecutorFactory = new CommandExecutorFactory(serverRoot + config.getString("server.command"))
+
+	private def buildServerContext(port: Int, startTime: DateTime, name: String): ServerContext = {
+		new ServerContext(config.getConfig(port.toString), port, startTime, name)
+	}
 
 	private def start() = {
 		running = true
@@ -80,8 +80,8 @@ private class SLP(config: Config) {
 			try {
 				val ip = SLP.getIP
 
-				SLP.sharedEventData foreach {
-					tuple: ((Int, SharedEventData)) =>
+				SLP.serverContexts foreach {
+					tuple: ((Int, ServerContext)) =>
 						try {
 							SLP.preparedStatement(
 								"""
@@ -123,7 +123,7 @@ private class SLP(config: Config) {
 
 object SLP {
 	private val slp: SLP = new SLP(ConfigFactory.load())
-	private val sharedEventData: mutable.HashMap[Int, SharedEventData] = mutable.HashMap.empty
+	private val serverContexts: mutable.HashMap[Int, ServerContext] = mutable.HashMap.empty
 	private var sessionStartTime: DateTime = null
 
 	def main(args: Array[String]) {
@@ -134,18 +134,18 @@ object SLP {
 		slp.log
 	}
 
-	def getSharedEventData(port: Int): SharedEventData = {
-		sharedEventData.get(port).getOrElse(throw new RuntimeException("Server not initialized on port: " + port))
+	def getServerContext(port: Int): ServerContext = {
+		serverContexts.get(port).getOrElse(throw new RuntimeException("Server not initialized on port: " + port))
 	}
 
-	def initServer(port: Int, name: String): SharedEventData = {
-		val server: SharedEventData = new SharedEventData(port, sessionStartTime, name)
-		sharedEventData.put(port, server)
+	def initServer(port: Int, name: String): ServerContext = {
+		val server: ServerContext = slp.buildServerContext(port, sessionStartTime, name)
+		serverContexts.put(port, server)
 		server
 	}
 
 	def startSession(dateTime: DateTime) {
-		sharedEventData.clear()
+		serverContexts.clear()
 		sessionStartTime = dateTime
 	}
 
@@ -252,8 +252,8 @@ object SLP {
 			val ip = getIP
 			getLog.debug("Server IP: " + ip)
 
-			sharedEventData foreach {
-				tuple: ((Int, SharedEventData)) =>
+			serverContexts foreach {
+				tuple: ((Int, ServerContext)) =>
 					try {
 						preparedStatement(
 							"""
@@ -290,5 +290,4 @@ object SLP {
 	}
 
 	def getLobbyMap = slp.lobbyMap
-	def getLadderConfig = slp.ladderConfig
 }

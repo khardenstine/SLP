@@ -1,16 +1,25 @@
-package altitourney.slp.events
+package altitourney.slp
 
-import altitourney.slp.SLP
-import altitourney.slp.games._
+import altitourney.slp.games.{Mode, Game, NoGame}
 import com.google.common.collect.HashBiMap
 import java.util.UUID
 import org.joda.time.DateTime
+import com.typesafe.config.{ConfigException, Config}
 
-class SharedEventData(val port: Int, private val startTime: DateTime, val name: String) {
+class ServerContext(val config: Config, val port: Int, private val startTime: DateTime, val name: String) {
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
 	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()
 	private var game: Game = new NoGame
 	val commandExecutor = SLP.getCommandExecutorFactory.getCommandExecutor(port)
+
+	def getLadderMode: Option[Mode] = {
+		try
+		{
+			Mode.withName(config.getString("ladder.mode"))
+		} catch {
+			case e: ConfigException.Missing => None
+		}
+	}
 
 	def getServerTime(time: Int): DateTime = {
 		startTime.withDurationAdded(time.toLong, 1)

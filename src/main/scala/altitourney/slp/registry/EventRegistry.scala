@@ -26,7 +26,7 @@ trait EventRegistry {
 					} catch {
 						case e: ServerMessageException => {
 							try{
-								SLP.getSharedEventData((jsVal \ "port").as[Int]).commandExecutor.serverMessage(e)
+								SLP.getServerContext((jsVal \ "port").as[Int]).commandExecutor.serverMessage(e)
 							} catch {
 								case e: Exception => SLP.getLog.error(e)
 							}

@@ -11,7 +11,7 @@ import play.api.libs.json.JsValue
 class ClientAdd(jsVal: JsValue) extends EventHandler(jsVal) {
 	val vapor: UUID = getUUID("vaporId")
 	val nickName: String = getString("nickname")
-	getSharedEventData.addPlayer(vapor, getInt("player"), nickName)
+	getServerContext.addPlayer(vapor, getInt("player"), nickName)
 	SLP.updatePlayerName(vapor, nickName)
 
 	SLP.executeDBStatement(

@@ -1,24 +1,24 @@
 package altitourney.slp.events
 
-import altitourney.slp.SLP
+import altitourney.slp.{ServerContext, SLP}
 import altitourney.slp.commands.CommandExecutor
 import java.util.UUID
 import org.joda.time.DateTime
 import play.api.libs.json.JsValue
 
 abstract class EventHandler(jsVal: JsValue) {
-	final def getSharedEventData: SharedEventData = {
-		SLP.getSharedEventData(port)
+	final def getServerContext: ServerContext = {
+		SLP.getServerContext(port)
 	}
 
 	final def getCommandExecutor: CommandExecutor = {
-		getSharedEventData.commandExecutor
+		getServerContext.commandExecutor
 	}
 
 	final implicit val port: Int = getInt("port")
 
 	final def getTime: DateTime = {
-		getSharedEventData.getServerTime(getInt("time"))
+		getServerContext.getServerTime(getInt("time"))
 	}
 
 	final def getUUIDfromPlayerNumber(name: String): Option[UUID] = {
@@ -27,7 +27,7 @@ abstract class EventHandler(jsVal: JsValue) {
 			None
 		}
 		else {
-			Some(getSharedEventData.getPlayer(player))
+			Some(getServerContext.getPlayer(player))
 		}
 	}
 

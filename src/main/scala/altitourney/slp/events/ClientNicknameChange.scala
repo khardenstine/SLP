@@ -12,6 +12,6 @@ class ClientNicknameChange(jsVal: JsValue) extends EventHandler(jsVal) {
 	val newNick: String = getString("newNickName")
 	val vapor: UUID = getUUID("vaporId")
 
-	getSharedEventData.updatePlayerName(vapor, newNick)
+	getServerContext.updatePlayerName(vapor, newNick)
 	SLP.updatePlayerName(vapor, newNick)
 }

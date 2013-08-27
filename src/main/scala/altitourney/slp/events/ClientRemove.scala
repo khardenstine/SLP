@@ -7,5 +7,5 @@ import play.api.libs.json.JsValue
  * "vaporId":"79b7a12f-12b4-46ab-adae-580131833b88","type":"clientRemove","ip":"192.168.1.2:27272"}
  */
 class ClientRemove(jsVal: JsValue) extends EventHandler(jsVal) {
-	getSharedEventData.removePlayer(getInt("player"))
+	getServerContext.removePlayer(getInt("player"))
 }
