@@ -38,7 +38,7 @@ private class SLP(config: Config) {
 						ThreadHelper.sleep(200)
 					}
 					catch {
-						case e: Exception => log.error("Process failed " + e)
+						case e: Exception => log.error(e, "Process failed.")
 					}
 				}
 			}
@@ -54,7 +54,7 @@ private class SLP(config: Config) {
 					}
 					catch {
 						case e: Exception => {
-							log.error("Process failed " + e)
+							log.error(e, "Process failed.")
 						}
 					}
 				}
@@ -68,7 +68,7 @@ private class SLP(config: Config) {
 		}
 		catch {
 			case e: SQLException => {
-				log.error(e.getErrorCode + "\n\t" + e.getMessage + "\n\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
+				log.error(e, e.getErrorCode + "\n\t" + e.getMessage)
 				throw e
 			}
 		}

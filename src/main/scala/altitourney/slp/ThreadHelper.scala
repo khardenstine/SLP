@@ -13,7 +13,7 @@ object ThreadHelper {
 		}
 		catch {
 			case e: InterruptedException => {
-				SLP.getLog.error(e.getMessage)
+				SLP.getLog.error(e)
 				throw e
 			}
 		}
