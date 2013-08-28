@@ -8,7 +8,6 @@ package altitourney.slp
 // June-2013
 
 import java.io._
-import play.api.libs.json.Json
 import scala.io.BufferedSource
 
 class ServerLogWatcher(val path: String) {

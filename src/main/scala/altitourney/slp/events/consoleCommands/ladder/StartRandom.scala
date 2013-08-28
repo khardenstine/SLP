@@ -1,11 +1,11 @@
 package altitourney.slp.events.consoleCommands.ladder
 
-import play.api.libs.json.JsValue
-import altitourney.slp.events.exceptions.LadderNotConfigured
-import java.util.UUID
-import scala.util.Random
-import altitourney.slp.games.{LadderFactory, Mode, TBD, BALL}
 import altitourney.slp.events.consoleCommands.AbstractStart
+import altitourney.slp.events.exceptions.LadderNotConfigured
+import altitourney.slp.games.{LadderFactory, Mode, TBD, BALL}
+import java.util.UUID
+import play.api.libs.json.JsValue
+import scala.util.Random
 
 class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 	def preMapChange() = {

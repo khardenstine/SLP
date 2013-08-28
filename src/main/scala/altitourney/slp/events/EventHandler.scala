@@ -1,11 +1,11 @@
 package altitourney.slp.events
 
-import altitourney.slp.{ServerContext, SLP}
 import altitourney.slp.commands.CommandExecutor
+import altitourney.slp.games.Game
+import altitourney.slp.{ServerContext, SLP}
 import java.util.UUID
 import org.joda.time.DateTime
 import play.api.libs.json.JsValue
-import altitourney.slp.games.Game
 
 abstract class EventHandler(jsVal: JsValue) {
 	final def getServerContext: ServerContext = {

@@ -2,9 +2,9 @@ package altitourney.slp
 
 import altitourney.slp.games.{GameFactory, StandardFactory, Mode, Game}
 import com.google.common.collect.HashBiMap
+import com.typesafe.config.Config
 import java.util.UUID
 import org.joda.time.DateTime
-import com.typesafe.config.Config
 import scala.util.Try
 
 class ServerContext(val config: Config, val port: Int, private val startTime: DateTime, val name: String) {

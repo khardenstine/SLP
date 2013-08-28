@@ -1,9 +1,9 @@
 package altitourney.slp.events.consoleCommands.ladder
 
-import play.api.libs.json.JsValue
 import altitourney.slp.events.EventHandler
-import altitourney.slp.games.Ladder
 import altitourney.slp.events.exceptions.ServerMessageException
+import altitourney.slp.games.Ladder
+import play.api.libs.json.JsValue
 
 class Stop(jsVal: JsValue) extends EventHandler(jsVal) {
 	getServerContext.getGame match {

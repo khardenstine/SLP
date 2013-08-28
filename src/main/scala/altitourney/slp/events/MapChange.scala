@@ -3,7 +3,6 @@ package altitourney.slp.events
 import altitourney.slp.SLP
 import altitourney.slp.games._
 import java.util.UUID
-import org.joda.time.DateTime
 import play.api.libs.json.JsValue
 
 /**

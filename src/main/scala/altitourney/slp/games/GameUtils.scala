@@ -1,8 +1,8 @@
 package altitourney.slp.games
 
-import java.util.UUID
 import altitourney.slp.SLP
 import java.sql.SQLException
+import java.util.UUID
 
 
 object GameUtils {
