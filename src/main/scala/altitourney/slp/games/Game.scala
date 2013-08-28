@@ -4,7 +4,7 @@ import altitourney.slp.ServerContext
 import java.util.UUID
 import org.joda.time.DateTime
 
-abstract class Game(map: String, leftTeamId: Int, rightTeamId: Int) {
+abstract class Game(val map: String, leftTeamId: Int, rightTeamId: Int) {
 	protected val leftTeam: Team = new Team(leftTeamId)
 	protected val rightTeam: Team = new Team(rightTeamId)
 

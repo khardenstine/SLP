@@ -48,9 +48,9 @@ class LadderFactory(ratings: Map[UUID, Int]) extends AbstractGameFactory {
 
 object TournamentFactory extends AbstractGameFactory {
 	protected def buildTBD(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game = {
-		new TBDGame(startTime, map, leftTeamId, rightTeamId) with Tournament
+		new Tournament(startTime, map, leftTeamId, rightTeamId) with TBDGame
 	}
 	protected def buildBall(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game = {
-		new BallGame(startTime, map, leftTeamId, rightTeamId) with Tournament
+		new Tournament(startTime, map, leftTeamId, rightTeamId) with BallGame
 	}
 }

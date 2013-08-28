@@ -11,7 +11,7 @@ trait EventRegistry {
 
 	protected def getFilter(jsVal: JsValue): String
 
-	def handle(lines: Iterator[String]) = {
+	def handle(lines: Iterator[String]): Unit = {
 		try {
 			lines.foreach {
 				line =>
