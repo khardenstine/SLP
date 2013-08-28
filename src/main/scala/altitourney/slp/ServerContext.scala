@@ -1,6 +1,6 @@
 package altitourney.slp
 
-import altitourney.slp.games.{StandardPreGame, PreGame, GameFactory, StandardFactory, Mode, Game}
+import altitourney.slp.games.{GameFactory, StandardFactory, Mode, Game}
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
