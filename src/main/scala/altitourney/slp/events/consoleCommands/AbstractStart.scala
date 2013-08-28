@@ -8,8 +8,7 @@ import play.api.libs.json.JsValue
 
 abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	val playerList = getGame.listActivePlayers
-	val mode = getMode
-	val teamSize = mode.teamSize
+	val teamSize = getMode.teamSize
 	if (playerList.size < (teamSize * 2))
 	{
 		throw new NotEnoughPlayers

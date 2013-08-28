@@ -8,8 +8,12 @@ import play.api.libs.json.JsValue
 import scala.util.Random
 
 class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
+	lazy val ratings: Map[UUID, Int] = {
+		Map()
+	}
+
 	def preMapChange() = {
-		getServerContext.setGameFactory(LadderFactory)
+		getServerContext.setGameFactory(new LadderFactory(ratings))
 	}
 
 	def getMode: Mode = {
@@ -21,7 +25,7 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 	}
 
 	def getMapList: Seq[String] = {
-		mode match {
+		getMode match {
 			case BALL =>
 				Seq(
 					"ball_cave",

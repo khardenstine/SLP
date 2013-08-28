@@ -1,6 +1,6 @@
 package altitourney.slp
 
-import altitourney.slp.games.{GameFactory, StandardFactory, Mode, Game}
+import altitourney.slp.games.{StandardPreGame, PreGame, GameFactory, StandardFactory, Mode, Game}
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
@@ -76,13 +76,7 @@ class ServerContext(val config: Config, val port: Int, private val startTime: Da
 
 	def newGame(mode: Mode, dateTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) {
 		synchronized(
-			game = {
-				if (map == getLobbyMap) {
-					gameFactory.buildNoGame(dateTime, map, leftTeamId, rightTeamId)
-				} else {
-					gameFactory.build(mode, dateTime, map, leftTeamId, rightTeamId)
-				}
-			}
+			game = gameFactory.build(mode, dateTime, map, leftTeamId, rightTeamId)
 		)
 	}
 

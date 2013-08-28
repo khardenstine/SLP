@@ -37,5 +37,6 @@ import play.api.libs.json.JsValue
 class RoundEnd(jsVal: JsValue) extends EventHandler(jsVal) {
 	val game = getServerContext.extractGame
 	game.end(getTime)
+	getCommandExecutor.stopTournament()
 	SLP.callback()
 }

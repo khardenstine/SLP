@@ -6,6 +6,10 @@ import java.util.UUID
 
 
 object GameUtils {
+	val ladderStartingRating: Int = 1500
+	val goalAssistExp = 30
+	val goalSecondaryAssistExp = 0
+
 	def recordTeamScore(gameId: UUID, team: Team, side: Int) = {
 		SLP.preparedStatement(
 			"""
