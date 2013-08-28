@@ -7,5 +7,5 @@ import play.api.libs.json.JsValue
  * "team":3,"type":"spawn","perkBlue":"Turbocharger","skin":"No Skin"}
  */
 class Spawn(jsVal: JsValue) extends EventHandler(jsVal) {
-	getGame.spawn(getUUIDfromPlayerNumber("player").getOrElse(throw new RuntimeException("UUID not found")), getString("perkRed").replace(" ", "_"), getTime)
+	getGame.spawn(getUUIDfromPlayerNumber("player").getOrElse(sys.error("UUID not found")), getString("perkRed").replace(" ", "_"), getTime)
 }

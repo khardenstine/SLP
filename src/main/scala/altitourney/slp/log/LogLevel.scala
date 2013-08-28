@@ -14,7 +14,7 @@ object LogLevel {
 			case "WARN" => WARN
 			case "INFO" => INFO
 			case "DEBUG" => DEBUG
-			case _ => throw new RuntimeException("Invalid Log Level")
+			case _ => sys.error("Invalid Log Level: " + str)
 		}
 	}
 }

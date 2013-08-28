@@ -7,7 +7,7 @@ import altitourney.slp.games.Mode
 import java.util.UUID
 
 abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
-	val playerList = getGame.listPlayers
+	val playerList = getGame.listActivePlayers
 	val mode = getMode
 	val teamSize = mode.teamSize
 	if (playerList.size < (teamSize * 2))
@@ -17,13 +17,14 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 
 	val teams = buildTeams(playerList)
 	assignTeams(teams)
+	preMapChange()
 	getCommandExecutor.changeMap(getMap)
 
 	def assignTeams(teams: (Set[UUID], Set[UUID])): Unit = {
 		implicit def uuids2Names(uuids: Set[UUID]): Seq[String] = uuids.map{uuid => getServerContext.getPlayerName(uuid)}.toSeq
 
 		def getShouldSpec: Set[UUID] = {
-			getGame.listPlayers.filter(uuid => !(teams._1 ++ teams._2).contains(uuid))
+			getGame.listActivePlayers.filter(uuid => !(teams._1 ++ teams._2).contains(uuid))
 		}
 
 		getCommandExecutor.assignLeftTeam(teams._1:_*)
@@ -47,5 +48,10 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	def getMode: Mode
 
 	def buildTeams(playerList: Set[UUID]): (Set[UUID], Set[UUID])
+
+	/**
+	 * Last chance do something before changeMap
+	 */
+	def preMapChange(): Unit
 }
 

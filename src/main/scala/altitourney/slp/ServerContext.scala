@@ -1,25 +1,28 @@
 package altitourney.slp
 
-import altitourney.slp.games.{Mode, Game, NoGame}
+import altitourney.slp.games.{GameFactory, StandardFactory, Mode, Game}
 import com.google.common.collect.HashBiMap
 import java.util.UUID
 import org.joda.time.DateTime
-import com.typesafe.config.{ConfigException, Config}
+import com.typesafe.config.Config
+import scala.util.Try
 
 class ServerContext(val config: Config, val port: Int, private val startTime: DateTime, val name: String) {
 	private val lobbyMap: String = config.getString("lobby.map")
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
 	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()
-	private var game: Game = new NoGame
 	val commandExecutor = SLP.getCommandExecutorFactory.getCommandExecutor(port)
+	private var gameFactory: GameFactory = StandardFactory
+	private var game: Game = gameFactory.buildNoGame()
 
-	def getLadderMode: Option[Mode] = {
-		try
-		{
-			Mode.withName(config.getString("ladder.mode"))
-		} catch {
-			case e: ConfigException.Missing => None
-		}
+	def setGameFactory(gameFactory: GameFactory): Unit = {
+		synchronized(
+			this.gameFactory = gameFactory
+		)
+	}
+
+	def getLadderMode: Try[Mode] = Try {
+		Mode.withName(config.getString("ladder.mode"))
 	}
 
 	def getServerTime(time: Int): DateTime = {
@@ -59,7 +62,8 @@ class ServerContext(val config: Config, val port: Int, private val startTime: Da
 	def extractGame: Game = {
 		synchronized{
 			val finishedGame = game
-			game = new NoGame
+			gameFactory = StandardFactory
+			game = gameFactory.buildNoGame()
 			finishedGame
 		}
 	}
@@ -70,9 +74,15 @@ class ServerContext(val config: Config, val port: Int, private val startTime: Da
 		)
 	}
 
-	def setGame(game: Game) {
+	def newGame(mode: Mode, dateTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) {
 		synchronized(
-			this.game = game
+			game = {
+				if (map == getLobbyMap) {
+					gameFactory.buildNoGame(dateTime, map, leftTeamId, rightTeamId)
+				} else {
+					gameFactory.build(mode, dateTime, map, leftTeamId, rightTeamId)
+				}
+			}
 		)
 	}
 

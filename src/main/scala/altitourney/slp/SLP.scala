@@ -134,7 +134,7 @@ object SLP {
 	}
 
 	def getServerContext(port: Int): ServerContext = {
-		serverContexts.get(port).getOrElse(throw new RuntimeException("Server not initialized on port: " + port))
+		serverContexts.get(port).getOrElse(sys.error("Server not initialized on port: " + port))
 	}
 
 	def initServer(port: Int, name: String): ServerContext = {
@@ -161,7 +161,7 @@ object SLP {
 				conn.disconnect()
 				ipStr
 			}
-			case _ => throw new RuntimeException("HttpURLConnection not acquired")
+			case _ => sys.error("HttpURLConnection not acquired")
 		}
 	}
 

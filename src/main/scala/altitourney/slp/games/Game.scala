@@ -8,7 +8,7 @@ abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, right
 	protected val leftTeam: Team = new Team(leftTeamId)
 	protected val rightTeam: Team = new Team(rightTeamId)
 
-	def listPlayers: Set[UUID] = {
+	def listActivePlayers: Set[UUID] = {
 		(leftTeam.players ++ rightTeam.players).toSet
 	}
 
@@ -29,7 +29,7 @@ abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, right
 					rightTeam.players.remove(player)
 				}
 			}
-			case _ => throw new RuntimeException("No team found for: " + team)
+			case _ => sys.error("No team found for: " + team)
 		}
 	}
 
@@ -41,5 +41,5 @@ abstract class Game(startTime: DateTime, val map: String, leftTeamId: Int, right
 
 	def spawn(player: UUID, perk: String, time: DateTime)
 
-	def dump(endTime: DateTime)
+	def end(endTime: DateTime): Unit
 }

@@ -4,10 +4,14 @@ import play.api.libs.json.JsValue
 import altitourney.slp.events.exceptions.LadderNotConfigured
 import java.util.UUID
 import scala.util.Random
-import altitourney.slp.games.{Mode, TBD, BALL}
+import altitourney.slp.games.{LadderFactory, Mode, TBD, BALL}
 import altitourney.slp.events.consoleCommands.AbstractStart
 
 class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
+	def preMapChange() = {
+		getServerContext.setGameFactory(LadderFactory)
+	}
+
 	def getMode: Mode = {
 		getServerContext.getLadderMode.getOrElse(throw new LadderNotConfigured)
 	}

@@ -36,9 +36,6 @@ import play.api.libs.json.JsValue
  */
 class RoundEnd(jsVal: JsValue) extends EventHandler(jsVal) {
 	val game = getServerContext.extractGame
-	if (game.map != getServerContext.getLobbyMap)
-	{
-		game.dump(getTime)
-		SLP.callback()
-	}
+	game.end(getTime)
+	SLP.callback()
 }
