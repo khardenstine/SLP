@@ -45,7 +45,7 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 
 	private def assignTeam(team: Int, playerNickName: String*) = {
 		writeCommands(playerNickName.map{
-			name => buildCommand("assignTeam", name, team.toString)
+			name => buildCommand("assignTeam", "\"" + name + "\"", team.toString)
 		}:_*)
 	}
 
@@ -70,7 +70,7 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 	}
 
 	def serverWhisper(playerName: String, message: String): Unit = {
-		writeCommand("serverWhisper", playerName, message)
+		writeCommand("serverWhisper", "\"" + playerName + "\"", message)
 	}
 
 	def serverMessage(message: String): Unit = {

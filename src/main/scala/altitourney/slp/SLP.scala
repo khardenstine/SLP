@@ -226,6 +226,7 @@ object SLP {
 
 	def updatePlayerName(vapor: UUID, name: String) {
 		preparedStatement(
+			// IM BROKEN
 			"""
 			  |UPDATE players SET name= ? WHERE vapor_id = ?;
 			  |INSERT INTO players

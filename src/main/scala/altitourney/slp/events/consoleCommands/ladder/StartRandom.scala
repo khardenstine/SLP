@@ -10,7 +10,7 @@ import altitourney.slp.SLP
 import java.sql.ResultSet
 
 class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
-	val maxVariance = 100
+	def maxVariance = 100
 
 	lazy val ratings: Map[UUID, Int] = {
 		val mode = getMode

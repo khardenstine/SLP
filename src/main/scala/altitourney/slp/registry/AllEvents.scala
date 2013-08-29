@@ -11,7 +11,7 @@ protected class AllEvents extends EventRegistry{
 			("clientNicknameChange",	new ClientNicknameChange(_)),
 			("clientRemove",			new ClientRemove(_)),
 			("consoleCommandExecute",	new ConsoleCommandExecute(_)),
-			("gaol",					new Goal(_)),
+			("goal",					new Goal(_)),
 			("kill",					new Kill(_)),
 			("mapChange",				new MapChange(_)),
 			("mapLoading",				new MapLoading(_)),
