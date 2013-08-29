@@ -78,15 +78,15 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 	}
 
 	case class RatingTuple(rating: Int, player: UUID){
-		def varient(difToBalance: Int) = VarientTuple((rating * 2) - difToBalance, rating, player)
+		def variant(difToBalance: Int) = VariantTuple((rating * 2) - difToBalance, rating, player)
 	}
-	case class VarientTuple(varience:Int, rating: Int, player: UUID) {
-		def isSmallerVarience(that: VarientTuple): Boolean = {
-			this.varience <= that.varience
+	case class VariantTuple(variance:Int, rating: Int, player: UUID) {
+		def isSmallerVariance(that: VariantTuple): Boolean = {
+			this.variance <= that.variance
 		}
 
-		def smallerVarience(that: VarientTuple): VarientTuple = {
-			if (isSmallerVarience(that)) this else that
+		def smallerVariance(that: VariantTuple): VariantTuple = {
+			if (isSmallerVariance(that)) this else that
 		}
 	}
 
@@ -115,19 +115,19 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 			val swapList = slt._1.map { smallSwap: RatingTuple =>
 				val difToBalance = (smallSwap.rating * 2) + sumDif
 
-				val rightVarient = slt._2.foldLeft(slt._2.head.varient(difToBalance)){ (a: VarientTuple, b: RatingTuple) =>
-					if (a.varience <= maxVariance) {
+				val rightVariant = slt._2.foldLeft(slt._2.head.variant(difToBalance)){ (a: VariantTuple, b: RatingTuple) =>
+					if (a.variance <= maxVariance) {
 						a
 					} else {
-						a.smallerVarience(b.varient(difToBalance))
+						a.smallerVariance(b.variant(difToBalance))
 					}
 				}
 
-				(smallSwap.player, rightVarient)
+				(smallSwap.player, rightVariant)
 			}
 
-			val pair = swapList.reduceLeft((a: (UUID, VarientTuple), b: (UUID, VarientTuple)) => {
-				if (a._2.isSmallerVarience(b._2))
+			val pair = swapList.reduceLeft((a: (UUID, VariantTuple), b: (UUID, VariantTuple)) => {
+				if (a._2.isSmallerVariance(b._2))
 					(a._1, a._2.player)
 				else
 					(b._1, b._2.player)
