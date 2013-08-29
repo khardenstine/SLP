@@ -74,7 +74,7 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 	}
 
 	def serverMessage(message: String): Unit = {
-		writeCommand("serverMessage", message)
+		writeCommand("serverMessage", "\"" + message + "\"")
 	}
 
 	def serverMessage(e: RuntimeException): Unit = {

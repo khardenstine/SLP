@@ -16,10 +16,11 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 		val mode = getMode
 
 		val query = """
-		  |SELECT players.vapor_id, players.%s_rating
-		  |FROM players
-		  |WHERE players.vapor_id IN (%s)
-		""".stripMargin.format(mode, playerList.map("'" + _ + "'").mkString(","))
+					  |SELECT players.vapor_id, players.%s_rating
+					  |FROM players
+					  |WHERE players.vapor_id IN (%s)
+					  |AND players.accepted_rules = TRUE;
+					""".stripMargin.format(mode, playerList.map("'" + _ + "'").mkString(","))
 
 		val ratingsList = SLP.executeDBQuery(query, (rs: ResultSet) => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("%s_rating".format(mode))))
 		if (ratingsList.isFailure) {

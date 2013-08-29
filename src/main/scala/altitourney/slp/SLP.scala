@@ -90,8 +90,6 @@ private class SLP(config: Config) {
 								stmt =>
 									stmt.setString(1, ip)
 									stmt.setString(2, tuple._1.toString)
-
-									stmt.execute()
 							}
 						}
 						catch {
@@ -169,7 +167,9 @@ object SLP {
 	def preparedStatement(sql: String)(fn: (PreparedStatement) => Unit) {
 		val connection = slp.getConnection
 		try {
-			fn(connection.prepareStatement(sql))
+			val stmt = connection.prepareStatement(sql)
+			fn(stmt)
+			stmt.execute()
 		}
 		finally {
 			slp.releaseConnection(connection)
@@ -215,7 +215,7 @@ object SLP {
 		executeDBStatement(
 			"""
 			  |INSERT INTO %s
-			  |VALUES(%s)
+			  |VALUES(%s);
 			""".stripMargin.format(table, values.mkString(","))
 		)
 	}
@@ -238,8 +238,6 @@ object SLP {
 				stmt.setString(3, vapor.toString)
 				stmt.setString(4, name)
 				stmt.setString(5, vapor.toString)
-
-				stmt.execute()
 		}
 	}
 
@@ -259,7 +257,6 @@ object SLP {
 							""".stripMargin
 						) {
 							stmt =>
-
 								val dt = new DateTime()
 								stmt.setTimestamp(1, new Timestamp(dt.getMillis))
 								stmt.setString(2, tuple._2.name)
@@ -271,8 +268,6 @@ object SLP {
 								stmt.setTimestamp(8, new Timestamp(dt.getMillis))
 								stmt.setString(9, ip)
 								stmt.setString(10, tuple._1.toString)
-
-								stmt.execute()
 						}
 					}
 					catch {

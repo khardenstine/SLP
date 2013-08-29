@@ -18,13 +18,10 @@ object GameUtils {
 			""".stripMargin
 		){
 			stmt =>
-
 				stmt.setString(1, gameId.toString)
 				stmt.setString(2, team.guessRosterId.getOrElse("00000000-0000-0000-0000-00000000000"+side))
 				stmt.setInt(3, side)
 				stmt.setInt(4, team.getScore)
-
-				stmt.execute()
 		}
 	}
 

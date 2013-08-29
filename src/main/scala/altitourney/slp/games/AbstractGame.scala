@@ -87,15 +87,12 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 			""".stripMargin
 		){
 			stmt =>
-
 				stmt.setString(1, gameId.toString)
 				stmt.setString(2, "00000000-0000-0000-0000-000000000000")
 				stmt.setString(3, getResult)
 				stmt.setTimestamp(4, new Timestamp(startTime.getMillis))
 				stmt.setFloat(5, new Duration(startTime, endTime).getMillis)
 				stmt.setString(6, map)
-
-				stmt.execute()
 		}
 
 		GameUtils.recordTeamScore(gameId, leftTeam, 0)

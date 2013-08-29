@@ -33,8 +33,6 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 					stmt =>
 						stmt.setInt(1, newRating)
 						stmt.setString(2, player.toString)
-
-						stmt.execute()
 				}
 
 				serverContext.commandExecutor.serverWhisper(serverContext.getPlayerName(player),
