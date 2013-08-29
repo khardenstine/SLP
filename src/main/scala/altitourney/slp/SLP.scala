@@ -10,6 +10,7 @@ import java.util.UUID
 import log.{Logger, LogLevel}
 import org.joda.time.DateTime
 import scala.collection.mutable
+import scala.util.Try
 
 private class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
@@ -187,7 +188,7 @@ object SLP {
 		}
 	}
 
-	def executeDBQuery[T](sql: String, fn: ResultSet => T): Either[Exception, Seq[T]] = {
+	def executeDBQuery[T](sql: String, fn: ResultSet => T): Try[Seq[T]] = Try {
 		val connection = slp.getConnection
 		try {
 			val statement: Statement = connection.createStatement()
@@ -195,20 +196,16 @@ object SLP {
 			try {
 				val resultSet = statement.executeQuery(sql)
 				try {
-					Right(
-						new Iterator[ResultSet] {
-							override def hasNext = resultSet.next()
-							override def next() = resultSet
-						}.map(fn).toList
-					)
+					new Iterator[ResultSet] {
+						override def hasNext = resultSet.next()
+						override def next() = resultSet
+					}.map(fn).toList
 				} finally {
 					resultSet.close()
 				}
 			} finally {
 	          	statement.close()
 			}
-		} catch {
-	      	case e: Exception => Left(e)
 		} finally {
 			slp.releaseConnection(connection)
 		}

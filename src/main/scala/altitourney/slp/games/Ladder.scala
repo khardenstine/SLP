@@ -25,6 +25,21 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 			try {
 				val oldRating = ratings.get(player).getOrElse(sys.error("Could not find ranking for player: " + player))
 				val newRating = (oldRating + (50 * (S - E))).toInt
+
+				SLP.preparedStatement(
+					"""
+					  |UPDATE players
+					  |SET %_rating = ?
+					  |WHERE vapor_id = ?
+					""".stripMargin.format(mode)
+				){
+					stmt =>
+						stmt.setString(1, player.toString)
+						stmt.setInt(2, newRating)
+
+						stmt.execute()
+				}
+
 				serverContext.commandExecutor.serverWhisper(serverContext.getPlayerName(player),
 					"New Rating: %s(%s)".format(newRating, (if(S == 1) "+" else "-") + (newRating - oldRating).abs)
 				)

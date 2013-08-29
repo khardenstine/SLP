@@ -33,11 +33,11 @@ class Logger(logFileLocation: String, logLevel: LogLevel) {
 		log(ERROR, line)
 	}
 
-	def error(e: Exception) {
+	def error(e: Throwable) {
 		error(e, e.getMessage)
 	}
 
-	def error(e: Exception, message: String) {
+	def error(e: Throwable, message: String) {
 		error(message + "\n\t\t" + e.getStackTrace.map(_.toString).mkString("\n\t\t"))
 	}
 

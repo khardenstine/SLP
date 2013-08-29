@@ -20,22 +20,24 @@ class Team(final val id: Int) {
 	def guessRosterId: Option[String] = {
 		if (players.size > 0)
 		{
-			SLP.executeDBQuery[String](
+			val rostersResult = SLP.executeDBQuery[String](
 				"""
 				  |SELECT DISTINCT roster_id
 				  |FROM rosters_r
 				  |WHERE vapor_id IN (%s)
 				""".stripMargin.format(players.map("'" + _ + "'").mkString(","))
 				,(rs: ResultSet) => rs.getString(1)
-			).fold(e => {
-				SLP.getLog.error(e)
+			)
+			if (rostersResult.isFailure)
+				SLP.getLog.error(rostersResult.failed.get)
+
+			val rosters = rostersResult.getOrElse(Seq())
+
+			if (rosters.size == 1) {
+				Some(rosters(0))
+			} else {
 				None
-			}, ids => {
-				if (ids.size == 1)
-					Some(ids(0))
-				else
-					None
-			})
+			}
 		} else {
 			None
 		}
