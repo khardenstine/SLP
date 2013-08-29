@@ -128,12 +128,12 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 
 			val pair = swapList.reduceLeft((a: (UUID, VariantTuple), b: (UUID, VariantTuple)) => {
 				if (a._2.isSmallerVariance(b._2))
-					(a._1, a._2.player)
+					(a._1, a._2)
 				else
-					(b._1, b._2.player)
+					(b._1, b._2)
 			})
 
-			((slt._1.map(_.player).diff(Seq(pair._2)):+pair._2).toSet,
+			((slt._1.map(_.player).diff(Seq(pair._2.player)):+pair._2.player).toSet,
 			(slt._2.map(_.player).diff(Seq(pair._1)):+pair._1).toSet)
 		}
 	}
