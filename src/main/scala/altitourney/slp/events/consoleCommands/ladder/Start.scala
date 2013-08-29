@@ -1,7 +1,7 @@
 package altitourney.slp.events.consoleCommands.ladder
 
-import play.api.libs.json.JsValue
 import altitourney.slp.events.exceptions.InvalidMapSelection
+import play.api.libs.json.JsValue
 
 class Start(jsVal: JsValue) extends StartRandom(jsVal) {
 	override def getMap: String = {

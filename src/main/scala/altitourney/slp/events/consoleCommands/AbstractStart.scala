@@ -1,11 +1,11 @@
 package altitourney.slp.events.consoleCommands
 
+import altitourney.slp.SLP
 import altitourney.slp.events.LobbyHandler
 import altitourney.slp.events.exceptions.{ServerMessageException, NotEnoughPlayers}
 import altitourney.slp.games.Mode
 import java.util.UUID
 import play.api.libs.json.JsValue
-import altitourney.slp.SLP
 
 abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	val playerList = getGame.listActivePlayers
