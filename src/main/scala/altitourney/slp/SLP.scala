@@ -226,11 +226,10 @@ object SLP {
 
 	def updatePlayerName(vapor: UUID, name: String) {
 		preparedStatement(
-			// IM BROKEN
 			"""
 			  |UPDATE players SET name= ? WHERE vapor_id = ?;
 			  |INSERT INTO players
-			  |SELECT ?, ?, NULL, NULL WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id = ?);
+			  |SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id = ?);
 			""".stripMargin
 		) {
 			stmt =>
