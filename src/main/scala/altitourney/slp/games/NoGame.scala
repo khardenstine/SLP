@@ -2,6 +2,7 @@ package altitourney.slp.games
 
 import java.util.UUID
 import org.joda.time.DateTime
+import altitourney.slp.ServerContext
 
 class NoGame(map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, leftTeamId, rightTeamId) {
 	def addKill(source: Option[UUID], victim: UUID, xp: Int, time: DateTime) {}
@@ -12,5 +13,5 @@ class NoGame(map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, l
 
 	def spawn(player: UUID, redperk: String, time: DateTime) {}
 
-	def end(endTime: DateTime) {}
+	def end(endTime: DateTime, serverContext: ServerContext) {}
 }

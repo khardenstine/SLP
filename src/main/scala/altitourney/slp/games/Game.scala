@@ -3,6 +3,7 @@ package altitourney.slp.games
 import altitourney.slp.ServerContext
 import java.util.UUID
 import org.joda.time.DateTime
+import altitourney.slp.commands.CommandExecutor
 
 abstract class Game(val map: String, leftTeamId: Int, rightTeamId: Int) {
 	protected val leftTeam: Team = new Team(leftTeamId)
@@ -41,5 +42,5 @@ abstract class Game(val map: String, leftTeamId: Int, rightTeamId: Int) {
 
 	def spawn(player: UUID, perk: String, time: DateTime)
 
-	def end(endTime: DateTime): Unit
+	def end(endTime: DateTime, serverContext: ServerContext): Unit
 }

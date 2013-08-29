@@ -1,10 +1,11 @@
 package altitourney.slp.events.consoleCommands
 
 import altitourney.slp.events.LobbyHandler
-import altitourney.slp.events.exceptions.NotEnoughPlayers
+import altitourney.slp.events.exceptions.{ServerMessageException, NotEnoughPlayers}
 import altitourney.slp.games.Mode
 import java.util.UUID
 import play.api.libs.json.JsValue
+import altitourney.slp.SLP
 
 abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	val playerList = getGame.listActivePlayers
@@ -14,7 +15,11 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 		throw new NotEnoughPlayers
 	}
 
-	val teams = buildTeams(playerList)
+	val teams = buildTeams()
+	if (teams._1.size != teamSize || teams._2.size != teamSize) {
+		SLP.getLog.error("Expected teamsize of %s, found (%s, %s).".format(teamSize, teams._1.size, teams._2.size))
+		throw new ServerMessageException("Something went wrong building the teams.  Please try again.")
+	}
 	assignTeams(teams)
 	preMapChange()
 	getCommandExecutor.changeMap(getMap)
@@ -46,7 +51,7 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 
 	def getMode: Mode
 
-	def buildTeams(playerList: Set[UUID]): (Set[UUID], Set[UUID])
+	def buildTeams(): (Set[UUID], Set[UUID])
 
 	/**
 	 * Last chance do something before changeMap

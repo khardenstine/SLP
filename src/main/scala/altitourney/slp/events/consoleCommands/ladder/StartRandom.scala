@@ -8,7 +8,18 @@ import play.api.libs.json.JsValue
 import scala.util.Random
 
 class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
+	val maxVariance = 100
+
 	lazy val ratings: Map[UUID, Int] = {
+		val mode = getMode
+
+		val q = """
+		  |SELECT players.vapor_id, players.%s_rating
+		  |FROM players
+		  |WHERE players.vapor_id IN (%s)
+		""".stripMargin.format(mode, playerList)
+
+
 		Map()
 	}
 
@@ -59,11 +70,47 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 		}
 	}
 
-	def buildTeams(playerList: Set[UUID]): (Set[UUID], Set[UUID]) = {
-		val leftSplit = playerList.splitAt(teamSize)
-		val left = leftSplit._1
-		val rightSplit = leftSplit._2.splitAt(teamSize)
-		val right = rightSplit._1
-		(left, right)
+	// TODO this might never balance
+	def buildTeams(): (Set[UUID], Set[UUID]) = {
+		val ratingsSeq = Random.shuffle(ratings.toSeq.map(_.swap))
+		val leftTeam = ratingsSeq.slice(0, teamSize)
+		val rightTeam = ratingsSeq.slice(teamSize, teamSize * 2)
+
+		balance(leftTeam, rightTeam).getOrElse(buildTeams())
 	}
+
+	def balance(a: Seq[(Int, UUID)], b: Seq[(Int, UUID)]): Option[(Set[UUID], Set[UUID])] = {
+		def getSum(s: Seq[(Int, Any)]): Int = s.foldLeft(0)((i: Int, tup: (Int, Any)) => i + tup._1)
+
+		val aSum = getSum(a)
+		val bSum = getSum(b)
+		val sumDif = (aSum - bSum).abs / 2
+		val halfVariance = maxVariance / 2
+
+		if (sumDif <= halfVariance) {
+			Some(a.map(_._2).toSet, b.map(_._2).toSet)
+		} else {
+			// slt._1 = smaller Seq
+			// slt._2 = larger Seq
+			val slt = if (aSum < bSum) (a, b) else (b, a)
+
+			val swapList = slt._1.flatMap { smallSwap: (Int, UUID) =>
+				val lowRating = smallSwap._1 + sumDif - halfVariance
+				val highRating = smallSwap._1 + sumDif + halfVariance
+				for (
+					largeSwap <- slt._2.find{r => r._1 >= lowRating && r._1 <= highRating}
+				) yield (smallSwap._2, largeSwap._2)
+			}
+			if (swapList.size < 1) {
+				None
+			} else {
+				val pair = swapList.head
+				Some(
+					(a.map(_._2).diff(Seq(pair._1)):+pair._2).toSet,
+					(b.map(_._2).diff(Seq(pair._2)):+pair._1).toSet
+				)
+			}
+		}
+	}
+
 }

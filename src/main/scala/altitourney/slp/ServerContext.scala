@@ -7,7 +7,7 @@ import java.util.UUID
 import org.joda.time.DateTime
 import scala.util.Try
 
-class ServerContext(val config: Config, val port: Int, private val startTime: DateTime, val name: String) {
+class ServerContext(config: Config, val port: Int, startTime: DateTime, val name: String) {
 	private val lobbyMap: String = config.getString("lobby.map")
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
 	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()

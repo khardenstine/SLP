@@ -1,6 +1,6 @@
 package altitourney.slp.games
 
-import altitourney.slp.SLP
+import altitourney.slp.{ServerContext, SLP}
 import com.google.common.collect.HashBasedTable
 import java.sql.Timestamp
 import java.util.UUID
@@ -66,16 +66,16 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 		}
 	}
 
-	def end(endTime: DateTime): Unit = {
+	def end(endTime: DateTime, serverContext: ServerContext): Unit = {
 		spawnMap.map{case (player: UUID, ps: PlayerSpawn) =>
 			ps.end(endTime)	// all player lives should have ended already, this is just in case they have not
 			perkTable.put(player, ps.redPerk, ps.getPerkData + Option(perkTable.get(player, ps.redPerk)))
 		}
 
-		dump(endTime)
+		dump(endTime, serverContext)
 	}
 
-	protected def dump(endTime: DateTime): Unit
+	protected def dump(endTime: DateTime, serverContext: ServerContext): Unit
 
 	def record(endTime: DateTime) {
 		val gameId = UUID.randomUUID()
