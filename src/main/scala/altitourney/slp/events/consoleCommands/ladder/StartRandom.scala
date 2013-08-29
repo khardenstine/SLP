@@ -77,46 +77,64 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 		}
 	}
 
-	// TODO this might never balance
+	case class RatingTuple(rating: Int, player: UUID){
+		def varient(difToBalance: Int) = VarientTuple((rating * 2) - difToBalance, rating, player)
+	}
+	case class VarientTuple(varience:Int, rating: Int, player: UUID) {
+		def isSmallerVarience(that: VarientTuple): Boolean = {
+			this.varience <= that.varience
+		}
+
+		def smallerVarience(that: VarientTuple): VarientTuple = {
+			if (isSmallerVarience(that)) this else that
+		}
+	}
+
 	def buildTeams(): (Set[UUID], Set[UUID]) = {
-		val ratingsSeq = Random.shuffle(ratings.toSeq.map(_.swap))
+		val ratingsSeq = Random.shuffle(ratings.toSeq.map(v => RatingTuple(v._2, v._1)))
 		val leftTeam = ratingsSeq.slice(0, teamSize)
 		val rightTeam = ratingsSeq.slice(teamSize, teamSize * 2)
 
-		balance(leftTeam, rightTeam).getOrElse(buildTeams())
+		balance(leftTeam, rightTeam)
 	}
 
-	def balance(a: Seq[(Int, UUID)], b: Seq[(Int, UUID)]): Option[(Set[UUID], Set[UUID])] = {
-		def getSum(s: Seq[(Int, Any)]): Int = s.foldLeft(0)((i: Int, tup: (Int, Any)) => i + tup._1)
+	def balance(left: Seq[RatingTuple], right: Seq[RatingTuple]): (Set[UUID], Set[UUID]) = {
+		def getSum(s: Seq[RatingTuple]): Int = s.foldLeft(0)((i: Int, tup: RatingTuple) => i + tup.rating)
 
-		val aSum = getSum(a)
-		val bSum = getSum(b)
-		val sumDif = (aSum - bSum).abs / 2
-		val halfVariance = maxVariance / 2
+		val leftSum = getSum(left)
+		val rightSum = getSum(right)
+		val sumDif = (leftSum - rightSum).abs
 
-		if (sumDif <= halfVariance) {
-			Some(a.map(_._2).toSet, b.map(_._2).toSet)
+		if (sumDif <= maxVariance) {
+			(left.map(_.player).toSet, right.map(_.player).toSet)
 		} else {
 			// slt._1 = smaller Seq
 			// slt._2 = larger Seq
-			val slt = if (aSum < bSum) (a, b) else (b, a)
+			val slt = if (leftSum < rightSum) (left, right) else (right, left)
 
-			val swapList = slt._1.flatMap { smallSwap: (Int, UUID) =>
-				val lowRating = smallSwap._1 + sumDif - halfVariance
-				val highRating = smallSwap._1 + sumDif + halfVariance
-				for (
-					largeSwap <- slt._2.find{r => r._1 >= lowRating && r._1 <= highRating}
-				) yield (smallSwap._2, largeSwap._2)
+			val swapList = slt._1.map { smallSwap: RatingTuple =>
+				val difToBalance = (smallSwap.rating * 2) + sumDif
+
+				val rightVarient = slt._2.foldLeft(slt._2.head.varient(difToBalance)){ (a: VarientTuple, b: RatingTuple) =>
+					if (a.varience <= maxVariance) {
+						a
+					} else {
+						a.smallerVarience(b.varient(difToBalance))
+					}
+				}
+
+				(smallSwap.player, rightVarient)
 			}
-			if (swapList.size < 1) {
-				None
-			} else {
-				val pair = swapList.head
-				Some(
-					(a.map(_._2).diff(Seq(pair._1)):+pair._2).toSet,
-					(b.map(_._2).diff(Seq(pair._2)):+pair._1).toSet
-				)
-			}
+
+			val pair = swapList.reduceLeft((a: (UUID, VarientTuple), b: (UUID, VarientTuple)) => {
+				if (a._2.isSmallerVarience(b._2))
+					(a._1, a._2.player)
+				else
+					(b._1, b._2.player)
+			})
+
+			((slt._1.map(_.player).diff(Seq(pair._2)):+pair._2).toSet,
+			(slt._2.map(_.player).diff(Seq(pair._1)):+pair._1).toSet)
 		}
 	}
 
