@@ -10,10 +10,8 @@ import play.api.libs.json.JsValue
 abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	val playerList = getGame.listActivePlayers
 	val teamSize = getMode.teamSize
-	if (playerList.size < (teamSize * 2))
-	{
-		throw new NotEnoughPlayers
-	}
+
+	verifyEnoughPlayers(playerList)
 
 	val teams = buildTeams()
 	if (teams._1.size != teamSize || teams._2.size != teamSize) {
@@ -23,6 +21,13 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 	assignTeams(teams)
 	preMapChange()
 	getCommandExecutor.changeMap(getMap)
+
+	def verifyEnoughPlayers(itr: Iterable[Any]): Unit = {
+		if (itr.size < (teamSize * 2))
+		{
+			throw new NotEnoughPlayers
+		}
+	}
 
 	def assignTeams(teams: (Set[UUID], Set[UUID])): Unit = {
 		implicit def uuids2Names(uuids: Set[UUID]): Seq[String] = uuids.map{uuid => getServerContext.getPlayerName(uuid)}.toSeq

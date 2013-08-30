@@ -21,7 +21,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		)
 	}
 
-	def getLadderMode: Try[Mode] = Try {
+	lazy val getLadderMode: Try[Mode] = Try {
 		Mode.withName(config.getString("ladder.mode"))
 	}
 

@@ -5,29 +5,19 @@ import altitourney.slp.events.consoleCommands.AbstractStart
 import altitourney.slp.events.consoleCommands.ladder.LadderUtils.RatingTuple
 import altitourney.slp.events.exceptions.{ServerMessageException, LadderNotConfigured}
 import altitourney.slp.games.{LadderFactory, Mode, TBD, BALL}
-import java.sql.ResultSet
 import java.util.UUID
 import play.api.libs.json.JsValue
-import scala.util.Random
+import scala.util.{Success, Failure, Random}
 
 class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 	lazy val ratings: Map[UUID, Int] = {
-		val mode = getMode
+		val bucketedRatings = LadderUtils.getRatings(getMode, playerList).groupBy(_._3)
+		val cannotPlay = bucketedRatings.get(false)
+		// TODO whisper and forceSpectate
 
-		val query = """
-					  |SELECT players.vapor_id, players.%s_rating
-					  |FROM players
-					  |WHERE players.vapor_id IN (%s)
-					  |AND players.accepted_rules = TRUE;
-					""".stripMargin.format(mode, playerList.map("'" + _ + "'").mkString(","))
-
-		val ratingsList = SLP.executeDBQuery(query, (rs: ResultSet) => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("%s_rating".format(mode))))
-		if (ratingsList.isFailure) {
-			SLP.getLog.error(ratingsList.failed.get)
-			throw new ServerMessageException("Error obtaining ratings.  Please try again.")
-		} else {
-			ratingsList.get.toMap
-		}
+		val canPlay = bucketedRatings.get(true).getOrElse(Seq.empty)
+		verifyEnoughPlayers(canPlay)
+		canPlay.map(t => (t._1, t._2)).toMap
 	}
 
 	def preMapChange() = {
@@ -89,9 +79,26 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 object LadderUtils {
 	val maxVariance = 100
 
+	def getRatings(mode: Mode, playerList: Set[UUID]): Seq[(UUID, Int, Boolean)] = {
+		SLP.executeDBQuery(
+			"""
+			  |SELECT players.vapor_id, players.%s_rating, players.accepted_rules
+			  |FROM players
+			  |WHERE players.vapor_id IN (%s);
+			""".stripMargin.format(mode, playerList.map("'" + _ + "'").mkString(",")),
+			rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("%s_rating".format(mode)), rs.getBoolean("accepted_rules"))
+		) match {
+			case Failure(e) =>
+				SLP.getLog.error(e)
+				throw new ServerMessageException("Error obtaining ratings.  Please try again.")
+			case Success(ratingsList) => ratingsList
+		}
+	}
+
 	case class RatingTuple(rating: Int, player: UUID){
 		def variant(difToBalance: Int) = VariantTuple((rating * 2) - difToBalance, rating, player)
 	}
+
 	case class VariantTuple(variance:Int, rating: Int, player: UUID) {
 		def isSmallerVariance(that: VariantTuple): Boolean = {
 			this.variance <= that.variance
