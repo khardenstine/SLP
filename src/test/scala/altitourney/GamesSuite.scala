@@ -44,7 +44,7 @@ class GamesSuite  extends FunSuite{
 		//assert(add.timeAlive.getMillis == 1234)
 	}
 
-	test("spawning a player in a game") {
+	/*test("spawning a player in a game") {
 		val somePlayer = UUID.randomUUID()
 
 		val ballGame = new BallGame(new DateTime(), "ball_planepark", 5, 6)
@@ -73,5 +73,5 @@ class GamesSuite  extends FunSuite{
 		assert(trick.get.goals == 1)
 		assert(trick.get.exp == 81)
 
-	}
+	}  */
 }

@@ -2,6 +2,7 @@ package altitourney.slp.events.consoleCommands.ladder
 
 import altitourney.slp.SLP
 import altitourney.slp.events.consoleCommands.AbstractStart
+import altitourney.slp.events.consoleCommands.ladder.LadderUtils.RatingTuple
 import altitourney.slp.events.exceptions.{ServerMessageException, LadderNotConfigured}
 import altitourney.slp.games.{LadderFactory, Mode, TBD, BALL}
 import java.sql.ResultSet
@@ -10,8 +11,6 @@ import play.api.libs.json.JsValue
 import scala.util.Random
 
 class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
-	def maxVariance = 100
-
 	lazy val ratings: Map[UUID, Int] = {
 		val mode = getMode
 
@@ -78,6 +77,18 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 		}
 	}
 
+	def buildTeams(): (Set[UUID], Set[UUID]) = {
+		val ratingsSeq = Random.shuffle(ratings.toSeq.map(v => RatingTuple(v._2, v._1)))
+		val leftTeam = ratingsSeq.slice(0, teamSize)
+		val rightTeam = ratingsSeq.slice(teamSize, teamSize * 2)
+
+		LadderUtils.balance(leftTeam, rightTeam)
+	}
+}
+
+object LadderUtils {
+	val maxVariance = 100
+
 	case class RatingTuple(rating: Int, player: UUID){
 		def variant(difToBalance: Int) = VariantTuple((rating * 2) - difToBalance, rating, player)
 	}
@@ -89,14 +100,6 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 		def smallerVariance(that: VariantTuple): VariantTuple = {
 			if (isSmallerVariance(that)) this else that
 		}
-	}
-
-	def buildTeams(): (Set[UUID], Set[UUID]) = {
-		val ratingsSeq = Random.shuffle(ratings.toSeq.map(v => RatingTuple(v._2, v._1)))
-		val leftTeam = ratingsSeq.slice(0, teamSize)
-		val rightTeam = ratingsSeq.slice(teamSize, teamSize * 2)
-
-		balance(leftTeam, rightTeam)
 	}
 
 	def balance(left: Seq[RatingTuple], right: Seq[RatingTuple]): (Set[UUID], Set[UUID]) = {
@@ -134,9 +137,8 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 					(b._1, b._2)
 			})
 
-			((slt._1.map(_.player).diff(Seq(pair._2.player)):+pair._2.player).toSet,
-			(slt._2.map(_.player).diff(Seq(pair._1)):+pair._1).toSet)
+			((slt._1.map(_.player).diff(Seq(pair._1)):+pair._2.player).toSet,
+			(slt._2.map(_.player).diff(Seq(pair._2.player)):+pair._1).toSet)
 		}
 	}
-
 }

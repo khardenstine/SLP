@@ -1,6 +1,5 @@
 package altitourney.slp.events.exceptions
 
-import java.util.UUID
 import altitourney.slp.commands.CommandExecutor
 
 abstract class ConsoleCommandException(message: String) extends RuntimeException(message) {

@@ -1,7 +1,7 @@
 package altitourney.slp.events.consoleCommands
 
-import altitourney.slp.{SLP, Util}
 import altitourney.slp.events.EventHandler
+import altitourney.slp.{SLP, Util}
 import play.api.libs.json.JsValue
 
 class AcceptRules(jsVal: JsValue) extends EventHandler(jsVal) {

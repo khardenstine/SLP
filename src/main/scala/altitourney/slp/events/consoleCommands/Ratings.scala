@@ -1,9 +1,9 @@
 package altitourney.slp.events.consoleCommands
 
-import altitourney.slp.events.EventHandler
-import play.api.libs.json.JsValue
 import altitourney.slp.SLP
+import altitourney.slp.events.EventHandler
 import altitourney.slp.events.exceptions.ServerWhisperException
+import play.api.libs.json.JsValue
 import scala.util.{Failure, Success}
 
 class Ratings(jsVal: JsValue) extends EventHandler(jsVal) {

@@ -1,9 +1,9 @@
 package altitourney.slp.events
 
 import altitourney.slp.SLP
+import java.sql.ResultSet
 import java.util.UUID
 import play.api.libs.json.JsValue
-import java.sql.ResultSet
 
 /**
  * {"port":27276,"demo":false,"time":105528343,"level":60,"player":2,"nickname":"{ball}Carlos","aceRank":10,

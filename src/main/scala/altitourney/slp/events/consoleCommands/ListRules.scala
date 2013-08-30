@@ -1,8 +1,8 @@
 package altitourney.slp.events.consoleCommands
 
+import altitourney.slp.Util
 import altitourney.slp.events.EventHandler
 import play.api.libs.json.JsValue
-import altitourney.slp.Util
 
 class ListRules(jsVal: JsValue) extends EventHandler(jsVal) {
 	val player = getUUID("source")
