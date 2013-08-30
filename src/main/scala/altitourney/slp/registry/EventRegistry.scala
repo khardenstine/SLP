@@ -2,7 +2,7 @@ package altitourney.slp.registry
 
 import altitourney.slp.SLP
 import altitourney.slp.events.EventHandler
-import altitourney.slp.events.exceptions.ServerMessageException
+import altitourney.slp.events.exceptions.ConsoleCommandException
 import play.api.libs.json.{Json, JsValue}
 
 trait EventRegistry {
@@ -44,9 +44,9 @@ trait EventRegistry {
 					try {
 						e._2(jsVal)
 					} catch {
-						case e: ServerMessageException => {
+						case e: ConsoleCommandException => {
 							try{
-								SLP.getServerContext((jsVal \ "port").as[Int]).commandExecutor.serverMessage(e)
+								e.propagate(SLP.getServerContext((jsVal \ "port").as[Int]).commandExecutor)
 							} catch {
 								case e: Exception => SLP.getLog.error(e)
 							}

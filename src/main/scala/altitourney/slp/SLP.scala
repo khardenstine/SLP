@@ -188,27 +188,32 @@ object SLP {
 		}
 	}
 
-	def executeDBQuery[T](sql: String, fn: ResultSet => T): Try[Seq[T]] = Try {
+	def executeDBQuery[T](sql: String, fn1: PreparedStatement => Unit, fn2: ResultSet => T): Try[Seq[T]] = Try {
 		val connection = slp.getConnection
 		try {
-			val statement: Statement = connection.createStatement()
+			val statement: PreparedStatement = connection.prepareStatement(sql)
+			fn1(statement)
 			getLog.debug("Executing query: " + sql)
 			try {
-				val resultSet = statement.executeQuery(sql)
+				val resultSet = statement.executeQuery()
 				try {
 					new Iterator[ResultSet] {
 						override def hasNext = resultSet.next()
 						override def next() = resultSet
-					}.map(fn).toList
+					}.map(fn2).toList
 				} finally {
 					resultSet.close()
 				}
 			} finally {
-	          	statement.close()
+				statement.close()
 			}
 		} finally {
 			slp.releaseConnection(connection)
 		}
+	}
+
+	def executeDBQuery[T](sql: String, fn: ResultSet => T): Try[Seq[T]] = {
+		executeDBQuery(sql, (p) => Unit, fn)
 	}
 
 	def insertRawDBStatement(table: String, values: Seq[String]) {

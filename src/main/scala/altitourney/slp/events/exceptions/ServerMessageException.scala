@@ -1,6 +1,23 @@
 package altitourney.slp.events.exceptions
 
-class ServerMessageException(message: String) extends RuntimeException(message)
+import java.util.UUID
+import altitourney.slp.commands.CommandExecutor
+
+abstract class ConsoleCommandException(message: String) extends RuntimeException(message) {
+	def propagate(commandExecutor: CommandExecutor)
+}
+
+class ServerMessageException(message: String) extends ConsoleCommandException(message) {
+	def propagate(commandExecutor: CommandExecutor) {
+		commandExecutor.serverMessage(message)
+	}
+}
+
+class ServerWhisperException(playerName: String, message: String) extends ConsoleCommandException(message) {
+	def propagate(commandExecutor: CommandExecutor) {
+		commandExecutor.serverWhisper(playerName, message)
+	}
+}
 
 class NotLobbyException(message: String = "Must be in the lobby to execute this command.") extends ServerMessageException(message)
 
