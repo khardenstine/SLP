@@ -8,6 +8,7 @@ protected class ConsoleCommandRegistry extends EventRegistry{
 	val REGISTRY: Seq[REGISTER] = Seq(
 		("acceptRules",				new AcceptRules(_)),
 		("ladder",					new Ladder(_)),
+		("ladderTop10",				new LadderTop10(_)),
 		("ratings",					new Ratings(_)),
 		("listRules",				new ListRules(_))
 	)

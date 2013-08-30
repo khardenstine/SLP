@@ -34,8 +34,6 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 	}
 
 	def getPlayerUUID(playerName: String): Option[UUID] = {
-		SLP.getLog.debug("pn:" + playerName)
-		SLP.getLog.debug("pnmr:" + collection.JavaConversions.asScalaSet(playerNameMap.inverse().entrySet()).map(x=> "("+x.getKey+"::"+x.getValue+")").mkString(","))
 		Option(playerNameMap.inverse().get(playerName))
 	}
 
