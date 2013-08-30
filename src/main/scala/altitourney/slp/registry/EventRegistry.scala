@@ -14,11 +14,9 @@ trait EventRegistry {
 	def handle(lines: Iterator[String]): Unit = {
 		try {
 			lines.foreach {
-				line =>
-					SLP.getRegistryFactory.getEventRegistry.handle(Json.parse(line))
+				line => handle(Json.parse(line))
 			}
-		}
-		catch {
+		} catch {
 			case e: Exception => SLP.getLog.error(e, "Failed to read console command")
 		}
 	}
