@@ -13,7 +13,9 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 	lazy val ratings: Map[UUID, Int] = {
 		val bucketedRatings = LadderUtils.getRatings(getMode, playerList).groupBy(_._3)
 		val cannotPlay = bucketedRatings.get(false)
-		// TODO whisper and forceSpectate
+		val cannotPlayNames = getServerContext.getPlayerNames(cannotPlay.getOrElse(Seq.empty).map(_._1))
+		cannotPlayNames.map(getCommandExecutor.serverWhisper(_, "You must read and accept the rules (type the command '/listRules') before you can play any ladder games."))
+		getCommandExecutor.assignSpectate(cannotPlayNames:_*)
 
 		val canPlay = bucketedRatings.get(true).getOrElse(Seq.empty)
 		verifyEnoughPlayers(canPlay)

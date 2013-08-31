@@ -45,6 +45,33 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		playerNameMap.get(vapor)
 	}
 
+	def getPlayerNames(vapors: Iterable[UUID]): Seq[String] = {
+		vapors.map(getPlayerName).toSeq
+	}
+
+	def assignTeams(teams: (Set[UUID], Set[UUID])): Unit = {
+		implicit def uuids2Names(uuids: Iterable[UUID]): Seq[String] = getPlayerNames(uuids)
+
+		def getShouldSpec: Set[UUID] = {
+			getGame.listActivePlayers.filter(uuid => !(teams._1 ++ teams._2).contains(uuid))
+		}
+
+		commandExecutor.assignLeftTeam(teams._1:_*)
+		commandExecutor.assignRightTeam(teams._2:_*)
+		commandExecutor.assignSpectate(getShouldSpec:_*)
+		commandExecutor.startTournament()
+
+		// TODO should also check that left and right team are correct so no 7v5s
+		while (getShouldSpec.size > 0) {
+			commandExecutor.stopTournament()
+			commandExecutor.assignSpectate(getShouldSpec:_*)
+			commandExecutor.startTournament()
+			Thread.sleep(50)
+		}
+
+		commandExecutor.startTournament()
+	}
+
 	def addPlayer(vapor: UUID, serverPlayer: Int, playerName: String) {
 		playerMap.put(serverPlayer, vapor)
 		playerNameMap.put(vapor, playerName)
