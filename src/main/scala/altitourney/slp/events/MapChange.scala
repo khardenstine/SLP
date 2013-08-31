@@ -17,7 +17,11 @@ class MapChange(jsVal: JsValue) extends EventHandler(jsVal) {
 	val query =
 		"""
 		  |INSERT INTO maps
-		  |SELECT ?, ?,
+		  |            (id,
+		  |             name,
+		  |             mode_dict)
+		  |SELECT ?,
+		  |       ?,
 		  |       (SELECT dict_id
 		  |        FROM   dicts
 		  |        WHERE  dict_value = ?

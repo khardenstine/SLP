@@ -77,20 +77,26 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 }
 
 object LadderUtils {
+	val ladderStartingRating: Int = 1500
 	val maxVariance = 100
 
 	def getRatings(mode: Mode, playerList: Set[UUID]): Seq[(UUID, Int, Boolean)] = {
 		val query =
 			"""
-			  |SELECT players.vapor_id, players.%s_rating, players.accepted_rules
-			  |FROM players
-			  |WHERE players.vapor_id IN (%s);
-			""".stripMargin.format(mode, Util.listToQuestionMarks(playerList))
+			  |SELECT v.vapor_id,
+			  |       COALESCE(ladder_ranks.%s_rating, %s)     AS rating,
+			  |       COALESCE(ladder_ranks.accepted_rules, false) AS accepted_rules
+			  |FROM   (SELECT vapor_id
+			  |        FROM   players
+			  |        WHERE  vapor_id IN ( %s )) v
+			  |       LEFT JOIN ladder_ranks
+			  |              ON ladder_ranks.vapor_id = v.vapor_id;
+			""".stripMargin.format(mode, ladderStartingRating, Util.listToQuestionMarks(playerList))
 
 		SLP.preparedQuery(
 			query,
 		    Util.setListOnStatement(playerList, _),
-			rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("%s_rating".format(mode)), rs.getBoolean("accepted_rules"))
+			rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("rating"), rs.getBoolean("accepted_rules"))
 		) match {
 			case Failure(e) =>
 				SLP.getLog.error(e)

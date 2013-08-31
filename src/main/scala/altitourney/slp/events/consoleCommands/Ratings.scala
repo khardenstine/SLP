@@ -16,9 +16,12 @@ class Ratings(jsVal: JsValue) extends EventHandler(jsVal) {
 
 	SLP.preparedQuery(
 		"""
-		  |SELECT ladder_ranks.tbd_rating, ladder_ranks.tbd_rank, ladder_ranks.ball_rating, ladder_ranks.ball_rank
-		  |FROM ladder_ranks
-		  |WHERE players.vapor_id = ?;
+		  |SELECT ladder_ranks.tbd_rating,
+		  |       ladder_ranks.tbd_rank,
+		  |       ladder_ranks.ball_rating,
+		  |       ladder_ranks.ball_rank
+		  |FROM   ladder_ranks
+		  |WHERE  ladder_ranks.vapor_id = ?;
 		""".stripMargin,
 		_.setString(1, vapor.toString),
 		rs => Rating(rs.getInt("tbd_rating"), rs.getInt("tbd_rank"), rs.getInt("ball_rating"), rs.getInt("ball_rank"))

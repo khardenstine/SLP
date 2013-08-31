@@ -25,14 +25,32 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 				val oldRating = ratings.get(player).getOrElse(sys.error("Could not find ranking for player: " + player))
 				val newRating = (oldRating + (50 * (S - E))).toInt
 
-				SLP.preparedStatement{
-					val stmt = "UPDATE players SET " + mode + "_rating = ? WHERE vapor_id = ?;"
-					SLP.getLog.debug(stmt + "  (" + player.toString + "," + newRating +")")
-					stmt
-				}{
+				SLP.preparedStatement(
+					"""
+					  |UPDATE ratings
+					  |SET    %1$s_rating = ?
+					  |WHERE  vapor_id = ?;
+					  |
+					  |INSERT INTO ratings
+					  |            (vapor_id,
+					  |             season_id,
+					  |             %1$s_rating,
+					  |             accepted_rules)
+					  |SELECT ?,
+					  |       Current_ladder_season(),
+					  |       ?,
+					  |       false
+					  |WHERE  NOT EXISTS (SELECT 1
+					  |                   FROM   ladder_ranks
+					  |                   WHERE  vapor_id = ?);
+					""".stripMargin.format(mode)
+				){
 					stmt =>
 						stmt.setInt(1, newRating)
 						stmt.setString(2, player.toString)
+						stmt.setString(3, player.toString)
+						stmt.setInt(4, newRating)
+						stmt.setString(5, player.toString)
 				}
 
 				serverContext.commandExecutor.serverWhisper(serverContext.getPlayerName(player),

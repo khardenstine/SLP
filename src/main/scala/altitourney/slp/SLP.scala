@@ -214,9 +214,18 @@ object SLP {
 	def updatePlayerName(vapor: UUID, name: String) {
 		preparedStatement(
 			"""
-			  |UPDATE players SET name= ? WHERE vapor_id = ?;
+			  |UPDATE players
+			  |SET    name = ?
+			  |WHERE  vapor_id = ?;
+			  |
 			  |INSERT INTO players
-			  |SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id = ?);
+			  |            (vapor_id,
+			  |             name)
+			  |SELECT ?,
+			  |       ?
+			  |WHERE  NOT EXISTS (SELECT 1
+			  |                   FROM   players
+			  |                   WHERE  vapor_id = ?);
 			""".stripMargin
 		){
 			stmt =>
@@ -238,21 +247,37 @@ object SLP {
 					try {
 						preparedStatement(
 							"""
-							  |UPDATE servers SET callback = ?, name = ? WHERE ip = ? AND port = ?;
+							  |UPDATE servers
+							  |SET    callback = ?,
+							  |       name = ?
+							  |WHERE  ip = ?
+							  |       AND port = ?;
+							  |
 							  |INSERT INTO servers
-							  |SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM servers WHERE ip = ? AND port = ?);
+							  |            (name,
+							  |             ip,
+							  |             port,
+							  |             callback)
+							  |SELECT ?,
+							  |       ?,
+							  |       ?,
+							  |       ?
+							  |WHERE  NOT EXISTS (SELECT 1
+							  |                   FROM   servers
+							  |                   WHERE  ip = ?
+							  |                          AND port = ?);
 							""".stripMargin
 						) {
 							stmt =>
-								val dt = new DateTime()
-								stmt.setTimestamp(1, new Timestamp(dt.getMillis))
+								val timestamp = new Timestamp(new DateTime().getMillis)
+								stmt.setTimestamp(1, timestamp)
 								stmt.setString(2, tuple._2.name)
 								stmt.setString(3, ip)
 								stmt.setString(4, tuple._1.toString)
 								stmt.setString(5, tuple._2.name)
 								stmt.setString(6, ip)
 								stmt.setString(7, tuple._1.toString)
-								stmt.setTimestamp(8, new Timestamp(dt.getMillis))
+								stmt.setTimestamp(8, timestamp)
 								stmt.setString(9, ip)
 								stmt.setString(10, tuple._1.toString)
 						}

@@ -83,7 +83,20 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 		SLP.preparedStatement(
 			"""
 			  |INSERT INTO games
-			  |VALUES (?, ?, ?, ?, ?, (SELECT id FROM maps WHERE name = ?))
+			  |            (game_id,
+			  |             match_id,
+			  |             victor,
+			  |             start_time,
+			  |             duration,
+			  |             map)
+			  |VALUES      (?,
+			  |             ?,
+			  |             ?,
+			  |             ?,
+			  |             ?,
+			  |             (SELECT id
+			  |              FROM   maps
+			  |              WHERE  name = ?));
 			""".stripMargin
 		){
 			stmt =>

@@ -11,9 +11,11 @@ class LadderTop10(jsVal: JsValue) extends EventHandler(jsVal) {
 	val mode = getServerContext.getLadderMode.getOrElse(throw new LadderNotConfigured())
 
 	val query = """
-				  |SELECT ladder_ranks.name, ladder_ranks.%1$s_rating, ladder_ranks.$1$s_rank
-				  |FROM ladder_ranks
-				  |ORDER BY ladder_ranks.%1$s_rank DESC
+				  |SELECT ladder_ranks.name,
+				  |       ladder_ranks.%1$s_rating,
+				  |       ladder_ranks.%1$s_rank
+				  |FROM   ladder_ranks
+				  |ORDER  BY ladder_ranks.%1$s_rank ASC
 				  |LIMIT 10;
 				""".stripMargin.format(mode)
 

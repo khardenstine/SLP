@@ -20,11 +20,7 @@ class ClientAdd(jsVal: JsValue) extends EventHandler(jsVal) {
 
 	SLP.preparedQuery(
 		"""
-		  |SELECT players.accepted_rules
-		  |FROM players
-		  |WHERE players.vapor_id = ?
-		  |AND players.accepted_rules = FALSE
-		  |LIMIT 1;
+		  |SELECT Has_accepted_rules(?);
 		""".stripMargin,
 		stmt => stmt.setString(1, vapor.toString),
 		rs => rs.getBoolean(1)
@@ -38,7 +34,10 @@ class ClientAdd(jsVal: JsValue) extends EventHandler(jsVal) {
 	SLP.preparedStatement(
 		"""
 		  |INSERT INTO ip_log
-		  |VALUES(?, ?, ?);
+		  |            (vapor_id,
+		  |             ip_address,
+		  |             insert_date)
+		  |VALUES     (?, ?, ?);
 		""".stripMargin
 	){
 		stmt =>

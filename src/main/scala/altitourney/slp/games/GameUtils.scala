@@ -6,7 +6,6 @@ import java.util.UUID
 
 
 object GameUtils {
-	val ladderStartingRating: Int = 1500
 	val goalAssistExp = 30
 	val goalSecondaryAssistExp = 0
 
@@ -14,7 +13,14 @@ object GameUtils {
 		SLP.preparedStatement(
 			"""
 			  |INSERT INTO game_scores
-			  |VALUES (?, ?, ?, ?);
+			  |            (game_id,
+			  |             roster_id,
+			  |             side,
+			  |             score)
+			  |VALUES      (?,
+			  |             ?,
+			  |             ?,
+			  |             ?);
 			""".stripMargin
 		){
 			stmt =>
@@ -33,9 +39,29 @@ object GameUtils {
 			try {
 				SLP.preparedStatement(
 					"""
-					  |INSERT INTO %s
-					  |VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-					""".stripMargin.format("games_r")
+					  |INSERT INTO games_r
+					  |            (game_id,
+					  |             vapor_id,
+					  |             redperk,
+					  |             kills,
+					  |             assists,
+					  |             deaths,
+					  |             exp,
+					  |             goals,
+					  |             goal_assists,
+					  |             secondary_assists,
+					  |             timealive)
+					  |VALUES     (?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
+					  |            ?);
+					""".stripMargin
 				){
 					stmt =>
 						stmt.setString(1, gameId.toString)
