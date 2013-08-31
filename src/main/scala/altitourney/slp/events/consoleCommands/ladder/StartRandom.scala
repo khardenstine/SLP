@@ -1,6 +1,6 @@
 package altitourney.slp.events.consoleCommands.ladder
 
-import altitourney.slp.SLP
+import altitourney.slp.{Util, SLP}
 import altitourney.slp.events.consoleCommands.AbstractStart
 import altitourney.slp.events.consoleCommands.ladder.LadderUtils.RatingTuple
 import altitourney.slp.events.exceptions.{ServerMessageException, LadderNotConfigured}
@@ -80,12 +80,16 @@ object LadderUtils {
 	val maxVariance = 100
 
 	def getRatings(mode: Mode, playerList: Set[UUID]): Seq[(UUID, Int, Boolean)] = {
-		SLP.executeDBQuery(
+		val query =
 			"""
 			  |SELECT players.vapor_id, players.%s_rating, players.accepted_rules
 			  |FROM players
 			  |WHERE players.vapor_id IN (%s);
-			""".stripMargin.format(mode, playerList.map("'" + _ + "'").mkString(",")),
+			""".stripMargin.format(mode, Util.listToQuestionMarks(playerList))
+
+		SLP.preparedQuery(
+			query,
+		    Util.setListOnStatement(playerList, _),
 			rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("%s_rating".format(mode)), rs.getBoolean("accepted_rules"))
 		) match {
 			case Failure(e) =>

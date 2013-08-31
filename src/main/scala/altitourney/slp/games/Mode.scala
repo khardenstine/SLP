@@ -3,16 +3,16 @@ package altitourney.slp.games
 import altitourney.slp.SLP
 
 sealed trait Mode {
-	val mode: String
+	val name: String
 	def teamSize: Int
-	override def toString = mode
+	override def toString = name
 }
 
 object Mode {
 	def withName(str: String): Mode = {
 		str match {
-			case TBD.mode => TBD
-			case BALL.mode => BALL
+			case TBD.name => TBD
+			case BALL.name => BALL
 			case _ => {
 				// log it and throw it
 				val message = "Cannot parse game mode: " + str
@@ -24,11 +24,11 @@ object Mode {
 }
 
 case object TBD extends Mode {
-	val mode = "tbd"
+	val name = "tbd"
 	def teamSize: Int = 5
 }
 
 case object BALL extends Mode {
-	val mode = "ball"
+	val name = "ball"
 	def teamSize: Int = 6
 }

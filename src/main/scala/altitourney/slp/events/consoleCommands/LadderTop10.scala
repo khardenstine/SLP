@@ -17,10 +17,9 @@ class LadderTop10(jsVal: JsValue) extends EventHandler(jsVal) {
 				  |LIMIT 10;
 				""".stripMargin.format(mode)
 
-	SLP.executeDBQuery(
-		query,
+	SLP.preparedQuery(query){
 		rs => (rs.getString("name"), rs.getInt("%s_rating".format(mode)))
-	) match {
+	} match {
 		case Success(results) =>
 			getCommandExecutor.serverWhisper(whisperTo, s"Top 10 in $mode:")
 			results.zipWithIndex.foreach{ zipped =>

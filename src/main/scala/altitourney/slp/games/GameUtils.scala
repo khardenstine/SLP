@@ -14,7 +14,7 @@ object GameUtils {
 		SLP.preparedStatement(
 			"""
 			  |INSERT INTO game_scores
-			  |VALUES (?, ?, ?, ?)
+			  |VALUES (?, ?, ?, ?);
 			""".stripMargin
 		){
 			stmt =>
@@ -27,27 +27,29 @@ object GameUtils {
 
 	def recordPlayer(gameId: UUID, player: UUID, perks: collection.Map[String, PerkData]) {
 		perks.foreach{ perk =>
+			val perkName = perk._1
+			val perkData = perk._2
+
 			try {
-				val perkName = perk._1
-				val perkData = perk._2
-
-				val values = Seq(
-					gameId.toString,
-					player.toString,
-					perkName,
-					perkData.kills,
-					perkData.assists,
-					perkData.deaths,
-					perkData.exp,
-					perkData.goals,
-					perkData.goalAssists,
-					perkData.goalSecondaryAssists,
-					perkData.timeAlive.getMillis
-				)
-
-				SLP.insertDBStatement("games_r", values)
-			}
-			catch {
+				SLP.preparedStatement(
+					"""
+					  |INSERT INTO %s
+					  |VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+					""".stripMargin.format("games_r")
+				){
+					stmt =>
+						stmt.setString(1, gameId.toString)
+						stmt.setString(2, player.toString)
+						stmt.setString(3, perkName)
+						stmt.setInt(4, perkData.kills)
+						stmt.setInt(5, perkData.assists)
+						stmt.setInt(6, perkData.deaths)
+						stmt.setInt(7, perkData.goals)
+						stmt.setInt(8, perkData.goalAssists)
+						stmt.setInt(9, perkData.goalSecondaryAssists)
+						stmt.setLong(10, perkData.timeAlive.getMillis)
+				}
+			} catch {
 				case e: SQLException => SLP.getLog.error(e)
 			}
 		}

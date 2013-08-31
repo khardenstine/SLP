@@ -10,20 +10,19 @@ class Ratings(jsVal: JsValue) extends EventHandler(jsVal) {
 	val whisperTo = getServerContext.getPlayerName(getUUID("source"))
 
 	val playerName = (jsVal \ "arguments")(0).as[String]
-	val vapor = getServerContext.getPlayerUUID(playerName).getOrElse(throw new ServerWhisperException(whisperTo, "Error reading %s's stats.".format(playerName)))
-	val query = """
-				  |SELECT players.tbd_rating, players.ball_rating
-				  |FROM players
-				  |WHERE players.vapor_id = ?;
-				""".stripMargin
-
-	val ratingsList = SLP.executeDBQuery(
-		query,
-		(p) => p.setString(1, vapor.toString),
-		(rs) => (rs.getInt("tbd_rating"), rs.getInt("ball_rating"))
+	val vapor = getServerContext.getPlayerUUID(playerName).getOrElse(
+		throw new ServerWhisperException(whisperTo, "Error reading %s's stats.".format(playerName))
 	)
 
-	ratingsList match {
+	SLP.preparedQuery(
+		"""
+		  |SELECT players.tbd_rating, players.ball_rating
+		  |FROM players
+		  |WHERE players.vapor_id = ?;
+		""".stripMargin,
+		_.setString(1, vapor.toString),
+		rs => (rs.getInt("tbd_rating"), rs.getInt("ball_rating"))
+	) match {
 		case Success(rating) => rating.foreach{ r =>
 			getCommandExecutor.serverWhisper(whisperTo, "%s :: TBD :: Rating:%s".format(playerName, r._1))
 			getCommandExecutor.serverWhisper(whisperTo, "%s :: BALL :: Rating:%s".format(playerName, r._2))

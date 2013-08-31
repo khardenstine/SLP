@@ -5,7 +5,7 @@ import altitourney.slp.registry.RegistryFactory
 import com.typesafe.config.{ConfigFactory, Config}
 import java.io.File
 import java.net.HttpURLConnection
-import java.sql.{Connection, PreparedStatement, ResultSet, SQLException, Statement, Timestamp}
+import java.sql.{Connection, PreparedStatement, ResultSet, SQLException, Timestamp}
 import java.util.UUID
 import log.{Logger, LogLevel}
 import org.joda.time.DateTime
@@ -169,26 +169,18 @@ object SLP {
 		try {
 			val stmt = connection.prepareStatement(sql)
 			fn(stmt)
-			stmt.execute()
-		}
-		finally {
+			getLog.debug("Executing statement: " + sql)
+			try {
+				stmt.execute()
+			} finally {
+				stmt.close()
+			}
+		} finally {
 			slp.releaseConnection(connection)
 		}
 	}
 
-	def executeDBStatement(sql: String) {
-		val connection = slp.getConnection
-		try {
-			val statement: Statement = connection.createStatement()
-			getLog.debug("Executing query: " + sql)
-			statement.execute(sql)
-		}
-		finally {
-			slp.releaseConnection(connection)
-		}
-	}
-
-	def executeDBQuery[T](sql: String, fn1: PreparedStatement => Unit, fn2: ResultSet => T): Try[Seq[T]] = Try {
+	def preparedQuery[T](sql: String, fn1: PreparedStatement => Unit, fn2: ResultSet => T): Try[Seq[T]] = Try {
 		val connection = slp.getConnection
 		try {
 			val statement: PreparedStatement = connection.prepareStatement(sql)
@@ -212,21 +204,8 @@ object SLP {
 		}
 	}
 
-	def executeDBQuery[T](sql: String, fn: ResultSet => T): Try[Seq[T]] = {
-		executeDBQuery(sql, (p) => Unit, fn)
-	}
-
-	def insertRawDBStatement(table: String, values: Seq[String]) {
-		executeDBStatement(
-			"""
-			  |INSERT INTO %s
-			  |VALUES(%s);
-			""".stripMargin.format(table, values.mkString(","))
-		)
-	}
-
-	def insertDBStatement(table: String, values: Seq[Any]) {
-		insertRawDBStatement(table, values.map("'" + _ + "'"))
+	def preparedQuery[T](sql: String)(fn: ResultSet => T): Try[Seq[T]] = {
+		preparedQuery(sql, _ => Unit, fn)
 	}
 
 	def updatePlayerName(vapor: UUID, name: String) {
@@ -236,7 +215,7 @@ object SLP {
 			  |INSERT INTO players
 			  |SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM players WHERE vapor_id = ?);
 			""".stripMargin
-		) {
+		){
 			stmt =>
 				stmt.setString(1, name)
 				stmt.setString(2, vapor.toString)
@@ -274,13 +253,11 @@ object SLP {
 								stmt.setString(9, ip)
 								stmt.setString(10, tuple._1.toString)
 						}
-					}
-					catch {
+					} catch {
 						case e: SQLException => getLog.error(e)
 					}
 			}
-		}
-		catch {
+		} catch {
 			case e: Exception => getLog.error(e)
 		}
 	}

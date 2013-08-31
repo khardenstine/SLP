@@ -1,9 +1,9 @@
 package altitourney.slp.games
 
-import altitourney.slp.SLP
-import java.sql.ResultSet
+import altitourney.slp.{Util, SLP}
 import java.util.UUID
 import scala.collection.mutable
+import scala.util.{Success, Failure}
 
 class Team(final val id: Int) {
 	val players: mutable.Set[UUID] = mutable.Set()
@@ -18,28 +18,27 @@ class Team(final val id: Int) {
 	def getScore = score
 
 	def guessRosterId: Option[String] = {
-		if (players.size > 0)
-		{
-			val rostersResult = SLP.executeDBQuery[String](
+		if (players.size < 1) {
+			None
+		} else {
+			SLP.preparedQuery(
 				"""
 				  |SELECT DISTINCT roster_id
 				  |FROM rosters_r
-				  |WHERE vapor_id IN (%s)
-				""".stripMargin.format(players.map("'" + _ + "'").mkString(","))
-				,(rs: ResultSet) => rs.getString(1)
-			)
-			if (rostersResult.isFailure)
-				SLP.getLog.error(rostersResult.failed.get)
-
-			val rosters = rostersResult.getOrElse(Seq())
-
-			if (rosters.size == 1) {
-				Some(rosters(0))
-			} else {
-				None
+				  |WHERE vapor_id IN (%s);
+				""".stripMargin.format(Util.listToQuestionMarks(players)),
+				Util.setListOnStatement(players, _),
+				_.getString(1)
+			) match {
+				case Success(rosters) =>
+					if (rosters.size == 1)
+						Some(rosters.head)
+					else
+						None
+				case Failure(e) =>
+					SLP.getLog.error(e)
+					None
 			}
-		} else {
-			None
 		}
 	}
 }
