@@ -16,19 +16,26 @@ class Ratings(jsVal: JsValue) extends EventHandler(jsVal) {
 
 	SLP.preparedQuery(
 		"""
-		  |SELECT players.tbd_rating, players.ball_rating
-		  |FROM players
+		  |SELECT ladder_ranks.tbd_rating, ladder_ranks.tbd_rank, ladder_ranks.ball_rating, ladder_ranks.ball_rank
+		  |FROM ladder_ranks
 		  |WHERE players.vapor_id = ?;
 		""".stripMargin,
 		_.setString(1, vapor.toString),
-		rs => (rs.getInt("tbd_rating"), rs.getInt("ball_rating"))
+		rs => Rating(rs.getInt("tbd_rating"), rs.getInt("tbd_rank"), rs.getInt("ball_rating"), rs.getInt("ball_rank"))
 	) match {
 		case Success(rating) => rating.foreach{ r =>
-			getCommandExecutor.serverWhisper(whisperTo, "%s :: TBD :: Rating:%s".format(playerName, r._1))
-			getCommandExecutor.serverWhisper(whisperTo, "%s :: BALL :: Rating:%s".format(playerName, r._2))
+			getCommandExecutor.serverWhisper(whisperTo, "%s : TBD - Rank %s, Rating %s".format(playerName, r.tbdRank, r.tbdRating))
+			getCommandExecutor.serverWhisper(whisperTo, "%s : BALL - Rank %s, Rating %s".format(playerName, r.ballRank, r.ballRating))
 		}
 		case Failure(e) =>
 			SLP.getLog.error(e)
 			throw new ServerWhisperException(whisperTo, "Error reading %s's stats.".format(playerName))
 	}
 }
+
+case class Rating(
+					 tbdRating: Int,
+					 tbdRank: Int,
+					 ballRating: Int,
+					 ballRank: Int
+					 )

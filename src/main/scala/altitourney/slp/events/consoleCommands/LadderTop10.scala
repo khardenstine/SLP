@@ -11,19 +11,23 @@ class LadderTop10(jsVal: JsValue) extends EventHandler(jsVal) {
 	val mode = getServerContext.getLadderMode.getOrElse(throw new LadderNotConfigured())
 
 	val query = """
-				  |SELECT players.name, players.%1$s_rating
-				  |FROM players
-				  |ORDER BY players.%1$s_rating DESC
+				  |SELECT ladder_ranks.name, ladder_ranks.%1$s_rating, ladder_ranks.$1$s_rank
+				  |FROM ladder_ranks
+				  |ORDER BY ladder_ranks.%1$s_rank DESC
 				  |LIMIT 10;
 				""".stripMargin.format(mode)
 
 	SLP.preparedQuery(query){
-		rs => (rs.getString("name"), rs.getInt("%s_rating".format(mode)))
+		rs => ModeRating(
+			rs.getString("name"),
+			rs.getInt("%s_rank".format(mode)),
+			rs.getInt("%s_rating".format(mode))
+		)
 	} match {
 		case Success(results) =>
 			getCommandExecutor.serverWhisper(whisperTo, s"Top 10 in $mode:")
 			results.zipWithIndex.foreach{ zipped =>
-				getCommandExecutor.serverWhisper(whisperTo, "%s) %s - %s".format(zipped._2 + 1, zipped._1._2, zipped._1._1))
+				getCommandExecutor.serverWhisper(whisperTo, "%s) %s - %s".format(zipped._1.rank, zipped._1.rating, zipped._1.name))
 				if (zipped._2 == 4)
 					Thread.sleep(1500)
 			}
@@ -32,3 +36,9 @@ class LadderTop10(jsVal: JsValue) extends EventHandler(jsVal) {
 			throw new ServerWhisperException(whisperTo, "Error reading ladder Top 10.")
 	}
 }
+
+case class ModeRating(
+						 name: String,
+						 rank: Int,
+						 rating: Int
+						 )
