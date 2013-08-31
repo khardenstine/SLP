@@ -121,8 +121,7 @@ private class SLP(config: Config) {
 object SLP {
 	private val slp: SLP = new SLP(ConfigFactory.load())
 	private val serverContexts: mutable.HashMap[Int, ServerContext] = mutable.HashMap.empty
-	// TODO null wtf?
-	private var sessionStartTime: DateTime = null
+	private var sessionStartTime: Option[DateTime] = None
 
 	def main(args: Array[String]) {
 		slp.start()
@@ -137,14 +136,18 @@ object SLP {
 	}
 
 	def initServer(port: Int, name: String): ServerContext = {
-		val server: ServerContext = slp.buildServerContext(port, sessionStartTime, name)
+		val server: ServerContext = slp.buildServerContext(
+			port,
+			sessionStartTime.getOrElse(throw new RuntimeException("Session never started, cannot initialize server without session.")),
+			name
+		)
 		serverContexts.put(port, server)
 		server
 	}
 
 	def startSession(dateTime: DateTime) {
 		serverContexts.clear()
-		sessionStartTime = dateTime
+		sessionStartTime = Some(dateTime)
 	}
 
 	lazy val getRegistryFactory = new RegistryFactory
