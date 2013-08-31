@@ -84,4 +84,8 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 	def changeMap(mapName: String): Unit = {
 		writeCommand("changeMap", mapName)
 	}
+
+	def logServerStatus(): Unit = {
+		writeCommand("logServerStatus")
+	}
 }

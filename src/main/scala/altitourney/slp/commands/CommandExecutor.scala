@@ -10,5 +10,6 @@ abstract class CommandExecutor {
 	def serverMessage(message: String): Unit
 	def serverMessage(e: RuntimeException): Unit
 	def changeMap(mapName: String): Unit
+	def logServerStatus(): Unit
 }
 

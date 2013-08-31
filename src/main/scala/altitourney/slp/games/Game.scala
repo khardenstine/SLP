@@ -9,8 +9,11 @@ abstract class Game(val map: String, leftTeamId: Int, rightTeamId: Int) {
 	protected val rightTeam: Team = new Team(rightTeamId)
 
 	def listActivePlayers: Set[UUID] = {
-		(leftTeam.players ++ rightTeam.players).toSet
+		leftPlayers ++ rightPlayers
 	}
+
+	def leftPlayers = leftTeam.players.toSet
+	def rightPlayers = rightTeam.players.toSet
 
 	def changeTeam(player: UUID, team: Int, serverContext: ServerContext) {
 		team match {

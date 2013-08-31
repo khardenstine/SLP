@@ -53,20 +53,18 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		implicit def uuids2Names(uuids: Iterable[UUID]): Seq[String] = getPlayerNames(uuids)
 
 		def getShouldSpec: Set[UUID] = {
-			getGame.listActivePlayers.filter(uuid => !(teams._1 ++ teams._2).contains(uuid))
+			getGame.listActivePlayers.filter(!(teams._1 ++ teams._2).contains(_))
 		}
 
-		commandExecutor.assignLeftTeam(teams._1:_*)
-		commandExecutor.assignRightTeam(teams._2:_*)
-		commandExecutor.assignSpectate(getShouldSpec:_*)
-		commandExecutor.startTournament()
-
-		// TODO should also check that left and right team are correct so no 7v5s
-		while (getShouldSpec.size > 0) {
+		while (getShouldSpec.size > 0 && getGame.leftPlayers.diff(teams._1).size > 0 && getGame.rightPlayers.diff(teams._2).size > 0) {
 			commandExecutor.stopTournament()
+			commandExecutor.assignLeftTeam(teams._1:_*)
+			commandExecutor.assignRightTeam(teams._2:_*)
 			commandExecutor.assignSpectate(getShouldSpec:_*)
 			commandExecutor.startTournament()
-			Thread.sleep(50)
+
+			commandExecutor.logServerStatus()
+			Thread.sleep(100)
 		}
 
 		commandExecutor.startTournament()
