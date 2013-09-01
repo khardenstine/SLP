@@ -13,6 +13,7 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 	// todo column shouldnt be string, should be Perk Enum
 	private val perkTable: HashBasedTable[UUID, String, PerkData] = HashBasedTable.create()
 	val spawnMap: concurrent.Map[UUID, PlayerSpawn] = JavaConversions.mapAsScalaConcurrentMap(new ConcurrentHashMap[UUID, PlayerSpawn])
+	var result: Option[Result] = None
 
 	def addKill(source: Option[UUID], victim: UUID, xp: Int, time: DateTime) {
 		source foreach{vapor: UUID => spawnMap.get(vapor) foreach (_.addKill(xp))}
@@ -52,17 +53,25 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 		}
 	}
 
-	private def getResult: String = {
-		if (leftTeam.getScore > rightTeam.getScore) {
-			leftTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000000")
+	def setResult(result: Result): Unit = {
+		this.result match {
+			case None => this.result = Some(result)
+			case Some(x) => sys.error("Result already has a value.")
 		}
-		else if (leftTeam.getScore < rightTeam.getScore) {
-			rightTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000001")
-		}
-		else {
-			"00000000-0000-0000-0000-000000000000"
-			//this is wronggggggggggggggggggggggggggggg
-			//should be null
+	}
+
+	private def getVictor: String = {
+		result.get match {
+			case Decisive =>
+				if (leftTeam.getScore > rightTeam.getScore) {
+					leftTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000000")
+				} else {
+					rightTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000001")
+				}
+			case Tie =>
+				"00000000-0000-0000-0000-000000000000"
+				//this is wronggggggggggggggggggggggggggggg
+				//should be null
 		}
 	}
 
@@ -71,8 +80,9 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 			ps.end(endTime)	// all player lives should have ended already, this is just in case they have not
 			perkTable.put(player, ps.redPerk, ps.getPerkData + Option(perkTable.get(player, ps.redPerk)))
 		}
-
-		dump(endTime, serverContext)
+		// We will only have a result if the a tournamentRoundEnd event was fired.
+		// That is also the only time we want to be dumping the game data
+		result.foreach(_ => dump(endTime, serverContext))
 	}
 
 	protected def dump(endTime: DateTime, serverContext: ServerContext): Unit
@@ -102,7 +112,7 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 			stmt =>
 				stmt.setString(1, gameId.toString)
 				stmt.setString(2, "00000000-0000-0000-0000-000000000000")
-				stmt.setString(3, getResult)
+				stmt.setString(3, getVictor)
 				stmt.setTimestamp(4, new Timestamp(startTime.getMillis))
 				stmt.setFloat(5, new Duration(startTime, endTime).getMillis)
 				stmt.setString(6, map)

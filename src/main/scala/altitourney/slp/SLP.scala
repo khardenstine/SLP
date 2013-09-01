@@ -35,8 +35,7 @@ private class SLP(config: Config) {
 					try {
 						slw.checkServerLogForNewData()
 						ThreadHelper.sleep(200)
-					}
-					catch {
+					} catch {
 						case e: Exception => log.error(e, "Process failed.")
 					}
 				}
@@ -50,8 +49,7 @@ private class SLP(config: Config) {
 					try {
 						SLP.callback()
 						ThreadHelper.sleep(600000)
-					}
-					catch {
+					} catch {
 						case e: Exception => {
 							log.error(e, "Process failed.")
 						}

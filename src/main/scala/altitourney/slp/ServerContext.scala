@@ -52,18 +52,23 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 	def assignTeams(teams: (Set[UUID], Set[UUID])): Unit = {
 		implicit def uuids2Names(uuids: Iterable[UUID]): Seq[String] = getPlayerNames(uuids)
 
+		val shouldPlay = teams._1 ++ teams._2
+
 		def getShouldSpec: Set[UUID] = {
-			getGame.listActivePlayers.filter(!(teams._1 ++ teams._2).contains(_))
+			val activePlayers = game.tournamentTeamLists match {
+				case None => getGame.listActivePlayers
+				case Some(tl) => tl._1 ++ tl._2
+			}
+			activePlayers.filterNot(shouldPlay.contains)
 		}
 
-		while (getShouldSpec.size > 0 && getGame.leftPlayers.diff(teams._1).size > 0 && getGame.rightPlayers.diff(teams._2).size > 0) {
+		while (game.tournamentTeamLists.forall( tl => tl._1.diff(teams._1).size > 0 || tl._2.diff(teams._2).size > 0)) {
 			commandExecutor.stopTournament()
 			commandExecutor.assignLeftTeam(teams._1:_*)
 			commandExecutor.assignRightTeam(teams._2:_*)
 			commandExecutor.assignSpectate(getShouldSpec:_*)
 			commandExecutor.startTournament()
 
-			commandExecutor.logServerStatus()
 			Thread.sleep(100)
 		}
 

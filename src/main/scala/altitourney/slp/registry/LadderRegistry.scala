@@ -4,7 +4,7 @@ import altitourney.slp.events.consoleCommands.ladder._
 import play.api.libs.json.JsValue
 
 class LadderRegistry extends EventRegistry{
-	val REGISTRY: Seq[REGISTER] = Seq(
+	val REGISTRY: Map[String, REGISTER] = Map(
 		("start_random",	new StartRandom(_)),
 		("stop",			new Stop(_))
 	)

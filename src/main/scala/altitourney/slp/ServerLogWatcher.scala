@@ -14,12 +14,12 @@ class ServerLogWatcher(val path: String) {
 	var watcher = new Watcher(path, true)
 
 	SLP.getLog.debug("Parsing old log")
-	SLP.getRegistryFactory.getStartUpRegistry.handle(watcher.getLines)
+	SLP.getRegistryFactory.getStartUpRegistry.handleIterator(watcher.getLines)
 	SLP.getLog.debug("Finished parsing old log")
 	SLP.getLog.debug("The reference file has a length of: " + watcher.getReferenceFileLength)
 
 	def checkServerLogForNewData() {
-		SLP.getRegistryFactory.getEventRegistry.handle(watcher.getLines)
+		SLP.getRegistryFactory.getEventRegistry.handleIterator(watcher.getLines)
 
 		watcher = watcher.setReferenceFileLength()
 	}

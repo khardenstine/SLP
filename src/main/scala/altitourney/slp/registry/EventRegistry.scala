@@ -6,54 +6,47 @@ import altitourney.slp.events.exceptions.ConsoleCommandException
 import play.api.libs.json.{Json, JsValue}
 
 trait EventRegistry {
-	type REGISTER = (String, (JsValue) => EventHandler)
-	val REGISTRY: Seq[REGISTER]
+	type REGISTER = (JsValue) => Any
+	val EmptyRegister = (jsVal: JsValue) => Unit
+	val REGISTRY: Map[String, REGISTER]
 
 	protected def getFilter(jsVal: JsValue): String
 
-	def handle(lines: Iterator[String]): Unit = {
+	def handleIterator(lines: Iterator[String]): Unit = {
 		try {
-			lines.foreach {
-				line => handle(Json.parse(line))
+			lines.foreach{ line =>
+				try {
+					handle(Json.parse(line))
+				} catch {
+					case e: Exception => SLP.getLog.error(e, line + "\n" + e.getMessage)
+				}
 			}
 		} catch {
-			case e: Exception => SLP.getLog.error(e, "Failed to read console command")
+			case e: Exception => SLP.getLog.error(e)
 		}
 	}
 
 	def handle(jsVal: JsValue): Unit = {
-		// Ignore bot events
-		// this isnt correct
-		//val vaporId = (jsVal \ "vaporId").as[String]
-		//if (vaporId == JsUndefined || vaporId != "00000000-0000-0000-0000-000000000000")
-
 		val filter = getFilter(jsVal)
-		val registers = REGISTRY.filter(_._1 == filter)
 
-		if (registers.length < 1)
-		{
-			SLP.getLog.info("Event: [" + filter + "] not found in " + this.getClass.getName)
-		}
-		else
-		{
-			registers.foreach{ e =>
-				SLP.getLog.debug("Handling event: " + e._1)
+		REGISTRY.get(filter) match {
+			case None => eventNotFound(filter)
+			case Some(handler) =>
+				SLP.getLog.debug("Handling event: " + filter)
 				workWrapper(() =>
 					try {
-						e._2(jsVal)
+						handler(jsVal)
 					} catch {
 						case e: ConsoleCommandException => {
-							try{
-								e.propagate(SLP.getServerContext((jsVal \ "port").as[Int]).commandExecutor)
-							} catch {
-								case e: Exception => SLP.getLog.error(e)
-							}
+							e.propagate(SLP.getServerContext((jsVal \ "port").as[Int]).commandExecutor)
 						}
-						case e: Exception => SLP.getLog.error(e)
 					}
 				)
-			}
 		}
+	}
+
+	def eventNotFound(eventName: String) = {
+		SLP.getLog.info("Event: [" + eventName + "] not found in " + this.getClass.getName)
 	}
 
 	def workWrapper(work: () => Unit): Unit = {

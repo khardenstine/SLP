@@ -13,5 +13,7 @@ class NoGame(map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, l
 
 	def spawn(player: UUID, redperk: String, time: DateTime) {}
 
+	def setResult(result: Result): Unit = {}
+
 	def end(endTime: DateTime, serverContext: ServerContext) {}
 }
