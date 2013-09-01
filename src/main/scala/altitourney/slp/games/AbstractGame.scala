@@ -60,15 +60,23 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 		}
 	}
 
-	private def getVictor: String = {
+	protected def getVictor: Option[Team] = {
 		result.get match {
 			case Decisive =>
 				if (leftTeam.getScore > rightTeam.getScore) {
-					leftTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000000")
+					Some(leftTeam)
 				} else {
-					rightTeam.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000001")
+					Some(rightTeam)
 				}
-			case Tie =>
+			case Tie => None
+		}
+	}
+
+	private def getVictorRosterId: String = {
+		getVictor match {
+			case Some(team) =>
+				team.guessRosterId.getOrElse("00000000-0000-0000-0000-000000000000")
+			case None =>
 				"00000000-0000-0000-0000-000000000000"
 				//this is wronggggggggggggggggggggggggggggg
 				//should be null
@@ -112,7 +120,7 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 			stmt =>
 				stmt.setString(1, gameId.toString)
 				stmt.setString(2, "00000000-0000-0000-0000-000000000000")
-				stmt.setString(3, getVictor)
+				stmt.setString(3, getVictorRosterId)
 				stmt.setTimestamp(4, new Timestamp(startTime.getMillis))
 				stmt.setFloat(5, new Duration(startTime, endTime).getMillis)
 				stmt.setString(6, map)
