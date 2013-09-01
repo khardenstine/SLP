@@ -16,6 +16,6 @@ object Util {
 	}
 
 	def setListOnStatement[A<: Any](i: Iterable[A], stmt: PreparedStatement): Unit = {
-		i.zipWithIndex.foreach( v => stmt.setString(v._2, v._1.toString))
+		i.zipWithIndex.foreach( v => stmt.setString(v._2 + 1, v._1.toString))
 	}
 }

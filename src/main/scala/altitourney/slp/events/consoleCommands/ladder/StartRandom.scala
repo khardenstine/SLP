@@ -93,11 +93,9 @@ object LadderUtils {
 			  |        WHERE  vapor_id IN ( %s )) v
 			  |       LEFT JOIN ladder_ranks
 			  |              ON ladder_ranks.vapor_id = v.vapor_id;
-			""".stripMargin.format(mode, ladderStartingRating, Util.listToQuestionMarks(playerList))
+			""".stripMargin.format(mode, ladderStartingRating, playerList.map(p => "'" + p.toString + "'").mkString(","))
 
-		SLP.preparedQuery(
-			query,
-		    Util.setListOnStatement(playerList, _),
+		SLP.preparedQuery(query)(
 			rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("rating"), rs.getBoolean("accepted_rules"))
 		) match {
 			case Failure(e) =>
