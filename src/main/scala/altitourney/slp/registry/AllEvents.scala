@@ -13,6 +13,7 @@ protected class AllEvents extends EventRegistry{
 			("consoleCommandExecute",	new ConsoleCommandExecute(_)),
 			("goal",					new Goal(_)),
 			("kill",					new Kill(_)),
+			("logServerStatus",			new LogServerStatus(_)),
 			("mapChange",				new MapChange(_)),
 			("mapLoading",				new MapLoading(_)),
 			("pingSummary",				new PingSummary(_)),
