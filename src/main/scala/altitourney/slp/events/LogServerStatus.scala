@@ -9,9 +9,9 @@ import java.util.UUID
  * "playerIds":[0],"ips":["192.168.1.3:27272"],"tournamentInProgress":false,"type":"logServerStatus"}
  */
 class LogServerStatus(jsVal: JsValue) extends EventHandler(jsVal){
-	val nickNames = (jsVal \\ "nicknames").map(_.as[String])
-	val vapors = (jsVal \\ "vaporIds").map(v => UUID.fromString(v.as[String]))
-	val playerIds = (jsVal \\ "playerIds").map(pid => pid.as[Int])
+	val nickNames = (jsVal \ "nicknames").as[Seq[JsValue]].map(_.as[String])
+	val vapors = (jsVal \ "vaporIds").as[Seq[JsValue]]map(v => UUID.fromString(v.as[String]))
+	val playerIds = (jsVal \ "playerIds").as[Seq[JsValue]].map(pid => pid.as[Int])
 
 	getServerContext.clearPlayers()
 	nickNames.zip(vapors).zip(playerIds).foreach { truple =>
