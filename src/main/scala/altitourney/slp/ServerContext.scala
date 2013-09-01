@@ -21,7 +21,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			// This is because StartTournament could be called after we establish the LadderFactory
 			// and we don't want a TournamentFactory in that case
 			this.gameFactory match {
-				case LadderFactory => {}
+				case f: LadderFactory => {}
 				case _ => this.gameFactory = gameFactory
 			}
 		)
