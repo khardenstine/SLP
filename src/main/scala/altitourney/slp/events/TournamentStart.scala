@@ -1,5 +1,6 @@
 package altitourney.slp.events
 
+import altitourney.slp.games.TournamentFactory
 import play.api.libs.json.JsValue
 import java.util.UUID
 
@@ -11,4 +12,5 @@ class TournamentStart(jsVal: JsValue) extends EventHandler(jsVal) {
 	val rightTeam = (jsVal \ "team1").as[Seq[JsValue]].map(v => UUID.fromString(v.as[String])).toSet
 
 	getGame.tournamentTeamLists = Some(leftTeam, rightTeam)
+	getServerContext.setGameFactory(TournamentFactory)
 }

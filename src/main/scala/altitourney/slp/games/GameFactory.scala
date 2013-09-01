@@ -37,7 +37,7 @@ trait AbstractGameFactory extends GameFactory{
 	protected def buildBall(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game
 }
 
-class LadderFactory(ratings: Map[UUID, Int]) extends AbstractGameFactory {
+case class LadderFactory(ratings: Map[UUID, Int]) extends AbstractGameFactory {
 	protected def buildTBD(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game = {
 		new Ladder(ratings, startTime, map, leftTeamId, rightTeamId) with TBDGame
 	}

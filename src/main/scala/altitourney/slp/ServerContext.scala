@@ -1,6 +1,6 @@
 package altitourney.slp
 
-import altitourney.slp.games.{GameFactory, StandardFactory, Mode, Game}
+import altitourney.slp.games.{GameFactory, LadderFactory, StandardFactory, Mode, Game}
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
@@ -17,7 +17,13 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 
 	def setGameFactory(gameFactory: GameFactory): Unit = {
 		synchronized(
-			this.gameFactory = gameFactory
+			// If it is already a LadderFactory, we don't want to override it.
+			// This is because StartTournament could be called after we establish the LadderFactory
+			// and we don't want a TournamentFactory in that case
+			this.gameFactory match {
+				case LadderFactory => {}
+				case _ => this.gameFactory = gameFactory
+			}
 		)
 	}
 
