@@ -15,13 +15,19 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 	val spawnMap: concurrent.Map[UUID, PlayerSpawn] = JavaConversions.mapAsScalaConcurrentMap(new ConcurrentHashMap[UUID, PlayerSpawn])
 	var result: Option[Result] = None
 
+	protected implicit def uuid2Op(uuid: UUID): Option[UUID] = Some(uuid)
+
+	def playerSpawnAction(source: Option[UUID], fn: PlayerSpawn => Unit) {
+		source.foreach(vapor => spawnMap.get(vapor).foreach(fn))
+	}
+
 	def addKill(source: Option[UUID], victim: UUID, xp: Int, time: DateTime) {
-		source foreach{vapor: UUID => spawnMap.get(vapor) foreach (_.addKill(xp))}
-		spawnMap.get(victim) foreach (_.addDeath(time))
+		playerSpawnAction(source, _.addKill(xp))
+		playerSpawnAction(victim, _.addDeath(time))
 	}
 
 	def addAssist(source: UUID, xp: Int) {
-		spawnMap.get(source) foreach (_.addAssist(xp))
+		playerSpawnAction(source, _.addAssist(xp))
 	}
 
 	def spawn(player: UUID, perk: String, time: DateTime) {

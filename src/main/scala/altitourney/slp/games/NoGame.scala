@@ -3,6 +3,7 @@ package altitourney.slp.games
 import altitourney.slp.ServerContext
 import java.util.UUID
 import org.joda.time.DateTime
+import altitourney.slp.structures.Target
 
 class NoGame(map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, leftTeamId, rightTeamId) {
 	def addKill(source: Option[UUID], victim: UUID, xp: Int, time: DateTime) {}
@@ -12,6 +13,10 @@ class NoGame(map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, l
 	def addAssist(source: UUID, xp: Int) {}
 
 	def spawn(player: UUID, redperk: String, time: DateTime) {}
+
+	def structureDamage(source: Option[UUID], target: Option[Target], xp: Int) {}
+
+	def structureDestroy(source: Option[UUID], target: Option[Target], xp: Int) {}
 
 	def setResult(result: Result): Unit = {}
 

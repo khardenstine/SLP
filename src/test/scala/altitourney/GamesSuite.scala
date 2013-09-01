@@ -8,8 +8,8 @@ import scala.collection.JavaConversions
 
 class GamesSuite  extends FunSuite{
 	test("adding PerkData") {
-		val one: PerkData = new PerkData(0, 0, 0, 0, 0, 0, 0, new Duration(0, 0))
-		val two: PerkData = new PerkData(1, 1, 1, 1, 1, 1, 1, new Duration(0, 1234))
+		val one: PerkData = new PerkData(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new Duration(0, 0))
+		val two: PerkData = new PerkData(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, new Duration(0, 1234))
 
 		val add: PerkData = one+Some(two)
 
@@ -20,11 +20,15 @@ class GamesSuite  extends FunSuite{
 		assert(add.goals == 1)
 		assert(add.goalAssists == 1)
 		assert(add.goalSecondaryAssists == 1)
+		assert(add.baseDamage == 1)
+		assert(add.otherDamage == 1)
+		assert(add.baseDestroys == 1)
+		assert(add.otherDestroys == 1)
 		assert(add.timeAlive.getMillis == 1234)
 	}
 
 	test("adding PlayerSpawn to PerkData") {
-		val one: PerkData = new PerkData(0, 0, 0, 0, 0, 0, 0, new Duration(0, 0))
+		val one: PerkData = new PerkData(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new Duration(0, 0))
 		val two: PlayerSpawn = new PlayerSpawn("pew pew", new DateTime())
 		two.addAssist(5)
 		two.addKill(20)
@@ -41,6 +45,10 @@ class GamesSuite  extends FunSuite{
 		assert(add.goals == 1)
 		assert(add.goalAssists == 0)
 		assert(add.goalSecondaryAssists == 1)
+		assert(add.baseDamage == 0)
+		assert(add.otherDamage == 0)
+		assert(add.baseDestroys == 0)
+		assert(add.otherDestroys == 0)
 		//assert(add.timeAlive.getMillis == 1234)
 	}
 

@@ -10,6 +10,10 @@ class PlayerSpawn(final val redPerk: String, var lifeStart: DateTime) {
 	var goals = 0
 	var goalAssists = 0
 	var secondaryGoalAssists = 0
+	var baseDamage = 0
+	var otherDamage = 0
+	var baseDestroys = 0
+	var otherDestroys = 0
 	var life: Duration = new Duration(0, 0)
 	private var addLife: Boolean = true
 
@@ -47,6 +51,26 @@ class PlayerSpawn(final val redPerk: String, var lifeStart: DateTime) {
 		addXP(xp)
 	}
 
+	def addBaseDamage(xp: Int) {
+		baseDamage += xp
+		addXP(xp)
+	}
+
+	def addOtherDamage(xp: Int) {
+		otherDamage += xp
+		addXP(xp)
+	}
+
+	def addBaseDestroy(xp: Int) {
+		baseDestroys += 1
+		addXP(xp)
+	}
+
+	def addOtherDestroy(xp: Int) {
+		otherDestroys += 1
+		addXP(xp)
+	}
+
 	def respawn(startTime: DateTime) {
 		lifeStart = startTime
 		addLife = true
@@ -60,6 +84,6 @@ class PlayerSpawn(final val redPerk: String, var lifeStart: DateTime) {
 	}
 
 	def getPerkData: PerkData = {
-		new PerkData(kills, assists, deaths, exp, goals, goalAssists, secondaryGoalAssists, life)
+		new PerkData(kills, assists, deaths, exp, goals, goalAssists, secondaryGoalAssists, baseDamage, otherDamage, baseDestroys, otherDestroys, life)
 	}
 }

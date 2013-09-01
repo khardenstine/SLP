@@ -50,8 +50,16 @@ object GameUtils {
 					  |             goals,
 					  |             goal_assists,
 					  |             secondary_assists,
+					  |             base_damage,
+					  |             other_damage,
+					  |             base_destroys,
+					  |             other_destroys,
 					  |             timealive)
 					  |VALUES     (?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
+					  |            ?,
 					  |            ?,
 					  |            ?,
 					  |            ?,
@@ -73,7 +81,11 @@ object GameUtils {
 						stmt.setInt(7, perkData.goals)
 						stmt.setInt(8, perkData.goalAssists)
 						stmt.setInt(9, perkData.goalSecondaryAssists)
-						stmt.setLong(10, perkData.timeAlive.getMillis)
+						stmt.setInt(10, perkData.baseDamage)
+						stmt.setInt(11, perkData.otherDamage)
+						stmt.setInt(12, perkData.baseDestroys)
+						stmt.setInt(13, perkData.otherDestroys)
+						stmt.setLong(14, perkData.timeAlive.getMillis)
 				}
 			} catch {
 				case e: SQLException => SLP.getLog.error(e)

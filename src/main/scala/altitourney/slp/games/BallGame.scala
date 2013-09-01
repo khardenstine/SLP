@@ -2,6 +2,7 @@ package altitourney.slp.games
 
 import java.util.UUID
 import org.joda.time.DateTime
+import altitourney.slp.structures.Target
 
 trait BallGame extends AbstractGame {
 	val mode = BALL
@@ -17,4 +18,8 @@ trait BallGame extends AbstractGame {
 		getTeam(source.getOrElse(sys.error("Who scored?")))
 			.getOrElse(sys.error("Non team member scored?")).modifyScore(1)
 	}
+
+	def structureDamage(source: Option[UUID], target: Option[Target], xp: Int) {}
+
+	def structureDestroy(source: Option[UUID], target: Option[Target], xp: Int) {}
 }
