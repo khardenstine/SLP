@@ -1,7 +1,7 @@
 package altitourney.slp.events
 
-import play.api.libs.json.JsValue
 import java.util.UUID
+import play.api.libs.json.JsValue
 
 /**
  *

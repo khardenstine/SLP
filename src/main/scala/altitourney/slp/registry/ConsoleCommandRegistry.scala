@@ -1,7 +1,7 @@
 package altitourney.slp.registry
 
-import altitourney.slp.{SLP, ThreadHelper}
 import altitourney.slp.events.consoleCommands._
+import altitourney.slp.{SLP, ThreadHelper}
 import play.api.libs.json.JsValue
 
 protected class ConsoleCommandRegistry extends EventRegistry{

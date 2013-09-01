@@ -1,10 +1,10 @@
 package altitourney.slp.events.consoleCommands.ladder
 
-import altitourney.slp.{Util, SLP}
 import altitourney.slp.events.consoleCommands.AbstractStart
 import altitourney.slp.events.consoleCommands.ladder.LadderUtils.RatingTuple
 import altitourney.slp.events.exceptions.{ServerMessageException, LadderNotConfigured}
 import altitourney.slp.games.{LadderFactory, Mode, TBD, BALL}
+import altitourney.slp.{Util, SLP}
 import java.util.UUID
 import play.api.libs.json.JsValue
 import scala.util.{Success, Failure, Random}

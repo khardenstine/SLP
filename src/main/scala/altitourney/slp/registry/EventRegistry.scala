@@ -1,7 +1,6 @@
 package altitourney.slp.registry
 
 import altitourney.slp.SLP
-import altitourney.slp.events.EventHandler
 import altitourney.slp.events.exceptions.ConsoleCommandException
 import play.api.libs.json.{Json, JsValue}
 

@@ -1,8 +1,8 @@
 package altitourney.slp.registry
 
+import altitourney.slp.SLP
 import altitourney.slp.events._
 import play.api.libs.json.JsValue
-import altitourney.slp.SLP
 
 protected class AllEvents extends EventRegistry{
 	val REGISTRY: Map[String, REGISTER] =

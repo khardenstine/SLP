@@ -1,8 +1,8 @@
 package altitourney.slp
 
+import java.sql.PreparedStatement
 import java.util.UUID
 import org.joda.time.DateTime
-import java.sql.PreparedStatement
 
 object Util {
 	def generateHash(player: UUID): String = {
