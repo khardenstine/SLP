@@ -4,7 +4,7 @@ import altitourney.slp.events.consoleCommands.AbstractStart
 import altitourney.slp.events.consoleCommands.ladder.LadderUtils.RatingTuple
 import altitourney.slp.events.exceptions.{ServerMessageException, LadderNotConfigured}
 import altitourney.slp.games.{LadderFactory, Mode, TBD, BALL}
-import altitourney.slp.{Util, SLP}
+import altitourney.slp.SLP
 import java.util.UUID
 import play.api.libs.json.JsValue
 import scala.util.{Success, Failure, Random}
@@ -147,12 +147,9 @@ object LadderUtils {
 				(smallSwap.player, rightVariant)
 			}
 
-			val pair = swapList.reduceLeft((a: (UUID, VariantTuple), b: (UUID, VariantTuple)) => {
-				if (a._2.isSmallerVariance(b._2))
-					(a._1, a._2)
-				else
-					(b._1, b._2)
-			})
+			val pair = swapList.reduceLeft((a: (UUID, VariantTuple), b: (UUID, VariantTuple)) =>
+				if (a._2.isSmallerVariance(b._2)) a else b
+			)
 
 			((slt._1.map(_.player).diff(Seq(pair._1)):+pair._2.player).toSet,
 			(slt._2.map(_.player).diff(Seq(pair._2.player)):+pair._1).toSet)
