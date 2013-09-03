@@ -6,6 +6,7 @@ import com.typesafe.config.Config
 import java.util.UUID
 import org.joda.time.DateTime
 import scala.util.Try
+import java.util.concurrent.locks.ReentrantLock
 
 class ServerContext(config: Config, val port: Int, startTime: DateTime, val name: String) {
 	private val lobbyMap: String = config.getString("lobby.map")
@@ -68,14 +69,32 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			activePlayers.filterNot(shouldPlay.contains)
 		}
 
+		var sleep = true
+		val lock = new ReentrantLock()
+		val lockCondition = lock.newCondition()
+		val tournamentStartListener = (port, "tournamentStart", () => {
+				sleep = false
+				lockCondition.signal()
+			}
+		)
+
 		while (game.tournamentTeamLists.forall( tl => tl._1.diff(teams._1).size > 0 || tl._2.diff(teams._2).size > 0)) {
+			sleep = true
+			SLP.getRegistryFactory.getEventRegistry.addPortedEventListener(tournamentStartListener)
 			commandExecutor.stopTournament()
 			commandExecutor.assignLeftTeam(teams._1:_*)
 			commandExecutor.assignRightTeam(teams._2:_*)
 			commandExecutor.assignSpectate(getShouldSpec:_*)
 			commandExecutor.startTournament()
 
-			Thread.sleep(100)
+			lock.lock()
+			try {
+				while(sleep) {
+					lockCondition.await()
+				}
+			} finally {
+				lock.unlock()
+			}
 		}
 
 		commandExecutor.startTournament()

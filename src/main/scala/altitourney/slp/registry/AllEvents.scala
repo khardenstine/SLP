@@ -35,5 +35,5 @@ protected class AllEvents extends EventRegistry{
 			("tournamentStop",			new TournamentStop(_))
 		)
 
-	def getFilter(jsVal: JsValue): String = (jsVal \ "type").as[String]
+	def getEventName(jsVal: JsValue): String = (jsVal \ "type").as[String]
 }

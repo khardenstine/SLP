@@ -9,7 +9,7 @@ protected class StartUpRegistry extends EventRegistry {
 		("sessionStart",			new SessionStart(_))
 	)
 
-	def getFilter(jsVal: JsValue): String = (jsVal \ "type").as[String]
+	def getEventName(jsVal: JsValue): String = (jsVal \ "type").as[String]
 
 	override def eventNotFound(eventName: String) = Unit
 }

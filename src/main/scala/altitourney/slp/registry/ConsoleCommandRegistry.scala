@@ -28,7 +28,7 @@ protected class ConsoleCommandRegistry extends EventRegistry{
 		("vote",					EmptyRegister)
 	)
 
-	def getFilter(jsVal: JsValue): String = (jsVal \ "command").as[String]
+	def getEventName(jsVal: JsValue): String = (jsVal \ "command").as[String]
 
 	override def workWrapper(work: () => Unit): Unit = {
 		ThreadHelper.startThread(new Runnable {

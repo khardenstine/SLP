@@ -9,5 +9,5 @@ class LadderRegistry extends EventRegistry{
 		("stop",			new Stop(_))
 	)
 
-	def getFilter(jsVal: JsValue): String = (jsVal \ "arguments")(0).as[String]
+	def getEventName(jsVal: JsValue): String = (jsVal \ "arguments")(0).as[String]
 }
