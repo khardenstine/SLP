@@ -26,7 +26,7 @@ class Team(final val id: Int) {
 				  |SELECT DISTINCT roster_id
 				  |FROM rosters_r
 				  |WHERE vapor_id IN (%s);
-				""".stripMargin.format(players.map(p => "'" + p.toString + "'").mkString(",")),
+				""".stripMargin.format(Util.listToQuestionMarks(players)),
 				Util.setListOnStatement(players, _),
 				_.getString(1)
 			) match {
