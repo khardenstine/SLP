@@ -1,9 +1,9 @@
 package altitourney.slp.games
 
 import altitourney.slp.ServerContext
+import altitourney.slp.structures.Target
 import java.util.UUID
 import org.joda.time.DateTime
-import altitourney.slp.structures.Target
 
 abstract class Game(val map: String, leftTeamId: Int, rightTeamId: Int) {
 	protected val leftTeam: Team = new Team(leftTeamId)

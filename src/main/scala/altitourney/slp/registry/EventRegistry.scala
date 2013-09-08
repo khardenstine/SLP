@@ -1,7 +1,7 @@
 package altitourney.slp.registry
 
-import altitourney.slp.{ThreadHelper, SLP}
 import altitourney.slp.events.exceptions.ConsoleCommandException
+import altitourney.slp.{ThreadHelper, SLP}
 import play.api.libs.json.{Json, JsValue}
 import scala.collection.mutable
 

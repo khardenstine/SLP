@@ -1,8 +1,8 @@
 package altitourney.slp.games
 
+import altitourney.slp.structures.Target
 import java.util.UUID
 import org.joda.time.DateTime
-import altitourney.slp.structures.Target
 
 trait BallGame extends AbstractGame {
 	val mode = BALL

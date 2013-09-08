@@ -1,9 +1,9 @@
 package altitourney.slp.games
 
 import altitourney.slp.ServerContext
+import altitourney.slp.ServerContext.TournamentPlayer
 import java.util.UUID
 import org.joda.time.DateTime
-import altitourney.slp.ServerContext.TournamentPlayer
 
 abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends AbstractGame(startTime, map, leftTeamId, rightTeamId) {
 	def dump(gameId: UUID, endTime: DateTime, serverContext: ServerContext): Unit = {

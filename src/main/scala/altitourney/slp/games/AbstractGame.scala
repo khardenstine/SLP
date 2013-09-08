@@ -1,11 +1,10 @@
 package altitourney.slp.games
 
-import altitourney.slp.{ServerContext, SLP}
+import altitourney.slp.ServerContext
 import com.google.common.collect.HashBasedTable
-import java.sql.Timestamp
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import org.joda.time.{Duration, DateTime}
+import org.joda.time.DateTime
 import scala.collection.{JavaConversions, concurrent}
 
 abstract class AbstractGame(val startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, leftTeamId, rightTeamId) {

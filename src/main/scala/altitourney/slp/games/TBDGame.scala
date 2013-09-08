@@ -1,8 +1,8 @@
 package altitourney.slp.games
 
+import altitourney.slp.structures.{Base, Target}
 import java.util.UUID
 import org.joda.time.DateTime
-import altitourney.slp.structures.{Base, Target}
 
 trait TBDGame extends AbstractGame {
 	val mode = TBD

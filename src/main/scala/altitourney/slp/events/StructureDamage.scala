@@ -1,7 +1,7 @@
 package altitourney.slp.events
 
-import play.api.libs.json.JsValue
 import altitourney.slp.structures.Target
+import play.api.libs.json.JsValue
 
 /**
  * {"port":27276,"time":576638,"player":0,"target":"base","xp":31,"type":"structureDamage"}

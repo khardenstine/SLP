@@ -1,9 +1,9 @@
 package altitourney.slp.games
 
+import altitourney.slp.events.consoleCommands.ladder.LadderUtils
 import altitourney.slp.{Util, SLP}
 import java.sql.{Timestamp, SQLException}
 import java.util.UUID
-import altitourney.slp.events.consoleCommands.ladder.LadderUtils
 import org.joda.time.{Duration, DateTime}
 
 object GameUtils {

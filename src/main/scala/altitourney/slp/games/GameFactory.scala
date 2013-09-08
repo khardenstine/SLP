@@ -1,8 +1,8 @@
 package altitourney.slp.games
 
+import altitourney.slp.SLP
 import java.util.UUID
 import org.joda.time.DateTime
-import altitourney.slp.SLP
 
 trait GameFactory {
 	def build(mode: Mode, startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game
