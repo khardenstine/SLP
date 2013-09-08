@@ -10,7 +10,7 @@ import play.api.libs.json.JsValue
  */
 class TournamentStart(jsVal: JsValue) extends EventHandler(jsVal) {
 	getServerContext.tournamentTeamLists = Some(getTournamentPlayers("team0"), getTournamentPlayers("team1"))
-	getServerContext.setGameFactory(TournamentFactory)
+	getServerContext.setGameFactory(new TournamentFactory)
 
 	private def getTournamentPlayers(team: String): Set[TournamentPlayer] = {
 		(jsVal \ team).as[Seq[JsValue]].map{

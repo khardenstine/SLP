@@ -48,7 +48,7 @@ trait AbstractGameFactory extends GameFactory{
 	protected def buildBall(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game
 }
 
-case class LadderFactory(ratings: Map[UUID, Int]) extends AbstractGameFactory {
+class LadderFactory(ratings: Map[UUID, Int]) extends AbstractGameFactory {
 	protected val facType = "Ladder"
 	protected def buildTBD(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game = {
 		new Ladder(ratings, startTime, map, leftTeamId, rightTeamId) with TBDGame
@@ -58,7 +58,7 @@ case class LadderFactory(ratings: Map[UUID, Int]) extends AbstractGameFactory {
 	}
 }
 
-object TournamentFactory extends AbstractGameFactory {
+class TournamentFactory extends AbstractGameFactory {
 	protected val facType = "Tournament"
 	protected def buildTBD(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Game = {
 		new Tournament(startTime, map, leftTeamId, rightTeamId) with TBDGame
