@@ -8,7 +8,6 @@ import altitourney.slp.structures.Target
 abstract class Game(val map: String, leftTeamId: Int, rightTeamId: Int) {
 	protected val leftTeam: Team = new Team(leftTeamId)
 	protected val rightTeam: Team = new Team(rightTeamId)
-	var tournamentTeamLists: Option[(Set[UUID], Set[UUID])] = None
 
 	def listActivePlayers: Set[UUID] = {
 		leftPlayers ++ rightPlayers

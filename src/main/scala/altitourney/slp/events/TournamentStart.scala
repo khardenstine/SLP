@@ -11,6 +11,6 @@ class TournamentStart(jsVal: JsValue) extends EventHandler(jsVal) {
 	val leftTeam = (jsVal \ "team0").as[Seq[JsValue]].map(v => UUID.fromString(v.as[String])).toSet
 	val rightTeam = (jsVal \ "team1").as[Seq[JsValue]].map(v => UUID.fromString(v.as[String])).toSet
 
-	getGame.tournamentTeamLists = Some(leftTeam, rightTeam)
+	getServerContext.tournamentTeamLists = Some(leftTeam, rightTeam)
 	getServerContext.setGameFactory(TournamentFactory)
 }

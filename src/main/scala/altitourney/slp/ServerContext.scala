@@ -15,6 +15,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 	val commandExecutor = SLP.getCommandExecutorFactory.getCommandExecutor(port)
 	private var gameFactory: GameFactory = StandardFactory
 	private var game: Game = gameFactory.buildNoGame()
+	var tournamentTeamLists: Option[(Set[UUID], Set[UUID])] = None
 
 	def setGameFactory(gameFactory: GameFactory): Unit = {
 		synchronized(
@@ -22,8 +23,11 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			// This is because StartTournament could be called after we establish the LadderFactory
 			// and we don't want a TournamentFactory in that case
 			this.gameFactory match {
-				case f: LadderFactory => {}
+				case f: LadderFactory => {
+					SLP.getLog.debug("Setting ladder factory.")
+				}
 				case _ => this.gameFactory = gameFactory
+					SLP.getLog.debug("Setting game factory.")
 			}
 		)
 	}
@@ -62,7 +66,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		val shouldPlay = teams._1 ++ teams._2
 
 		def getShouldSpec: Set[UUID] = {
-			val activePlayers = game.tournamentTeamLists match {
+			val activePlayers = tournamentTeamLists match {
 				case None => getGame.listActivePlayers
 				case Some(tl) => tl._1 ++ tl._2
 			}
@@ -78,7 +82,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			}
 		)
 
-		while (game.tournamentTeamLists.forall( tl => tl._1.diff(teams._1).size > 0 || tl._2.diff(teams._2).size > 0)) {
+		while (tournamentTeamLists.forall( tl => tl._1.diff(teams._1).size > 0 || tl._2.diff(teams._2).size > 0)) {
 			sleep = true
 			SLP.getRegistryFactory.getEventRegistry.addPortedEventListener(tournamentStartListener)
 			commandExecutor.stopTournament()

@@ -96,44 +96,16 @@ abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, r
 		}
 		// We will only have a result if the a tournamentRoundEnd event was fired.
 		// That is also the only time we want to be dumping the game data
-		result.foreach(_ => dump(endTime, serverContext))
+		result.foreach(_ => dump(UUID.randomUUID(), endTime, serverContext))
 	}
 
-	protected def dump(endTime: DateTime, serverContext: ServerContext): Unit
+	protected def dump(gameId: UUID, endTime: DateTime, serverContext: ServerContext): Unit
 
-	def record(endTime: DateTime) {
-		val gameId = UUID.randomUUID()
+	def record(gameId: UUID, endTime: DateTime, teamAvgRatings: Option[(RatingsChange, RatingsChange)] = None) {
+		GameUtils.recordGameMetaData(gameId, startTime, endTime, map, getVictorRosterId)
 
-		SLP.preparedStatement(
-			"""
-			  |INSERT INTO games
-			  |            (game_id,
-			  |             match_id,
-			  |             victor,
-			  |             start_time,
-			  |             duration,
-			  |             map)
-			  |VALUES      (?,
-			  |             ?,
-			  |             ?,
-			  |             ?,
-			  |             ?,
-			  |             (SELECT id
-			  |              FROM   maps
-			  |              WHERE  name = ?));
-			""".stripMargin
-		){
-			stmt =>
-				stmt.setString(1, gameId.toString)
-				stmt.setString(2, "00000000-0000-0000-0000-000000000000")
-				stmt.setString(3, getVictorRosterId)
-				stmt.setTimestamp(4, new Timestamp(startTime.getMillis))
-				stmt.setFloat(5, new Duration(startTime, endTime).getMillis)
-				stmt.setString(6, map)
-		}
-
-		GameUtils.recordTeamScore(gameId, leftTeam, 0)
-		GameUtils.recordTeamScore(gameId, rightTeam, 1)
+		GameUtils.recordTeamScore(gameId, leftTeam, 0, teamAvgRatings.map(_._1))
+		GameUtils.recordTeamScore(gameId, rightTeam, 1, teamAvgRatings.map(_._2))
 
 		JavaConversions.mapAsScalaMap(perkTable.rowMap()).foreach{ player =>
 			GameUtils.recordPlayer(gameId, player._1, JavaConversions.mapAsScalaMap(player._2))

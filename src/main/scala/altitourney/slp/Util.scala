@@ -18,4 +18,15 @@ object Util {
 	def setListOnStatement[A<: Any](i: Iterable[A], stmt: PreparedStatement): Unit = {
 		i.zipWithIndex.foreach( v => stmt.setString(v._2 + 1, v._1.toString))
 	}
+
+	def setOptionalInt(index: Int, op: Option[Int])(implicit stmt: PreparedStatement): Unit = {
+		setOption(index, op, java.sql.Types.INTEGER)
+	}
+
+	protected def setOption(index: Int, op: Option[Any], sqlType: Int)(implicit stmt: PreparedStatement): Unit = {
+		op match {
+			case Some(v) => stmt.setObject(index, v, sqlType)
+			case None => stmt.setNull(index, sqlType)
+		}
+	}
 }

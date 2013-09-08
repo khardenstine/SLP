@@ -62,8 +62,7 @@ private class SLP(config: Config) {
 	private val connectionPoolManager = {
 		try {
 			new ConnectionPoolManager(2, config.getString("db.url"), config.getString("db.user"), config.getString("db.password"))
-		}
-		catch {
+		} catch {
 			case e: SQLException => {
 				log.error(e, e.getErrorCode + "\n\t" + e.getMessage)
 				throw e
@@ -89,13 +88,11 @@ private class SLP(config: Config) {
 									stmt.setString(1, ip)
 									stmt.setString(2, tuple._1.toString)
 							}
-						}
-						catch {
+						} catch {
 							case e: SQLException => log.error(e)
 						}
 				}
-			}
-			catch {
+			} catch {
 				case e: Exception => log.error(e)
 			}
 
@@ -165,29 +162,19 @@ object SLP {
 		}
 	}
 
-	def preparedStatement(sql: String)(fn: (PreparedStatement) => Unit) {
-		val connection = slp.getConnection
-		try {
-			val stmt = connection.prepareStatement(sql)
-			fn(stmt)
-			getLog.debug("Executing statement: " + sql)
-			try {
-				stmt.execute()
-			} finally {
-				stmt.close()
+	def preparedStatement(sql: String)(fn: (PreparedStatement) => Unit): Unit = {
+		withStatement(sql,
+			implicit statement => {
+				fn(statement)
+				statement.execute
 			}
-		} finally {
-			slp.releaseConnection(connection)
-		}
+		)
 	}
 
 	def preparedQuery[T](sql: String, fn1: PreparedStatement => Unit, fn2: ResultSet => T): Try[Seq[T]] = Try {
-		val connection = slp.getConnection
-		try {
-			val statement: PreparedStatement = connection.prepareStatement(sql)
-			fn1(statement)
-			getLog.debug("Executing query: " + sql)
-			try {
+		withStatement(sql,
+			implicit statement => {
+				fn1(statement)
 				val resultSet = statement.executeQuery()
 				try {
 					new Iterator[ResultSet] {
@@ -197,9 +184,28 @@ object SLP {
 				} finally {
 					resultSet.close()
 				}
-			} finally {
-				statement.close()
 			}
+		)
+	}
+
+	private def withStatement[T](sql: String, fn: (PreparedStatement) => T): T = {
+		withConnection(
+			connection => {
+				implicit val stmt = connection.prepareStatement(sql)
+				getLog.debug("Executing sql: " + sql)
+				try {
+					fn(stmt)
+				} finally {
+					stmt.close()
+				}
+			}
+		)
+	}
+
+	private def withConnection[T](fn: Connection => T): T = {
+		val connection = slp.getConnection
+		try {
+			fn(connection)
 		} finally {
 			slp.releaseConnection(connection)
 		}
