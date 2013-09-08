@@ -16,6 +16,7 @@ private class SLP(config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
 	private val serverRoot: String = config.getString("server.root")
 	private val serverLog: File = new File(serverRoot + config.getString("server.log"))
+	serverLog.createNewFile()
 	log.info(serverLog.getCanonicalPath)
 	private var running = false
 
