@@ -5,10 +5,10 @@ import altitourney.slp.games.{GameFactory, LadderFactory, StandardFactory, Mode,
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
-import java.util.concurrent.locks.ReentrantLock
 import org.joda.time.DateTime
 import scala.collection.mutable
 import scala.util.Try
+import java.util.concurrent.CountDownLatch
 
 class ServerContext(config: Config, val port: Int, startTime: DateTime, val name: String) {
 	private val lobbyMap: String = config.getString("lobby.map")
@@ -30,10 +30,10 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			// and we don't want a TournamentFactory in that case
 			this.gameFactory match {
 				case f: LadderFactory => {
-					SLP.getLog.debug("Setting ladder factory.")
+					SLP.getLog.debug("Not overwriting ladder factory.")
 				}
 				case _ => this.gameFactory = gameFactory
-					SLP.getLog.debug("Setting game factory.")
+					SLP.getLog.debug("Overwriting game factory.")
 			}
 		)
 	}
@@ -87,16 +87,15 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		}
 
 		var sleep = true
-		val lock = new ReentrantLock()
-		val lockCondition = lock.newCondition()
+		val latch = new CountDownLatch(1)
 		val tournamentStartListener = (port, "tournamentStart", () => {
-				sleep = false
-				lockCondition.signal()
-			}
-		)
+			sleep = false
+			latch.countDown()
+		})
 
 		while (tournamentTeamLists.forall( tl => tl._1.map(_.vaporId).diff(teams._1).size > 0 || tl._2.map(_.vaporId).diff(teams._2).size > 0)) {
 			sleep = true
+
 			SLP.getRegistryFactory.getEventRegistry.addPortedEventListener(tournamentStartListener)
 			commandExecutor.stopTournament()
 			commandExecutor.assignLeftTeam(teams._1:_*)
@@ -104,13 +103,8 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			commandExecutor.assignSpectate(getShouldSpec:_*)
 			commandExecutor.startTournament()
 
-			lock.lock()
-			try {
-				while(sleep) {
-					lockCondition.await()
-				}
-			} finally {
-				lock.unlock()
+			while(sleep) {
+				latch.await()
 			}
 		}
 
