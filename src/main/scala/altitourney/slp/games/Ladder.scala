@@ -52,7 +52,7 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 	def getTeamRatingsChange(players: Set[UUID], S: Double, teamAvg: Int, opposingTeamAvg: Int, serverContext: ServerContext): Set[PlayerRatingsChange] = {
 		val E: Double = 1 / (1 + math.pow(10, (opposingTeamAvg - teamAvg) / 400))
 
-		players.toSet.map{ player =>
+		players.map{ player =>
 			val oldRating = ratings.get(player).getOrElse(sys.error("Could not find ranking for player: " + player))
 			val newRating = (oldRating + (50 * (S - E))).toInt
 			PlayerRatingsChange(player, oldRating, newRating)
