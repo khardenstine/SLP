@@ -45,7 +45,7 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 
 	private def assignTeam(team: Int, playerNickName: String*) = {
 		writeCommands(playerNickName.map{
-			name => buildCommand("assignTeam", "\"" + name + "\"", team.toString)
+			name => buildCommand("assignTeam", "\"" + escapeBackSlashes(name) + "\"", team.toString)
 		}:_*)
 	}
 
@@ -70,7 +70,7 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 	}
 
 	def serverWhisper(playerName: String, message: String): Unit = {
-		writeCommand("serverWhisper", "\"" + playerName + "\"", message)
+		writeCommand("serverWhisper", "\"" + escapeBackSlashes(playerName) + "\"", message)
 	}
 
 	def serverWhisper(playerName: Option[String], message: String): Unit = {
@@ -91,5 +91,9 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 
 	def logServerStatus(): Unit = {
 		writeCommand("logServerStatus")
+	}
+
+	def escapeBackSlashes(in: String): String = {
+		in.replace("\\", "\\\\")
 	}
 }
