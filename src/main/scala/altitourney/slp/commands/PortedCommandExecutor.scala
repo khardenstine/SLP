@@ -5,21 +5,27 @@ import java.io.{File, FileWriter, BufferedWriter}
 
 private class PortedCommandExecutor(commandFile: File, port: Int) extends CommandExecutor {
 	private def buildCommand(commandType: String, rawArguments: String*): String = {
-		val arguments = {
-			if( rawArguments.length < 1)
-				""
-			else
-				" " + rawArguments.mkString(" ")
+		implicit val sb = new StringBuilder
+		sb.append(port.toString)
+		sb.append(",console,")
+		sb.append(commandType)
+		rawArguments.foreach{arg =>
+			sb.append(" ")
+			escape(arg)
 		}
-		// Disallow newlines to avoid command injection
-		(port + ",console," + commandType + arguments).replaceAll("[\r\n]+", "")
+		sb.toString()
 	}
 
-	private def writeCommand(commandType: String, rawArguments: String*) {
+	// Disallow newlines to avoid command injection
+	def escape(in: String)(implicit sb: StringBuilder): Unit = {
+		sb.append(in.replaceAll("\\\\", "\\\\\\\\"))
+	}
+
+	private def writeCommand(commandType: String, rawArguments: String*): Unit = {
 		writeCommands(buildCommand(commandType, rawArguments:_*))
 	}
 
-	private def writeCommands(commands: String*) {
+	private def writeCommands(commands: String*): Unit = {
 		if (commands.length > 0)
 		{
 			commands.foreach( command =>
@@ -45,7 +51,7 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 
 	private def assignTeam(team: Int, playerNickName: String*) = {
 		writeCommands(playerNickName.map{
-			name => buildCommand("assignTeam", "\"" + escapeBackSlashes(name) + "\"", team.toString)
+			name => buildCommand("assignTeam", "\"" + name + "\"", team.toString)
 		}:_*)
 	}
 
@@ -70,7 +76,7 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 	}
 
 	def serverWhisper(playerName: String, message: String): Unit = {
-		writeCommand("serverWhisper", "\"" + escapeBackSlashes(playerName) + "\"", message)
+		writeCommand("serverWhisper", "\"" + playerName + "\"", message)
 	}
 
 	def serverWhisper(playerName: Option[String], message: String): Unit = {
@@ -91,9 +97,5 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 
 	def logServerStatus(): Unit = {
 		writeCommand("logServerStatus")
-	}
-
-	def escapeBackSlashes(in: String): String = {
-		in.replace("\\", "\\\\")
 	}
 }
