@@ -12,7 +12,7 @@ import org.joda.time.DateTime
 import scala.collection.mutable
 import scala.util.Try
 
-private class SLP(config: Config) {
+private class SLP(val config: Config) {
 	private val log: Logger = new Logger(config.getString("log.location"), LogLevel.valueOf(config.getString("log.level")))
 	private val serverRoot: String = config.getString("server.root")
 	private val serverLog: File = new File(serverRoot + config.getString("server.log"))
@@ -121,6 +121,10 @@ object SLP {
 
 	def main(args: Array[String]) {
 		slp.start()
+	}
+
+	def getConfig: Config = {
+		slp.config
 	}
 
 	def getLog: Logger = {

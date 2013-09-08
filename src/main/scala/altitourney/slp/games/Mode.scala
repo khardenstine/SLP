@@ -4,7 +4,8 @@ import altitourney.slp.SLP
 
 sealed trait Mode {
 	val name: String
-	def teamSize: Int
+	private lazy val TEAM_SIZE: Int = SLP.getConfig.getConfig(name).getInt("teamSize")
+	def teamSize: Int = TEAM_SIZE
 	override def toString = name
 }
 
@@ -25,10 +26,8 @@ object Mode {
 
 case object TBD extends Mode {
 	val name = "tbd"
-	def teamSize: Int = 5
 }
 
 case object BALL extends Mode {
 	val name = "ball"
-	def teamSize: Int = 6
 }
