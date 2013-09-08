@@ -24,6 +24,7 @@ protected class ConsoleCommandRegistry extends EventRegistry{
 		("serverMessage",			EmptyRegister),
 		("serverWhisper",			EmptyRegister),
 		("startTournament",			EmptyRegister),
+		("status",					new Status(_)),
 		("stopTournament",			EmptyRegister),
 		("vote",					EmptyRegister)
 	)
