@@ -1,21 +1,27 @@
 package altitourney.slp
 
+import altitourney.slp.ServerContext.TournamentPlayer
 import altitourney.slp.games.{GameFactory, LadderFactory, StandardFactory, Mode, Game}
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
-import org.joda.time.DateTime
-import scala.util.Try
 import java.util.concurrent.locks.ReentrantLock
+import org.joda.time.DateTime
+import scala.collection.mutable
+import scala.util.Try
 
 class ServerContext(config: Config, val port: Int, startTime: DateTime, val name: String) {
 	private val lobbyMap: String = config.getString("lobby.map")
 	private val playerMap: HashBiMap[Int, UUID] = HashBiMap.create()
-	private val playerNameMap: HashBiMap[UUID, String] = HashBiMap.create()
+	private val playerNameMap = new mutable.HashMap[UUID, String]
 	val commandExecutor = SLP.getCommandExecutorFactory.getCommandExecutor(port)
 	private var gameFactory: GameFactory = StandardFactory
 	private var game: Game = gameFactory.buildNoGame()
-	var tournamentTeamLists: Option[(Set[UUID], Set[UUID])] = None
+	var tournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = None
+
+	def getTournamentPlayerName(player: TournamentPlayer): String = {
+		getPlayerName(player.vaporId).getOrElse(player.name)
+	}
 
 	def setGameFactory(gameFactory: GameFactory): Unit = {
 		synchronized(
@@ -36,39 +42,46 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		Mode.withName(config.getString("ladder.mode"))
 	}
 
+	def serverWhisper(vapor: UUID, message: String): Unit = {
+		commandExecutor.serverWhisper(getPlayerName(vapor), message)
+	}
+
 	def getServerTime(time: Int): DateTime = {
 		startTime.withDurationAdded(time.toLong, 1)
 	}
 
-	def getPlayer(player: Int): UUID = {
-		playerMap.get(player)
+	def getPlayer(player: Int): Option[UUID] = {
+		Option(playerMap.get(player))
 	}
 
 	def getPlayerUUID(playerName: String): Option[UUID] = {
-		Option(playerNameMap.inverse().get(playerName))
+		playerNameMap.toSeq.map(_.swap).toMap.get(playerName)
 	}
 
-	def getPlayerName(player: Int): String = {
-		getPlayerName(playerMap.get(player))
+	def getPlayerName(player: Int): Option[String] = {
+		for {
+			uuid <- getPlayer(player)
+			name <- getPlayerName(uuid)
+		} yield name
 	}
 
-	def getPlayerName(vapor: UUID): String = {
+	def getPlayerName(vapor: UUID): Option[String] = {
 		playerNameMap.get(vapor)
 	}
 
-	def getPlayerNames(vapors: Iterable[UUID]): Seq[String] = {
+	def getPlayerNames(vapors: Iterable[UUID]): Seq[Option[String]] = {
 		vapors.map(getPlayerName).toSeq
 	}
 
 	def assignTeams(teams: (Set[UUID], Set[UUID])): Unit = {
-		implicit def uuids2Names(uuids: Iterable[UUID]): Seq[String] = getPlayerNames(uuids)
+		implicit def uuids2Names(uuids: Iterable[UUID]): Seq[String] = getPlayerNames(uuids).flatten
 
 		val shouldPlay = teams._1 ++ teams._2
 
 		def getShouldSpec: Set[UUID] = {
 			val activePlayers = tournamentTeamLists match {
 				case None => getGame.listActivePlayers
-				case Some(tl) => tl._1 ++ tl._2
+				case Some(tl) => tl._1.map(_.vaporId) ++ tl._2.map(_.vaporId)
 			}
 			activePlayers.filterNot(shouldPlay.contains)
 		}
@@ -82,7 +95,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			}
 		)
 
-		while (tournamentTeamLists.forall( tl => tl._1.diff(teams._1).size > 0 || tl._2.diff(teams._2).size > 0)) {
+		while (tournamentTeamLists.forall( tl => tl._1.map(_.vaporId).diff(teams._1).size > 0 || tl._2.map(_.vaporId).diff(teams._2).size > 0)) {
 			sleep = true
 			SLP.getRegistryFactory.getEventRegistry.addPortedEventListener(tournamentStartListener)
 			commandExecutor.stopTournament()
@@ -109,12 +122,12 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		playerNameMap.put(vapor, playerName)
 	}
 
-	def removePlayer(serverPlayer: Int) = {
+	def removePlayer(serverPlayer: Int): Unit = {
 		playerNameMap.remove(playerMap.remove(serverPlayer))
 	}
 
-	def updatePlayerName(vapor: UUID, playerName: String) {
-		playerNameMap.forcePut(vapor, playerName)
+	def updatePlayerName(vapor: UUID, playerName: String): Unit = {
+		playerNameMap.put(vapor, playerName)
 	}
 
 	def clearPlayers() {
@@ -144,4 +157,8 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 	}
 
 	def getLobbyMap = lobbyMap
+}
+
+object ServerContext {
+	case class TournamentPlayer(vaporId: UUID, protected[ServerContext] val name: String)
 }

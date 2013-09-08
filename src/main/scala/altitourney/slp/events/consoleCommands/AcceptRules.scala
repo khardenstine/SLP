@@ -9,7 +9,7 @@ class AcceptRules(jsVal: JsValue) extends EventHandler(jsVal) {
 	val hash = Util.generateHash(player)
 
 	if (hash == (jsVal \ "arguments")(0).as[String]) {
-		getCommandExecutor.serverWhisper(getServerContext.getPlayerName(player), "Thank you, enjoy ladder.")
+		getServerContext.serverWhisper(player, "Thank you, enjoy ladder.")
 		SLP.preparedStatement(
 			"""
 			  |UPDATE ratings
@@ -35,6 +35,6 @@ class AcceptRules(jsVal: JsValue) extends EventHandler(jsVal) {
 				stmt.setString(3, player.toString)
 		}
 	} else {
-		getCommandExecutor.serverWhisper(getServerContext.getPlayerName(player), "You entered the incorrect pass-phrase.  Did you read the rules (type 'listRules')?")
+		getServerContext.serverWhisper(player, "You entered the incorrect pass-phrase.  Did you read the rules (type 'listRules')?")
 	}
 }

@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 import org.joda.time.{Duration, DateTime}
 import scala.collection.{JavaConversions, concurrent}
 
-abstract class AbstractGame(startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, leftTeamId, rightTeamId) {
+abstract class AbstractGame(val startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends Game(map, leftTeamId, rightTeamId) {
 	val mode: Mode
 	// todo column shouldnt be string, should be Perk Enum
 	private val perkTable: HashBasedTable[UUID, String, PerkData] = HashBasedTable.create()

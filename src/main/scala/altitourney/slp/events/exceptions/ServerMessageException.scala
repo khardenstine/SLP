@@ -12,7 +12,7 @@ class ServerMessageException(message: String) extends ConsoleCommandException(me
 	}
 }
 
-class ServerWhisperException(playerName: String, message: String) extends ConsoleCommandException(message) {
+class ServerWhisperException(playerName: Option[String], message: String) extends ConsoleCommandException(message) {
 	def propagate(commandExecutor: CommandExecutor) {
 		commandExecutor.serverWhisper(playerName, message)
 	}

@@ -32,7 +32,7 @@ abstract class EventHandler(jsVal: JsValue) {
 			None
 		}
 		else {
-			Some(getServerContext.getPlayer(player))
+			getServerContext.getPlayer(player)
 		}
 	}
 

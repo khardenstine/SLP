@@ -7,6 +7,7 @@ abstract class CommandExecutor {
 	def startTournament(): Unit
 	def stopTournament(): Unit
 	def serverWhisper(playerName: String, message: String): Unit
+	def serverWhisper(playerName: Option[String], message: String): Unit
 	def serverMessage(message: String): Unit
 	def serverMessage(e: RuntimeException): Unit
 	def changeMap(mapName: String): Unit

@@ -14,7 +14,7 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 		val cannotPlay = bucketedRatings.get(false)
 		val cannotPlayNames = getServerContext.getPlayerNames(cannotPlay.getOrElse(Seq.empty).map(_._1))
 		cannotPlayNames.map(getCommandExecutor.serverWhisper(_, "You must read and accept the rules (type the command '/listRules') before you can play any ladder games."))
-		getCommandExecutor.assignSpectate(cannotPlayNames:_*)
+		getCommandExecutor.assignSpectate(cannotPlayNames.flatten:_*)
 
 		val canPlay = bucketedRatings.get(true).getOrElse(Seq.empty)
 		verifyEnoughPlayers(canPlay)

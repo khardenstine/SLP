@@ -73,6 +73,10 @@ private class PortedCommandExecutor(commandFile: File, port: Int) extends Comman
 		writeCommand("serverWhisper", "\"" + playerName + "\"", message)
 	}
 
+	def serverWhisper(playerName: Option[String], message: String): Unit = {
+		playerName.foreach(serverWhisper(_, message))
+	}
+
 	def serverMessage(message: String): Unit = {
 		writeCommand("serverMessage", "\"" + message + "\"")
 	}

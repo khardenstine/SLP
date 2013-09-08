@@ -1,8 +1,9 @@
 package altitourney.slp.games
 
-import altitourney.slp.{ServerContext, SLP}
+import altitourney.slp.ServerContext
 import java.util.UUID
 import org.joda.time.DateTime
+import altitourney.slp.ServerContext.TournamentPlayer
 
 abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends AbstractGame(startTime, map, leftTeamId, rightTeamId) {
 	def dump(gameId: UUID, endTime: DateTime, serverContext: ServerContext): Unit = {
@@ -34,7 +35,7 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 	def updatePlayersRatings(gameId: UUID, rcs: Set[PlayerRatingsChange], serverContext: ServerContext): Unit = {
 		rcs.foreach{
 			rc =>
-				serverContext.commandExecutor.serverWhisper(serverContext.getPlayerName(rc.player),
+				serverContext.serverWhisper(rc.player,
 					"New Rating: %s(%s)".format(rc.newRating, (if(rc.newRating < rc.oldRating) "-" else "+") + (rc.newRating - rc.oldRating).abs)
 				)
 
@@ -49,19 +50,19 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 
 	// New Rating = Old Rating + [ 50 * ( S - E ) ]
 	// E = 1 / [1 + 10^ ([(Avg rating of your opponents)-(Avg rating of you and your teammates)] / 400)]
-	def getTeamRatingsChange(players: Set[UUID], S: Double, teamAvg: Int, opposingTeamAvg: Int, serverContext: ServerContext): Set[PlayerRatingsChange] = {
+	def getTeamRatingsChange(players: Set[TournamentPlayer], S: Double, teamAvg: Int, opposingTeamAvg: Int, serverContext: ServerContext): Set[PlayerRatingsChange] = {
 		val E: Double = 1 / (1 + math.pow(10, (opposingTeamAvg - teamAvg) / 400))
 
 		players.map{ player =>
-			val oldRating = ratings.get(player).getOrElse(sys.error("Could not find ranking for player: " + player))
+			val oldRating = ratings.get(player.vaporId).getOrElse(sys.error("Could not find ranking for player: " + player))
 			val newRating = (oldRating + (50 * (S - E))).toInt
-			PlayerRatingsChange(player, oldRating, newRating)
+			PlayerRatingsChange(player.vaporId, oldRating, newRating)
 		}
 	}
 
-	def getTeamAvgRating(players: Set[UUID]): Int = {
+	def getTeamAvgRating(players: Set[TournamentPlayer]): Int = {
 		players.map{
-			p => ratings.get(p).getOrElse(sys.error("Could not find ranking for player: " + p))
+			p => ratings.get(p.vaporId).getOrElse(sys.error("Could not find ranking for player: " + p.vaporId))
 		}.fold(0)(_+_) / mode.teamSize
 	}
 
