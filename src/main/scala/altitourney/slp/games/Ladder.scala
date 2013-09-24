@@ -12,7 +12,6 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 		val leftTeamOldAvg = getTeamAvgRating(tourneyTeamLists._1)
 		val rightTeamOldAvg = getTeamAvgRating(tourneyTeamLists._2)
 
-
 		val leftRC = getTeamRatingsChange(tourneyTeamLists._1, getS(leftTeam), leftTeamOldAvg, rightTeamOldAvg, serverContext)
 		val rightRC = getTeamRatingsChange(tourneyTeamLists._2, getS(rightTeam), rightTeamOldAvg, leftTeamOldAvg, serverContext)
 

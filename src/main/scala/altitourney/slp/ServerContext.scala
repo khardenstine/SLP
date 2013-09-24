@@ -5,10 +5,10 @@ import altitourney.slp.games.{GameFactory, LadderFactory, StandardFactory, Mode,
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
 import org.joda.time.DateTime
 import scala.collection.mutable
 import scala.util.Try
-import java.util.concurrent.CountDownLatch
 
 class ServerContext(config: Config, val port: Int, startTime: DateTime, val name: String) {
 	private val lobbyMap: String = config.getString("lobby.map")
