@@ -2,9 +2,29 @@ package altitourney.slp
 
 import java.sql.PreparedStatement
 import java.util.UUID
-import org.joda.time.DateTime
+import org.joda.time.{Duration, DateTime}
+import org.joda.time.format.{DateTimeFormat, PeriodFormatterBuilder}
 
 object Util {
+	final val PERIOD_FORMATTER = new PeriodFormatterBuilder()
+		.appendHours
+		.appendSeparator(":")
+		.minimumPrintedDigits(2)
+		.appendMinutes
+		.appendSeparator(":")
+		.appendSeconds
+		.toFormatter
+
+	final val TIME_FORMAT = "hh:mm aa ZZ"
+
+	def formatFor(dateTime: DateTime, formatString: String): String = {
+		DateTimeFormat.forPattern(formatString).print(dateTime)
+	}
+
+	def getFormattedTimeDifference(end: DateTime, start: DateTime = new DateTime()): String = {
+		PERIOD_FORMATTER.print(new Duration(start, end).toPeriod)
+	}
+
 	def generateHash(player: UUID): String = {
 		val date = new DateTime()
 		val seed = (date.getDayOfMonth + date.getMonthOfYear + player.toString).getBytes.map(_ << 2).sum
