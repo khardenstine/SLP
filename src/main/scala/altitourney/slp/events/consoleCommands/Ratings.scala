@@ -11,7 +11,7 @@ class Ratings(jsVal: JsValue) extends EventHandler(jsVal) {
 
 	val playerName = (jsVal \ "arguments")(0).as[String]
 	val vapor = getServerContext.getPlayerUUID(playerName).getOrElse(
-		throw new ServerWhisperException(whisperTo, "Error reading %s's stats.".format(playerName))
+		throw new ServerWhisperException(whisperTo, s"Error reading $playerName's stats.")
 	)
 
 	SLP.preparedQuery(
@@ -26,13 +26,19 @@ class Ratings(jsVal: JsValue) extends EventHandler(jsVal) {
 		_.setString(1, vapor.toString),
 		rs => Rating(rs.getInt("tbd_rating"), rs.getInt("tbd_rank"), rs.getInt("ball_rating"), rs.getInt("ball_rank"))
 	) match {
-		case Success(rating) => rating.foreach{ r =>
-			getCommandExecutor.serverWhisper(whisperTo, "%s : TBD - Rank %s, Rating %s".format(playerName, r.tbdRank, r.tbdRating))
-			getCommandExecutor.serverWhisper(whisperTo, "%s : BALL - Rank %s, Rating %s".format(playerName, r.ballRank, r.ballRating))
+		case Success(rating) => {
+			if (rating.isEmpty) {
+				getCommandExecutor.serverWhisper(whisperTo, s"$playerName has no ratings.")
+			} else {
+				rating.foreach{ r =>
+					getCommandExecutor.serverWhisper(whisperTo, "%s : TBD - Rank %s, Rating %s".format(playerName, r.tbdRank, r.tbdRating))
+					getCommandExecutor.serverWhisper(whisperTo, "%s : BALL - Rank %s, Rating %s".format(playerName, r.ballRank, r.ballRating))
+				}
+			}
 		}
 		case Failure(e) =>
 			SLP.getLog.error(e)
-			throw new ServerWhisperException(whisperTo, "Error reading %s's stats.".format(playerName))
+			throw new ServerWhisperException(whisperTo, s"Error reading $playerName's stats.")
 	}
 }
 
