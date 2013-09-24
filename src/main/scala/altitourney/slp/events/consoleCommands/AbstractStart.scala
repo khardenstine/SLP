@@ -19,6 +19,15 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 		throw new ServerMessageException("Something went wrong building the teams.  Please try again.")
 	}
 	getServerContext.assignTeams(teams)
+	if (getGame.leftPlayers != teams._1 || getGame.rightPlayers != teams._2) {
+		SLP.getLog.error("Team assigner failed.\ngame.left: %s\nbuilder.left: %s\ngame.right: %s\nbuilder.right: %s".format(
+			getGame.leftPlayers.mkString(", "),
+			teams._1.mkString(", "),
+			getGame.rightPlayers.mkString(", "),
+			teams._2.mkString(", ")
+		))
+		throw new ServerMessageException("Something went wrong assigning the teams.  Please try again.")
+	}
 	preMapChange()
 	getCommandExecutor.changeMap(getMap)
 
