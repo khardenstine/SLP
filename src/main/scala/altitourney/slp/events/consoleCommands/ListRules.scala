@@ -29,6 +29,6 @@ class ListRules(jsVal: JsValue) extends EventHandler(jsVal) {
 
 	rules.foreach{ rule =>
 		getServerContext.serverWhisper(player, rule)
-		Thread.sleep(3000)
+		Thread.sleep(1500)
 	}
 }
