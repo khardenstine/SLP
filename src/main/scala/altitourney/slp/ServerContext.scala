@@ -93,7 +93,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			latch.countDown()
 		})
 
-		while (tournamentTeamLists.forall( tl => tl._1.map(_.vaporId).diff(teams._1).size > 0 || tl._2.map(_.vaporId).diff(teams._2).size > 0)) {
+		while (tournamentTeamLists.forall( tl => tl._1.map(_.vaporId) != teams._1 || tl._2.map(_.vaporId) != teams._2)) {
 			sleep = true
 
 			SLP.getRegistryFactory.getEventRegistry.addPortedEventListener(tournamentStartListener)
