@@ -1,7 +1,7 @@
 package altitourney.slp
 
 import altitourney.slp.ServerContext.TournamentPlayer
-import altitourney.slp.games.{Ladder, GameFactory, LadderFactory, StandardFactory, Mode, Game}
+import altitourney.slp.games.{Game, IGame, Ladder, GameFactory, LadderFactory, StandardFactory, Mode}
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
@@ -159,7 +159,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		}
 	}
 
-	def getGame: Game = {
+	def getGame: IGame = {
 		synchronized(
 			game
 		)

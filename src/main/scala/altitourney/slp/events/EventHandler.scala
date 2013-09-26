@@ -1,7 +1,7 @@
 package altitourney.slp.events
 
 import altitourney.slp.commands.CommandExecutor
-import altitourney.slp.games.Game
+import altitourney.slp.games.IGame
 import altitourney.slp.{ServerContext, SLP}
 import java.util.UUID
 import org.joda.time.DateTime
@@ -12,7 +12,7 @@ abstract class EventHandler(jsVal: JsValue) {
 		SLP.getServerContext(port)
 	}
 
-	final def getGame: Game = {
+	final def getGame: IGame = {
 		getServerContext.getGame
 	}
 
