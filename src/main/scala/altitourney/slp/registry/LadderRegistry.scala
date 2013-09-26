@@ -5,6 +5,7 @@ import play.api.libs.json.JsValue
 
 class LadderRegistry extends EventRegistry{
 	val REGISTRY: Map[String, REGISTER] = Map(
+		("start",			new Start(_)),
 		("start_random",	new StartRandom(_)),
 		("stop",			new Stop(_))
 	)
