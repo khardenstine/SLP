@@ -14,7 +14,7 @@ class Status(jsVal: JsValue) extends EventHandler(jsVal) {
 		case _ => "No ladder game or tournament currently running."
 	})
 
-	getServerContext.tournamentTeamLists.foreach{ tl =>
+	getServerContext.getTournamentTeamLists.foreach{ tl =>
 		getServerContext.serverWhisper(player, tl._1.map(getServerContext.getTournamentPlayerName).mkString("Left Team: [", ", ", "]"))
 		getServerContext.serverWhisper(player, tl._2.map(getServerContext.getTournamentPlayerName).mkString("Right Team: [", ", ", "]"))
 	}

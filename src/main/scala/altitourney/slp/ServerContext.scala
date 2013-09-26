@@ -17,7 +17,19 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 	val commandExecutor = SLP.getCommandExecutorFactory.getCommandExecutor(port)
 	private var gameFactory: GameFactory = StandardFactory
 	private var game: Game = gameFactory.buildNoGame()
-	var tournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = None
+	private var tournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = None
+
+	def getTournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = {
+		tournamentTeamLists
+	}
+
+	def clearTournamentTeamLists(): Unit = {
+		tournamentTeamLists = None
+	}
+
+	def setTournamentTeamLists(_1: Set[TournamentPlayer], _2: Set[TournamentPlayer]): Unit = {
+		tournamentTeamLists = Some(_1, _2)
+	}
 
 	def getTournamentPlayerName(player: TournamentPlayer): String = {
 		getPlayerName(player.vaporId).getOrElse(player.name)

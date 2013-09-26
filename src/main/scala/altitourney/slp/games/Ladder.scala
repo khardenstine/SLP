@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 
 abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) extends AbstractGame(startTime, map, leftTeamId, rightTeamId) {
 	def dump(gameId: UUID, endTime: DateTime, serverContext: ServerContext): Unit = {
-		val tourneyTeamLists = serverContext.tournamentTeamLists.getOrElse(sys.error("TournamentTeamList not populated for ladder, wtf?"))
+		val tourneyTeamLists = serverContext.getTournamentTeamLists.getOrElse(sys.error("TournamentTeamList not populated for ladder, wtf?"))
 
 		val leftTeamOldAvg = getTeamAvgRating(tourneyTeamLists._1)
 		val rightTeamOldAvg = getTeamAvgRating(tourneyTeamLists._2)

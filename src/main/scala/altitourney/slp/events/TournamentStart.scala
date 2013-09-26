@@ -15,7 +15,7 @@ class TournamentStart(jsVal: JsValue) extends EventHandler(jsVal) {
 	SLP.getLog.debug("Team 0: " + team0.mkString(", "))
 	SLP.getLog.debug("Team 1: " + team1.mkString(", "))
 
-	getServerContext.tournamentTeamLists = Some(team0, team1)
+	getServerContext.setTournamentTeamLists(team0, team1)
 	getServerContext.setGameFactory(new TournamentFactory)
 
 	private def getTournamentPlayers(team: String): Set[TournamentPlayer] = {
