@@ -32,7 +32,7 @@ trait EventRegistry {
 		REGISTRY.get(eventName) match {
 			case None => eventNotFound(eventName)
 			case Some(handler) =>
-				SLP.getLog.debug("Handling event: %s at %s".format(eventName, (jsVal \ "time").as[String]))
+				SLP.getLog.debug("Handling event: %s at %s".format(eventName, (jsVal \ "time").as[Int]))
 				val port = (jsVal \ "port").as[Int]
 				workWrapper(() =>
 					try {
