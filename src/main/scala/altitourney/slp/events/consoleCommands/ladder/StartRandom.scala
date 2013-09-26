@@ -5,6 +5,6 @@ import scala.util.Random
 
 class StartRandom(jsVal: JsValue) extends LadderStart(jsVal) {
 	def getMap: String = {
-		Random.shuffle(getMapList).head
+		Random.shuffle(getMapList.filter(_ != getServerContext.getLastMap)).head
 	}
 }

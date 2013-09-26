@@ -19,9 +19,14 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 	private var game: Game = gameFactory.buildNoGame()
 	private var tournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = None
 	private var priority2: Set[UUID] = Set.empty
+	private var lastMap: String = ""
 
 	def getSecondPriorityPlayers: Set[UUID] = {
 		priority2
+	}
+
+	def getLastMap: String = {
+		lastMap
 	}
 
 	def getTournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = {
@@ -152,7 +157,10 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			gameFactory = StandardFactory
 			game = gameFactory.buildNoGame()
 			finishedGame match {
-				case ladder: Ladder => priority2 = tournamentTeamLists.map(tl => tl._1++tl._2).getOrElse(Set.empty).map(_.vaporId)
+				case ladder: Ladder => {
+					priority2 = tournamentTeamLists.map(tl => tl._1++tl._2).getOrElse(Set.empty).map(_.vaporId)
+					lastMap = ladder.map
+				}
 				case _ => priority2 = Set.empty
 			}
 			finishedGame
@@ -169,6 +177,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		synchronized(
 			game = gameFactory.build(mode, dateTime, map, leftTeamId, rightTeamId)
 		)
+		lastMap = ""
 	}
 
 	def getLobbyMap = lobbyMap
