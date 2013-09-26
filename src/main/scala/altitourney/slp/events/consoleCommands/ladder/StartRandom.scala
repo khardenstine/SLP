@@ -72,8 +72,16 @@ class StartRandom(jsVal: JsValue) extends AbstractStart(jsVal) {
 	}
 
 	def buildTeams(): (Set[UUID], Set[UUID]) = {
-		val ratingsSeq = Random.shuffle(ratings.toSeq.map(v => RatingTuple(v._2, v._1)))
-		val leftTeam = ratingsSeq.slice(0, teamSize)
+		val prioritizedRatings = ratings.groupBy(rating => getServerContext.getSecondPriorityPlayers.contains(rating._1))
+		val highPriority = prioritizedRatings.get(false).getOrElse(Seq.empty)
+		val pullFromLowPriority = (teamSize * 2) - highPriority.size
+		val lowPriority = Random.shuffle(prioritizedRatings.get(true).getOrElse(Seq.empty))
+
+		val shouldPlay = highPriority ++ lowPriority.take(pullFromLowPriority)
+
+		val ratingsSeq = Random.shuffle(shouldPlay.toSeq.map(v => RatingTuple(v._2, v._1)))
+
+		val leftTeam = ratingsSeq.take(teamSize)
 		val rightTeam = ratingsSeq.slice(teamSize, teamSize * 2)
 
 		LadderUtils.balance(leftTeam, rightTeam)

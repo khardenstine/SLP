@@ -1,7 +1,7 @@
 package altitourney.slp
 
 import altitourney.slp.ServerContext.TournamentPlayer
-import altitourney.slp.games.{GameFactory, LadderFactory, StandardFactory, Mode, Game}
+import altitourney.slp.games.{Ladder, GameFactory, LadderFactory, StandardFactory, Mode, Game}
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
@@ -18,6 +18,11 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 	private var gameFactory: GameFactory = StandardFactory
 	private var game: Game = gameFactory.buildNoGame()
 	private var tournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = None
+	private var priority2: Set[UUID] = Set.empty
+
+	def getSecondPriorityPlayers: Set[UUID] = {
+		priority2
+	}
 
 	def getTournamentTeamLists: Option[(Set[TournamentPlayer], Set[TournamentPlayer])] = {
 		tournamentTeamLists
@@ -123,7 +128,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		commandExecutor.startTournament()
 	}
 
-	def addPlayer(vapor: UUID, serverPlayer: Int, playerName: String) {
+	def addPlayer(vapor: UUID, serverPlayer: Int, playerName: String): Unit = {
 		playerMap.put(serverPlayer, vapor)
 		playerNameMap.put(vapor, playerName)
 	}
@@ -136,7 +141,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		playerNameMap.put(vapor, playerName)
 	}
 
-	def clearPlayers() {
+	def clearPlayers(): Unit = {
 		playerMap.clear()
 		playerNameMap.clear()
 	}
@@ -146,6 +151,10 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			val finishedGame = game
 			gameFactory = StandardFactory
 			game = gameFactory.buildNoGame()
+			finishedGame match {
+				case ladder: Ladder => priority2 = tournamentTeamLists.map(tl => tl._1++tl._2).getOrElse(Set.empty).map(_.vaporId)
+				case _ => priority2 = Set.empty
+			}
 			finishedGame
 		}
 	}
@@ -156,7 +165,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		)
 	}
 
-	def newGame(mode: Mode, dateTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int) {
+	def newGame(mode: Mode, dateTime: DateTime, map: String, leftTeamId: Int, rightTeamId: Int): Unit = {
 		synchronized(
 			game = gameFactory.build(mode, dateTime, map, leftTeamId, rightTeamId)
 		)
