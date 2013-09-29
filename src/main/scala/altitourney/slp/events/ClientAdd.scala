@@ -1,10 +1,12 @@
 package altitourney.slp.events
 
 import altitourney.slp.SLP
+import altitourney.slp.events.ClientAdd._
 import java.sql.Timestamp
 import java.util.UUID
+import org.joda.time.DateTime
 import play.api.libs.json.JsValue
-import scala.util.{Success, Failure}
+import scala.util.{Try, Success, Failure}
 
 /**
  * {"port":27276,"demo":false,"time":105528343,"level":60,"player":2,"nickname":"{ball}Carlos","aceRank":10,
@@ -16,33 +18,44 @@ class ClientAdd(jsVal: JsValue) extends EventHandler(jsVal) {
 	getServerContext.addPlayer(vapor, getInt("player"), nickName)
 	SLP.updatePlayerName(vapor, nickName)
 
-	val welcomeNewPlayers = "Welcome to Ladder, you must read and accept the rules (type the command '/listRules') before you can play any ladder games."
-
-	SLP.preparedQuery(
-		"""
-		  |SELECT Has_accepted_rules(?);
-		""".stripMargin,
-		stmt => stmt.setString(1, vapor.toString),
-		rs => rs.getBoolean(1)
-	) match {
-		case Failure(e) => SLP.getLog.error(e)
-		case Success(rs) =>
-		    if(!rs.head)
-				getCommandExecutor.serverWhisper(nickName, welcomeNewPlayers)
+	if (getServerContext.getLadderMode.isSuccess) {
+		hasAcceptedRules(vapor) match {
+			case Failure(e) => SLP.getLog.error(e)
+			case Success(_) => getCommandExecutor.serverWhisper(nickName, WELCOME_NEW_PLAYERS)
+		}
 	}
 
-	SLP.preparedStatement(
-		"""
-		  |INSERT INTO ip_log
-		  |            (vapor_id,
-		  |             ip_address,
-		  |             insert_date)
-		  |VALUES     (?, ?, ?);
-		""".stripMargin
-	){
-		stmt =>
-			stmt.setString(1, vapor.toString)
-			stmt.setString(2, getString("ip").split(":")(0))
-			stmt.setTimestamp(3, new Timestamp(getTime.getMillis))
+	insertIPLog(vapor, getString("ip").split(":")(0), getTime)
+}
+
+object ClientAdd {
+
+	val WELCOME_NEW_PLAYERS = "Welcome to Ladder, you must read and accept the rules (type the command '/listRules') before you can play any ladder games."
+
+	def hasAcceptedRules(vapor: UUID): Try[Boolean] = {
+			SLP.preparedQuery(
+			"""
+			  |SELECT Has_accepted_rules(?);
+			""".stripMargin,
+			_.setString(1, vapor.toString),
+			_.getBoolean(1)
+		).map(!_.head)
+	}
+
+	def insertIPLog(vapor: UUID, IP_Address: String, date: DateTime): Unit = {
+		SLP.preparedStatement(
+			"""
+			  |INSERT INTO ip_log
+			  |            (vapor_id,
+			  |             ip_address,
+			  |             insert_date)
+			  |VALUES     (?, ?, ?);
+			""".stripMargin
+		){
+			stmt =>
+				stmt.setString(1, vapor.toString)
+				stmt.setString(2, IP_Address)
+				stmt.setTimestamp(3, new Timestamp(date.getMillis))
+		}
 	}
 }
