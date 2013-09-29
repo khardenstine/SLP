@@ -21,7 +21,7 @@ object Util {
 		DateTimeFormat.forPattern(formatString).print(dateTime)
 	}
 
-	def getFormattedTimeDifference(end: DateTime, start: DateTime = new DateTime()): String = {
+	def getFormattedTimeDifference(start: DateTime, end: DateTime = new DateTime()): String = {
 		PERIOD_FORMATTER.print(new Duration(start, end).toPeriod)
 	}
 
