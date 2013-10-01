@@ -1,6 +1,6 @@
 package altitourney.slp.games
 
-import altitourney.slp.ServerContext
+import altitourney.slp.{SLP, ServerContext}
 import com.google.common.collect.HashBasedTable
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -101,6 +101,7 @@ abstract class AbstractGame(val startTime: DateTime, map: String, leftTeamId: In
 	protected def dump(gameId: UUID, endTime: DateTime, serverContext: ServerContext): Unit
 
 	def record(gameId: UUID, endTime: DateTime, teamAvgRatings: Option[(RatingsChange, RatingsChange)] = None) {
+		SLP.getLog.debug("Recording metadata for game: " + gameId.toString)
 		GameUtils.recordGameMetaData(gameId, startTime, endTime, map, getVictorRosterId)
 
 		GameUtils.recordTeamScore(gameId, leftTeam, 0, teamAvgRatings.map(_._1))
