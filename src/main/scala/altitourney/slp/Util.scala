@@ -32,11 +32,11 @@ object Util {
 	}
 
 	def listToQuestionMarks[A<: Any](i: Iterable[A]): String = {
-		i.map(_ => "?").mkString(", ")
+		i.toSeq.map(_ => "?").mkString(", ")
 	}
 
 	def setListOnStatement[A<: Any](i: Iterable[A], stmt: PreparedStatement): Unit = {
-		i.zipWithIndex.foreach( v => stmt.setString(v._2 + 1, v._1.toString))
+		i.toSeq.zipWithIndex.foreach( v => stmt.setString(v._2 + 1, v._1.toString))
 	}
 
 	def setOptionalInt(index: Int, op: Option[Int])(implicit stmt: PreparedStatement): Unit = {

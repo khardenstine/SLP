@@ -1,6 +1,6 @@
 package altitourney.slp.events.consoleCommands.ladder
 
-import altitourney.slp.SLP
+import altitourney.slp.{Util, SLP}
 import altitourney.slp.events.exceptions.ServerMessageException
 import altitourney.slp.games.Mode
 import java.util.UUID
@@ -21,9 +21,11 @@ object LadderUtils {
 			  |        WHERE  vapor_id IN ( %s )) v
 			  |       LEFT JOIN ladder_ranks
 			  |              ON ladder_ranks.vapor_id = v.vapor_id;
-			""".stripMargin.format(mode, ladderStartingRating, playerList.map(p => "'" + p.toString + "'").mkString(","))
+			""".stripMargin.format(mode, ladderStartingRating, Util.listToQuestionMarks(playerList))
 
-		SLP.preparedQuery(query)(
+		SLP.preparedQuery(
+			query,
+			Util.setListOnStatement(playerList, _),
 			rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("rating"), rs.getBoolean("accepted_rules"))
 		) match {
 			case Failure(e) =>
