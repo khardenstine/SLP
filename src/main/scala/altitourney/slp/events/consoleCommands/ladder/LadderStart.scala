@@ -11,13 +11,16 @@ import scala.util.Random
 abstract class LadderStart(jsVal: JsValue) extends AbstractStart(jsVal) {
 	lazy val ratings: Map[UUID, Int] = {
 		val bucketedRatings = LadderUtils.getRatings(getMode, playerList).groupBy(_._3)
-		val cannotPlay = bucketedRatings.get(false)
-		val cannotPlayNames = getServerContext.getPlayerNames(cannotPlay.getOrElse(Seq.empty).map(_._1))
-		cannotPlayNames.map(getCommandExecutor.serverWhisper(_, "You must read and accept the rules (type the command '/listRules') before you can play any ladder games."))
-		getCommandExecutor.assignSpectate(cannotPlayNames.flatten:_*)
 
-		getCommandExecutor.serverMessage("The following players have not accepted the rules yet and cannot play:")
-		getCommandExecutor.serverMessage(cannotPlayNames.flatten.mkString(", "))
+		bucketedRatings.get(false).foreach{ cannotPlay =>
+			val cannotPlayNames = getServerContext.getPlayerNames(cannotPlay.map(_._1))
+
+			cannotPlayNames.map(getCommandExecutor.serverWhisper(_, "You must read and accept the rules (type the command '/listRules') before you can play any ladder games."))
+			getCommandExecutor.assignSpectate(cannotPlayNames.flatten:_*)
+
+			getCommandExecutor.serverMessage("The following players have not accepted the rules yet and cannot play:")
+			getCommandExecutor.serverMessage(cannotPlayNames.flatten.mkString(", "))
+		}
 
 		val canPlay = bucketedRatings.get(true).getOrElse(Seq.empty)
 		verifyEnoughPlayers(canPlay)
