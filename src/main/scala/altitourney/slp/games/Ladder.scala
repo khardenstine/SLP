@@ -60,7 +60,7 @@ abstract class Ladder(ratings: Map[UUID, Int], startTime: DateTime, map: String,
 	}
 
 	def getTeamAvgRating(players: Set[TournamentPlayer]): Int = {
-		players.map{
+		players.toSeq.map{
 			p => ratings.get(p.vaporId).getOrElse(sys.error("Could not find ranking for player: " + p.vaporId))
 		}.fold(0)(_+_) / mode.teamSize
 	}
