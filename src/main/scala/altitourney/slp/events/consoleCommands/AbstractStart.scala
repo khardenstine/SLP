@@ -18,7 +18,15 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 		SLP.getLog.error("Expected teamsize of %s, found (%s, %s).".format(teamSize, teams._1.size, teams._2.size))
 		throw new ServerMessageException("Something went wrong building the teams.  Please try again.")
 	}
-	getServerContext.assignTeams(teams)
+
+	try {
+		getServerContext.assignTeams(teams)
+	} catch {
+		case e: Exception =>
+			SLP.getLog.warn(e.getMessage)
+			throw new ServerMessageException("Something went wrong assigning the teams.  Please try again.")
+	}
+
 	if (getGame.leftPlayers != teams._1 || getGame.rightPlayers != teams._2) {
 		SLP.getLog.error("Team assigner failed.\ngame.left: %s\nbuilder.left: %s\ngame.right: %s\nbuilder.right: %s".format(
 			getGame.leftPlayers.mkString(", "),

@@ -7,7 +7,7 @@ import com.typesafe.config.Config
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import org.joda.time.DateTime
-import scala.collection.mutable
+import scala.collection.{JavaConversions, mutable}
 import scala.util.Try
 
 class ServerContext(config: Config, val port: Int, startTime: DateTime, val name: String) {
@@ -127,6 +127,11 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 
 			while(sleep) {
 				latch.await()
+			}
+
+			// Check if any of the players left while we were sleeping.
+			if (!playerMap.values().containsAll(JavaConversions.asJavaCollection(teams._1 ++ teams._2))) {
+		   		sys.error("cannot assign non-existent players")
 			}
 		}
 
