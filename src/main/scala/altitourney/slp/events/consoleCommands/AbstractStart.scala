@@ -23,19 +23,14 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 		getServerContext.assignTeams(teams)
 	} catch {
 		case e: Exception =>
-			SLP.getLog.warn(e.getMessage)
-			throw new ServerMessageException("Something went wrong assigning the teams.  Please try again.")
+			SLP.getLog.error(e.getMessage)
+			teamAssignmentError()
 	}
 
 	if (getGame.leftPlayers != teams._1 || getGame.rightPlayers != teams._2) {
-		SLP.getLog.error("Team assigner failed.\ngame.left: %s\nbuilder.left: %s\ngame.right: %s\nbuilder.right: %s".format(
-			getGame.leftPlayers.mkString(", "),
-			teams._1.mkString(", "),
-			getGame.rightPlayers.mkString(", "),
-			teams._2.mkString(", ")
-		))
-		throw new ServerMessageException("Something went wrong assigning the teams.  Please try again.")
+		teamAssignmentError()
 	}
+
 	preMapChange()
 	getCommandExecutor.changeMap(getMap)
 
@@ -44,6 +39,16 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 		{
 			throw new NotEnoughPlayers
 		}
+	}
+
+	private def teamAssignmentError(): Unit = {
+		SLP.getLog.error("Team assigner failed.\ngame.left: %s\nbuilder.left: %s\ngame.right: %s\nbuilder.right: %s".format(
+			getGame.leftPlayers.mkString(", "),
+			teams._1.mkString(", "),
+			getGame.rightPlayers.mkString(", "),
+			teams._2.mkString(", ")
+		))
+		throw new ServerMessageException("Something went wrong assigning the teams.  Please try again.")
 	}
 
 	def getMap: String
