@@ -18,10 +18,12 @@ class Logger(logFileLocation: String, logLevel: LogLevel) {
 	private def log(level: LogLevel, line: String) {
 		if (logLevel.shouldLog(level)) {
 			try {
-				val writer = new BufferedWriter(new FileWriter(LOG_FILE, true))
-				writer.write(new Date().toString + " [" + level.toString + "] " + line)
-				writer.newLine()
-				writer.close()
+				synchronized {
+					val writer = new BufferedWriter(new FileWriter(LOG_FILE, true))
+					writer.write(new Date().toString + " [" + level.toString + "] " + line)
+					writer.newLine()
+					writer.close()
+				}
 			}
 			catch {
 				case e: IOException => e.printStackTrace()
