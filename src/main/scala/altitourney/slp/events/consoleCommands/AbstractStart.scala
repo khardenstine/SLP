@@ -48,6 +48,7 @@ abstract class AbstractStart(jsVal: JsValue) extends LobbyHandler(jsVal) {
 			getGame.rightPlayers.mkString(", "),
 			teams._2.mkString(", ")
 		))
+		getCommandExecutor.stopTournament()
 		throw new ServerMessageException("Something went wrong assigning the teams.  Please try again.")
 	}
 
