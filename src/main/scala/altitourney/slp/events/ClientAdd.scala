@@ -21,7 +21,8 @@ class ClientAdd(jsVal: JsValue) extends EventHandler(jsVal) {
 	if (getServerContext.ladderMode.isSuccess) {
 		hasAcceptedRules(vapor) match {
 			case Failure(e) => SLP.getLog.error(e)
-			case Success(_) => getCommandExecutor.serverWhisper(nickName, WELCOME_NEW_PLAYERS)
+			case Success(false) => getCommandExecutor.serverWhisper(nickName, WELCOME_NEW_PLAYERS)
+			case _ =>
 		}
 	}
 
