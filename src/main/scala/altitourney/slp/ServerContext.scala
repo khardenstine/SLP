@@ -120,6 +120,7 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			latch.countDown()
 		})
 
+		val timeout = new DateTime().plusSeconds(10)
 		while (tournamentTeamLists.forall( tl => tl._1.map(_.vaporId) != teams._1 || tl._2.map(_.vaporId) != teams._2)) {
 			sleep = true
 
@@ -137,6 +138,9 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 			// Check if any of the players left or went idle while we were sleeping.
 			if ((teams._1 ++ teams._2).diff(getGame.listActivePlayers).nonEmpty) {
 		   		sys.error("cannot assign non-existent players")
+			}
+			if (timeout.isBeforeNow) {
+				sys.error("Timed out assigning teams")
 			}
 		}
 
