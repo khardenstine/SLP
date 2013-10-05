@@ -12,27 +12,32 @@ object LadderUtils {
 	val maxVariance = 100
 
 	def getRatings(mode: Mode, playerList: Set[UUID]): Map[Boolean, Seq[(UUID, Int, Boolean)]] = {
-		val query =
-			"""
-			  |SELECT v.vapor_id,
-			  |       COALESCE(ladder_ranks.%s_rating, %s)     AS rating,
-			  |       COALESCE(ladder_ranks.accepted_rules, false) AS accepted_rules
-			  |FROM   (SELECT vapor_id
-			  |        FROM   players
-			  |        WHERE  vapor_id IN ( %s )) v
-			  |       LEFT JOIN ladder_ranks
-			  |              ON ladder_ranks.vapor_id = v.vapor_id;
-			""".stripMargin.format(mode, ladderStartingRating, Util.listToQuestionMarks(playerList))
+		playerList.isEmpty match {
+			case true => Map.empty
+			case false => {
+				val query =
+					"""
+					  |SELECT v.vapor_id,
+					  |       COALESCE(ladder_ranks.%s_rating, %s)     AS rating,
+					  |       COALESCE(ladder_ranks.accepted_rules, false) AS accepted_rules
+					  |FROM   (SELECT vapor_id
+					  |        FROM   players
+					  |        WHERE  vapor_id IN ( %s )) v
+					  |       LEFT JOIN ladder_ranks
+					  |              ON ladder_ranks.vapor_id = v.vapor_id;
+					""".stripMargin.format(mode, ladderStartingRating, Util.listToQuestionMarks(playerList))
 
-		SLP.preparedQuery(
-			query,
-			Util.setListOnStatement(playerList, _),
-			rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("rating"), rs.getBoolean("accepted_rules"))
-		) match {
-			case Failure(e) =>
-				SLP.getLog.error(e)
-				throw new ServerMessageException("Error obtaining ratings.  Please try again.")
-			case Success(ratingsList) => ratingsList.groupBy(_._3)
+				SLP.preparedQuery(
+					query,
+					Util.setListOnStatement(playerList, _),
+					rs => (UUID.fromString(rs.getString("vapor_id")), rs.getInt("rating"), rs.getBoolean("accepted_rules"))
+				) match {
+					case Failure(e) =>
+						SLP.getLog.error(e)
+						throw new ServerMessageException("Error obtaining ratings.  Please try again.")
+					case Success(ratingsList) => ratingsList.groupBy(_._3)
+				}
+			}
 		}
 	}
 
