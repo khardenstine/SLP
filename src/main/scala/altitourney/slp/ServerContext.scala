@@ -1,13 +1,14 @@
 package altitourney.slp
 
 import altitourney.slp.ServerContext.TournamentPlayer
+import altitourney.slp.events.exceptions.LadderNotConfigured
 import altitourney.slp.games.{Game, IGame, Ladder, GameFactory, LadderFactory, StandardFactory, Mode}
 import com.google.common.collect.HashBiMap
 import com.typesafe.config.Config
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import org.joda.time.DateTime
-import scala.collection.{JavaConversions, mutable}
+import scala.collection.mutable
 import scala.util.Try
 
 class ServerContext(config: Config, val port: Int, startTime: DateTime, val name: String) {
@@ -60,8 +61,12 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 		)
 	}
 
-	lazy val getLadderMode: Try[Mode] = Try {
+	lazy val ladderMode: Try[Mode] = Try {
 		Mode.withName(config.getString("ladder.mode"))
+	}
+
+	def getLadderMode: Mode = {
+		ladderMode.getOrElse(throw new LadderNotConfigured())
 	}
 
 	def serverWhisper(vapor: UUID, message: String): Unit = {

@@ -8,7 +8,7 @@ import org.joda.time.DateTime
 import play.api.libs.json.JsValue
 
 abstract class EventHandler(jsVal: JsValue) {
-	final def getServerContext: ServerContext = {
+	final implicit def getServerContext: ServerContext = {
 		SLP.getServerContext(port)
 	}
 
@@ -46,5 +46,9 @@ abstract class EventHandler(jsVal: JsValue) {
 
 	final def getString(name: String): String = {
 		(jsVal \ name).as[String]
+	}
+
+	final def getSeq(name: String): Seq[JsValue] = {
+		(jsVal \ name).as[Seq[JsValue]]
 	}
 }

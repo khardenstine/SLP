@@ -2,8 +2,8 @@ package altitourney.slp
 
 import java.sql.PreparedStatement
 import java.util.UUID
-import org.joda.time.{Duration, DateTime}
 import org.joda.time.format.{DateTimeFormat, PeriodFormatterBuilder}
+import org.joda.time.{Duration, DateTime}
 
 object Util {
 	final val PERIOD_FORMATTER = new PeriodFormatterBuilder()

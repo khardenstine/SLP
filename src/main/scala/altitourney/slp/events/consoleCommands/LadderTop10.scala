@@ -2,13 +2,13 @@ package altitourney.slp.events.consoleCommands
 
 import altitourney.slp.SLP
 import altitourney.slp.events.EventHandler
-import altitourney.slp.events.exceptions.{LadderNotConfigured, ServerWhisperException}
+import altitourney.slp.events.exceptions.ServerWhisperException
 import play.api.libs.json.JsValue
 import scala.util.{Failure, Success}
 
 class LadderTop10(jsVal: JsValue) extends EventHandler(jsVal) {
 	val whisperTo = getServerContext.getPlayerName(getUUID("source"))
-	val mode = getServerContext.getLadderMode.getOrElse(throw new LadderNotConfigured())
+	val mode = getServerContext.getLadderMode
 
 	val query = """
 				  |SELECT ladder_ranks.name,

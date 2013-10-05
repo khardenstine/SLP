@@ -19,10 +19,8 @@ class TournamentStart(jsVal: JsValue) extends EventHandler(jsVal) {
 	getServerContext.setGameFactory(new TournamentFactory)
 
 	private def getTournamentPlayers(team: String): Set[TournamentPlayer] = {
-		(jsVal \ team).as[Seq[JsValue]].map{
-			v =>
-				val vapor = UUID.fromString(v.as[String])
-				TournamentPlayer(vapor, getServerContext.getPlayerName(vapor).getOrElse("NULL"))
+		getSeq(team).map(id => UUID.fromString(id.as[String])).map {
+			vapor => TournamentPlayer(vapor, getServerContext.getPlayerName(vapor).getOrElse("NULL"))
 		}.toSet
 	}
 }

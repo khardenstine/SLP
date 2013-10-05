@@ -26,7 +26,7 @@ protected class ConsoleCommandRegistry extends EventRegistry{
 		("startTournament",			EmptyRegister),
 		("status",					new Status(_)),
 		("stopTournament",			EmptyRegister),
-		("vote",					EmptyRegister)
+		("vote",					new Vote(_))
 	)
 
 	def getEventName(jsVal: JsValue): String = (jsVal \ "command").as[String]

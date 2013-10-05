@@ -1,8 +1,9 @@
 package altitourney.slp.events.consoleCommands.ladder
 
-import altitourney.slp.{Util, SLP}
+import altitourney.slp.commands.CommandExecutor
 import altitourney.slp.events.exceptions.ServerMessageException
 import altitourney.slp.games.Mode
+import altitourney.slp.{ServerContext, Util, SLP}
 import java.util.UUID
 import scala.util.{Success, Failure}
 
@@ -10,7 +11,7 @@ object LadderUtils {
 	val ladderStartingRating: Int = 1500
 	val maxVariance = 100
 
-	def getRatings(mode: Mode, playerList: Set[UUID]): Seq[(UUID, Int, Boolean)] = {
+	def getRatings(mode: Mode, playerList: Set[UUID]): Map[Boolean, Seq[(UUID, Int, Boolean)]] = {
 		val query =
 			"""
 			  |SELECT v.vapor_id,
@@ -31,7 +32,7 @@ object LadderUtils {
 			case Failure(e) =>
 				SLP.getLog.error(e)
 				throw new ServerMessageException("Error obtaining ratings.  Please try again.")
-			case Success(ratingsList) => ratingsList
+			case Success(ratingsList) => ratingsList.groupBy(_._3)
 		}
 	}
 
@@ -84,5 +85,17 @@ object LadderUtils {
 			((slt._1.map(_.player).diff(Seq(pair._1)):+pair._2.player).toSet,
 			(slt._2.map(_.player).diff(Seq(pair._2.player)):+pair._1).toSet)
 		}
+	}
+
+	def shameAndSpectate(cannotPlay: Seq[(UUID, Int, Boolean)])(implicit serverContext: ServerContext): Unit = {
+		shameAndSpectate(serverContext.getPlayerNames(cannotPlay.map(_._1)), serverContext.commandExecutor)
+	}
+
+	def shameAndSpectate(cannotPlayNames: Seq[Option[String]], commandExecutor: CommandExecutor): Unit = {
+		cannotPlayNames.map(commandExecutor.serverWhisper(_, "You must read and accept the rules (type the command '/listRules') before you can play any ladder games."))
+		commandExecutor.assignSpectate(cannotPlayNames.flatten:_*)
+
+		commandExecutor.serverMessage("The following players have not accepted the rules yet and cannot play:")
+		commandExecutor.serverMessage(cannotPlayNames.flatten.mkString(", "))
 	}
 }

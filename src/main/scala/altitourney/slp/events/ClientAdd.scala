@@ -18,7 +18,7 @@ class ClientAdd(jsVal: JsValue) extends EventHandler(jsVal) {
 	getServerContext.addPlayer(vapor, getInt("player"), nickName)
 	SLP.updatePlayerName(vapor, nickName)
 
-	if (getServerContext.getLadderMode.isSuccess) {
+	if (getServerContext.ladderMode.isSuccess) {
 		hasAcceptedRules(vapor) match {
 			case Failure(e) => SLP.getLog.error(e)
 			case Success(_) => getCommandExecutor.serverWhisper(nickName, WELCOME_NEW_PLAYERS)
