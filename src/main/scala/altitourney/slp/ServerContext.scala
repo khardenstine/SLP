@@ -129,8 +129,8 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 				latch.await()
 			}
 
-			// Check if any of the players left while we were sleeping.
-			if (!playerMap.values().containsAll(JavaConversions.asJavaCollection(teams._1 ++ teams._2))) {
+			// Check if any of the players left or went idle while we were sleeping.
+			if ((teams._1 ++ teams._2).diff(getGame.listActivePlayers).nonEmpty) {
 		   		sys.error("cannot assign non-existent players")
 			}
 		}
