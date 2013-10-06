@@ -122,9 +122,18 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 
 		val timeout = new DateTime().plusSeconds(10)
 		while (tournamentTeamLists.forall( tl => tl._1.map(_.vaporId) != teams._1 || tl._2.map(_.vaporId) != teams._2)) {
-			sleep = true
 
+			// Check if any of the players left or went idle while we were sleeping.
+			if ((teams._1 ++ teams._2).diff(getGame.listActivePlayers).nonEmpty) {
+				sys.error("cannot assign non-existent players")
+			}
+			if (timeout.isBeforeNow) {
+				sys.error("Timed out assigning teams")
+			}
+
+			sleep = true
 			SLP.getRegistryFactory.getEventRegistry.addPortedEventListener(tournamentStartListener)
+
 			commandExecutor.stopTournament()
 			commandExecutor.assignLeftTeam(teams._1:_*)
 			commandExecutor.assignRightTeam(teams._2:_*)
@@ -133,14 +142,6 @@ class ServerContext(config: Config, val port: Int, startTime: DateTime, val name
 
 			while(sleep) {
 				latch.await()
-			}
-
-			// Check if any of the players left or went idle while we were sleeping.
-			if ((teams._1 ++ teams._2).diff(getGame.listActivePlayers).nonEmpty) {
-		   		sys.error("cannot assign non-existent players")
-			}
-			if (timeout.isBeforeNow) {
-				sys.error("Timed out assigning teams")
 			}
 		}
 
