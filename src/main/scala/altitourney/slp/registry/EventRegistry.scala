@@ -31,21 +31,27 @@ trait EventRegistry {
 
 		REGISTRY.get(eventName) match {
 			case None => eventNotFound(eventName)
-			case Some(handler) =>
-				SLP.getLog.debug("Handling event: %s at %s".format(eventName, (jsVal \ "time").as[Int]))
+			case Some(handler) => {
 				val port = (jsVal \ "port").as[Int]
-				workWrapper(() =>
-					try {
-						handler(jsVal)
-					} catch {
-						case e: ConsoleCommandException => {
-							e.propagate(SLP.getServerContext(port).commandExecutor)
-						}
+				handler match {
+					case EmptyRegister => {}
+					case _ => {
+						SLP.getLog.debug("Handling event: %s at %s".format(eventName, (jsVal \ "time").as[Int]))
+						workWrapper(() =>
+							try {
+								handler(jsVal)
+							} catch {
+								case e: ConsoleCommandException => {
+									e.propagate(SLP.getServerContext(port).commandExecutor)
+								}
+							}
+						)
 					}
-				)
+				}
 				portedEventListener.synchronized(
 					portedEventListener.remove((port, eventName))
 				).foreach(_.foreach(ThreadHelper.startThread))
+			}
 		}
 	}
 
