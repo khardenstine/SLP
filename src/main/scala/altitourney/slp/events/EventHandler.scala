@@ -20,7 +20,7 @@ abstract class EventHandler(jsVal: JsValue) {
 		getServerContext.commandExecutor
 	}
 
-	final implicit val port: Int = getInt("port")
+	final val port: Int = getInt("port")
 
 	final def getTime: DateTime = {
 		getServerContext.getServerTime(getInt("time"))
