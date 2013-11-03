@@ -10,6 +10,7 @@ object Util {
 		.appendHours
 		.appendSeparator(":")
 		.minimumPrintedDigits(2)
+		.printZeroIfSupported()
 		.appendMinutes
 		.appendSeparator(":")
 		.appendSeconds
